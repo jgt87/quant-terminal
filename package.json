@@ -1,0 +1,27 @@
+{
+  "name": "quant-terminal",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "core",
+    "server",
+    "web"
+  ],
+  "scripts": {
+    "dev": "concurrently -n server,web \"npm run dev -w server\" \"npm run dev -w web\"",
+    "dev:server": "npm run dev -w server",
+    "dev:web": "npm run dev -w web",
+    "test": "vitest run",
+    "typecheck": "tsc -p core && tsc -p server --noEmit && tsc -p web --noEmit",
+    "build": "npm run build -w web",
+    "start": "npm run start -w server",
+    "test:drawings": "node tools/test-drawings.mjs"
+  },
+  "devDependencies": {
+    "typescript": "5.6.3",
+    "vitest": "2.1.8",
+    "concurrently": "9.1.0",
+    "@types/node": "22.10.2"
+  }
+}

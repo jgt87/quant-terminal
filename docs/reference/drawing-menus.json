@@ -1,0 +1,1290 @@
+{
+ "source": "Live runtime observation (signed-in session, dark theme) of the reference web chart, 2026-10-13; labels are the English UI strings.",
+ "drawingContextMenu": {
+  "description": "Right-click on a single selected drawing. Order is exact; separators shown as {separator:true}.",
+  "items": [
+   {
+    "label": "Add alert on {tool name}…",
+    "actionId": "Alert.Add",
+    "shortcutHint": "Alt + A",
+    "icon": "Alert.Add",
+    "note": "Present for tools that support alerts (see catalog contextMenuHasAddAlert); label embeds the tool name."
+   },
+   {
+    "separator": true
+   },
+   {
+    "label": "Template",
+    "actionId": "Chart.LineTool.Templates",
+    "submenu": [
+     {
+      "label": "Save as…",
+      "actionId": "Chart.LineTool.Templates.SaveAs"
+     },
+     {
+      "label": "Apply default",
+      "actionId": "Chart.LineTool.Templates.ApplyDefaults"
+     }
+    ]
+   },
+   {
+    "label": "Visual order",
+    "actionId": "Chart.Source.VisualOrder",
+    "icon": "Chart.VisualOrder",
+    "submenu": [
+     {
+      "label": "Bring to front",
+      "actionId": "Chart.Source.VisualOrder.BringToFront"
+     },
+     {
+      "label": "Send to back",
+      "actionId": "Chart.Source.VisualOrder.SendToBack"
+     },
+     {
+      "label": "Bring forward",
+      "actionId": "Chart.Source.VisualOrder.BringForward"
+     },
+     {
+      "label": "Send backward",
+      "actionId": "Chart.Source.VisualOrder.SendBackward"
+     }
+    ]
+   },
+   {
+    "label": "Visibility on intervals",
+    "actionId": "Chart.Source.IntervalsVisibility",
+    "submenu": [
+     {
+      "label": "Current interval and above",
+      "actionId": "Chart.Source.IntervalsVisibility.CurrentAndAbove"
+     },
+     {
+      "label": "Current interval and below",
+      "actionId": "Chart.Source.IntervalsVisibility.CurrentAndBelow"
+     },
+     {
+      "label": "Current interval only",
+      "actionId": "Chart.Source.IntervalsVisibility.Current"
+     },
+     {
+      "label": "All intervals",
+      "actionId": "Chart.Source.IntervalsVisibility.All"
+     }
+    ]
+   },
+   {
+    "label": "Object tree",
+    "actionId": "Chart.ObjectTree.Show"
+   },
+   {
+    "separator": true
+   },
+   {
+    "label": "Clone",
+    "actionId": "Chart.LineTool.Clone",
+    "shortcutHint": "Ctrl + Drag",
+    "icon": "Chart.Clone"
+   },
+   {
+    "label": "Copy",
+    "actionId": "Chart.Clipboard.CopyLineTools",
+    "shortcutHint": "Ctrl + C"
+   },
+   {
+    "separator": true
+   },
+   {
+    "label": "Lock",
+    "actionId": "Chart.SelectedObject.ToggleLocked",
+    "icon": "Chart.LockObject",
+    "checkable": true,
+    "checkedDefault": false
+   },
+   {
+    "label": "Hide",
+    "actionId": "Chart.SelectedObject.Hide",
+    "icon": "Chart.Hide",
+    "checkable": true,
+    "checkedDefault": false
+   },
+   {
+    "label": "Remove",
+    "actionId": "Chart.SelectedObject.Remove",
+    "shortcutHint": "Del",
+    "icon": "Chart.RemoveSelectedObject"
+   },
+   {
+    "separator": true
+   },
+   {
+    "label": "Settings…",
+    "actionId": "Chart.SelectedObject.ShowSettingsDialog",
+    "icon": "Settings"
+   }
+  ],
+  "toolSpecificExtras": {
+   "(no Add alert item)": [
+    "LineTool5PointsPattern",
+    "LineToolABCD",
+    "LineToolArc",
+    "LineToolArrowMarkDown",
+    "LineToolArrowMarker",
+    "LineToolArrowMarkUp",
+    "LineToolBalloon",
+    "LineToolBarsPattern",
+    "LineToolBezierCubic",
+    "LineToolBezierQuadro",
+    "LineToolBrush",
+    "LineToolCallout",
+    "LineToolCircle",
+    "LineToolCircleLines",
+    "LineToolComment",
+    "LineToolCrossLine",
+    "LineToolCypherPattern",
+    "LineToolDateAndPriceRange",
+    "LineToolDateRange",
+    "LineToolElliottCorrection",
+    "LineToolElliottDoubleCombo",
+    "LineToolElliottImpulse",
+    "LineToolElliottTriangle",
+    "LineToolElliottTripleCombo",
+    "LineToolEllipse",
+    "LineToolEmoji",
+    "LineToolFibChannel",
+    "LineToolFibCircles",
+    "LineToolFibSpeedResistanceArcs",
+    "LineToolFibSpeedResistanceFan",
+    "LineToolFibSpiral",
+    "LineToolFibTimeZone",
+    "LineToolFibWedge",
+    "LineToolFlagMark",
+    "LineToolGannComplex",
+    "LineToolGannFan",
+    "LineToolGannFixed",
+    "LineToolGannSquare",
+    "LineToolGhostFeed",
+    "LineToolHeadAndShoulders",
+    "LineToolHighlighter",
+    "LineToolIcon",
+    "LineToolInsidePitchfork",
+    "LineToolNote",
+    "LineToolNoteAbsolute",
+    "LineToolPath",
+    "LineToolPitchfan",
+    "LineToolPitchfork",
+    "LineToolPolyline",
+    "LineToolPrediction",
+    "LineToolPriceLabel",
+    "LineToolPriceNote",
+    "LineToolPriceRange",
+    "LineToolProjection",
+    "LineToolRotatedRectangle",
+    "LineToolSchiffPitchfork",
+    "LineToolSchiffPitchfork2",
+    "LineToolSignpost",
+    "LineToolSineLine",
+    "LineToolSticker",
+    "LineToolTable",
+    "LineToolText",
+    "LineToolTextAbsolute",
+    "LineToolTextNote",
+    "LineToolThreeDrivers",
+    "LineToolTimeCycles",
+    "LineToolTrendBasedFibTime",
+    "LineToolTriangle",
+    "LineToolTrianglePattern"
+   ],
+   "Mirrored": [
+    "LineToolBarsPattern"
+   ],
+   "Flipped": [
+    "LineToolBarsPattern"
+   ],
+   "Degree": [
+    "LineToolElliottCorrection",
+    "LineToolElliottDoubleCombo",
+    "LineToolElliottImpulse",
+    "LineToolElliottTriangle",
+    "LineToolElliottTripleCombo"
+   ],
+   "Original": [
+    "LineToolInsidePitchfork",
+    "LineToolPitchfork",
+    "LineToolSchiffPitchfork",
+    "LineToolSchiffPitchfork2"
+   ],
+   "Schiff": [
+    "LineToolInsidePitchfork",
+    "LineToolPitchfork",
+    "LineToolSchiffPitchfork",
+    "LineToolSchiffPitchfork2"
+   ],
+   "Modified Schiff": [
+    "LineToolInsidePitchfork",
+    "LineToolPitchfork",
+    "LineToolSchiffPitchfork",
+    "LineToolSchiffPitchfork2"
+   ],
+   "Inside": [
+    "LineToolInsidePitchfork",
+    "LineToolPitchfork",
+    "LineToolSchiffPitchfork",
+    "LineToolSchiffPitchfork2"
+   ],
+   "Anchor": [
+    "LineToolNote",
+    "LineToolNoteAbsolute",
+    "LineToolTable",
+    "LineToolText",
+    "LineToolTextAbsolute"
+   ],
+   "Add column to right": [
+    "LineToolTable"
+   ],
+   "Add row below": [
+    "LineToolTable"
+   ]
+  }
+ },
+ "multiSelectionContextMenu": {
+  "description": "Actions returned for a selection of two drawings (trend line + rectangle). Add alert and Template are dropped.",
+  "items": [
+   {
+    "label": "Object tree",
+    "actionId": "Chart.ObjectTree.Show"
+   },
+   {
+    "label": "Visual order",
+    "actionId": "Chart.Source.VisualOrder",
+    "icon": "Chart.VisualOrder",
+    "submenu": [
+     {
+      "label": "Bring to front",
+      "actionId": "Chart.Source.VisualOrder.BringToFront"
+     },
+     {
+      "label": "Send to back",
+      "actionId": "Chart.Source.VisualOrder.SendToBack"
+     },
+     {
+      "label": "Bring forward",
+      "actionId": "Chart.Source.VisualOrder.BringForward"
+     },
+     {
+      "label": "Send backward",
+      "actionId": "Chart.Source.VisualOrder.SendBackward"
+     }
+    ]
+   },
+   {
+    "label": "Visibility on intervals",
+    "actionId": "Chart.Source.IntervalsVisibility",
+    "submenu": [
+     {
+      "label": "Current interval and above",
+      "actionId": "Chart.Source.IntervalsVisibility.CurrentAndAbove"
+     },
+     {
+      "label": "Current interval and below",
+      "actionId": "Chart.Source.IntervalsVisibility.CurrentAndBelow"
+     },
+     {
+      "label": "Current interval only",
+      "actionId": "Chart.Source.IntervalsVisibility.Current"
+     },
+     {
+      "label": "All intervals",
+      "actionId": "Chart.Source.IntervalsVisibility.All"
+     }
+    ]
+   },
+   {
+    "separator": true
+   },
+   {
+    "label": "Clone",
+    "actionId": "Chart.LineTool.Clone",
+    "shortcutHint": "Ctrl + Drag",
+    "icon": "Chart.Clone"
+   },
+   {
+    "label": "Copy",
+    "actionId": "Chart.Clipboard.CopyLineTools",
+    "shortcutHint": "Ctrl + C"
+   },
+   {
+    "separator": true
+   },
+   {
+    "label": "Lock",
+    "actionId": "Chart.SelectedObject.ToggleLocked",
+    "icon": "Chart.LockObject",
+    "checkable": true,
+    "checkedDefault": false
+   },
+   {
+    "label": "Hide",
+    "actionId": "Chart.SelectedObject.Hide",
+    "icon": "Chart.Hide",
+    "checkable": true,
+    "checkedDefault": false
+   },
+   {
+    "label": "Remove",
+    "actionId": "Chart.SelectedObject.Remove",
+    "shortcutHint": "Del",
+    "icon": "Chart.RemoveSelectedObject"
+   },
+   {
+    "separator": true
+   },
+   {
+    "label": "Settings…",
+    "actionId": "Chart.SelectedObject.ShowSettingsDialog",
+    "icon": "Settings"
+   }
+  ]
+ },
+ "chartBackgroundContextMenu": {
+  "description": "Right-click on empty chart area while drawings exist (values such as price/symbol are examples). Drawing-related items: Paste (Ctrl + V), Object tree, Remove {n} drawings.",
+  "items": [
+   {
+    "label": "Reset chart view",
+    "hasIcon": true,
+    "shortcutHint": "Alt + R"
+   },
+   {
+    "separator": true
+   },
+   {
+    "label": "Copy price 326.02"
+   },
+   {
+    "label": "Paste",
+    "shortcutHint": "Ctrl + V"
+   },
+   {
+    "separator": true
+   },
+   {
+    "label": "Add alert on AAPL at 326.02…",
+    "hasIcon": true,
+    "shortcutHint": "Alt + A"
+   },
+   {
+    "label": "Buy 1 AAPL @ 326.02 limit",
+    "hasIcon": true,
+    "shortcutHint": "Alt + Shift + B"
+   },
+   {
+    "label": "Sell 1 AAPL @ 326.02 stop",
+    "hasIcon": true
+   },
+   {
+    "label": "Add order on AAPL at 326.02…",
+    "hasIcon": true,
+    "shortcutHint": "Shift + T"
+   },
+   {
+    "separator": true
+   },
+   {
+    "label": "Lock vertical cursor line by time"
+   },
+   {
+    "separator": true
+   },
+   {
+    "label": "Table view"
+   },
+   {
+    "label": "Object tree"
+   },
+   {
+    "label": "Chart template",
+    "submenu": "yes (contents not captured)"
+   },
+   {
+    "separator": true
+   },
+   {
+    "label": "Remove 3 drawings"
+   },
+   {
+    "separator": true
+   },
+   {
+    "label": "Settings…",
+    "hasIcon": true
+   }
+  ],
+  "drawingRelated": [
+   "Paste",
+   "Object tree",
+   "Remove {n} drawings"
+  ]
+ },
+ "visibilityOnIntervals": {
+  "menuLabel": "Visibility on intervals",
+  "options": [
+   {
+    "label": "Current interval and above",
+    "actionId": "Chart.Source.IntervalsVisibility.CurrentAndAbove"
+   },
+   {
+    "label": "Current interval and below",
+    "actionId": "Chart.Source.IntervalsVisibility.CurrentAndBelow"
+   },
+   {
+    "label": "Current interval only",
+    "actionId": "Chart.Source.IntervalsVisibility.Current"
+   },
+   {
+    "label": "All intervals",
+    "actionId": "Chart.Source.IntervalsVisibility.All"
+   }
+  ],
+  "settingsTabEquivalent": "Visibility tab: Ticks (bool), Seconds 1–59, Minutes 1–59, Hours 1–24, Days 1–366, Weeks 1–52, Months 1–12 (each: enable checkbox + from/to range with numeric inputs and a two-handle slider), Ranges (bool). Defaults: all enabled, full range."
+ },
+ "templateMenu": {
+  "contextMenuSubmenu": [
+   {
+    "label": "Save as…",
+    "actionId": "Chart.LineTool.Templates.SaveAs"
+   },
+   {
+    "label": "Apply default",
+    "actionId": "Chart.LineTool.Templates.ApplyDefaults"
+   }
+  ],
+  "floatingToolbarDropdown": [
+   {
+    "label": "Save Drawing Template As…"
+   },
+   {
+    "label": "Apply Default Drawing Template"
+   }
+  ],
+  "settingsDialogFooter": "Template dropdown button at the footer left (same save-as / apply-default actions; saved templates are listed when present).",
+  "notes": "Saved user templates for the tool type are listed in the same menu when they exist (account data, not captured)."
+ },
+ "floatingToolbar": {
+  "description": "Appears above the chart when a drawing is selected; draggable via a 24px handle on the left. Buttons 38x38 (width button 68px wide showing e.g. \"2px\").",
+  "buttonOrderMaster": [
+   "drag handle",
+   "templates",
+   "toggle-insert-cells (Table only: insert column / insert row)",
+   "line-tool-color",
+   "background-color",
+   "text-color",
+   "font-size",
+   "line-tool-width / highlighter-width",
+   "style",
+   "settings",
+   "add-alert",
+   "lock",
+   "toggle-anchor (text/note/table)",
+   "remove",
+   "more"
+  ],
+  "buttonTooltips": {
+   "templates": "Templates",
+   "line-tool-color": "Line tool colors",
+   "background-color": "Line tool backgrounds",
+   "text-color": "Line tool text colors",
+   "line-tool-width": "Line tool width",
+   "settings": "Settings",
+   "lock": "Lock",
+   "remove": "Remove",
+   "more": "More",
+   "style": "Style",
+   "add-alert": "Add Alert",
+   "font-size": "Font size",
+   "highlighter-width": "Line tool width",
+   "toggle-anchor": "Anchor drawing",
+   "toggle-insert-cells-button-Chart.SelectedObject.InsertColumnTable": "Add column to right",
+   "toggle-insert-cells-button-Chart.SelectedObject.InsertRowTable": "Add row below"
+  },
+  "layoutsByTool": {
+   "templates | line-tool-color | background-color | text-color | line-tool-width | settings | lock | remove | more": [
+    "LineTool5PointsPattern",
+    "LineToolCircle",
+    "LineToolCypherPattern",
+    "LineToolDateAndPriceRange",
+    "LineToolDateRange",
+    "LineToolEllipse",
+    "LineToolHeadAndShoulders",
+    "LineToolPriceRange",
+    "LineToolTrianglePattern"
+   ],
+   "templates | line-tool-color | text-color | line-tool-width | settings | lock | remove | more": [
+    "LineToolABCD",
+    "LineToolThreeDrivers"
+   ],
+   "templates | line-tool-color | background-color | line-tool-width | settings | lock | remove | more": [
+    "LineToolArc",
+    "LineToolRotatedRectangle",
+    "LineToolTriangle"
+   ],
+   "templates | line-tool-color | text-color | line-tool-width | style | settings | add-alert | lock | remove | more": [
+    "LineToolArrow",
+    "LineToolExtended",
+    "LineToolHorzLine",
+    "LineToolHorzRay",
+    "LineToolInfoLine",
+    "LineToolRay",
+    "LineToolTrendLine",
+    "LineToolVertLine"
+   ],
+   "templates | line-tool-color | text-color | settings | lock | remove | more": [
+    "LineToolArrowMarkDown",
+    "LineToolArrowMarkUp"
+   ],
+   "templates | background-color | text-color | settings | lock | remove | more": [
+    "LineToolArrowMarker"
+   ],
+   "templates | text-color | background-color | font-size | settings | lock | remove | more": [
+    "LineToolBalloon",
+    "LineToolCallout",
+    "LineToolComment",
+    "LineToolPriceLabel"
+   ],
+   "templates | background-color | settings | lock | remove | more": [
+    "LineToolBarsPattern",
+    "LineToolFlagMark",
+    "LineToolIcon"
+   ],
+   "templates | line-tool-color | line-tool-width | style | settings | lock | remove | more": [
+    "LineToolBezierCubic",
+    "LineToolBezierQuadro",
+    "LineToolCrossLine",
+    "LineToolFibSpeedResistanceFan",
+    "LineToolFibTimeZone",
+    "LineToolGannSquare",
+    "LineToolPath",
+    "LineToolSineLine"
+   ],
+   "templates | line-tool-color | line-tool-width | settings | lock | remove | more": [
+    "LineToolBrush",
+    "LineToolCircleLines",
+    "LineToolElliottCorrection",
+    "LineToolElliottDoubleCombo",
+    "LineToolElliottImpulse",
+    "LineToolElliottTriangle",
+    "LineToolElliottTripleCombo",
+    "LineToolFibCircles",
+    "LineToolFibSpeedResistanceArcs",
+    "LineToolFibSpiral",
+    "LineToolFibWedge",
+    "LineToolGannComplex",
+    "LineToolGannFan",
+    "LineToolGannFixed",
+    "LineToolInsidePitchfork",
+    "LineToolPitchfan",
+    "LineToolPitchfork",
+    "LineToolPrediction",
+    "LineToolSchiffPitchfork",
+    "LineToolSchiffPitchfork2",
+    "LineToolTrendBasedFibTime"
+   ],
+   "templates | line-tool-color | background-color | text-color | line-tool-width | style | settings | add-alert | lock | remove | more": [
+    "LineToolDisjointAngle",
+    "LineToolFlatBottom",
+    "LineToolRectangle"
+   ],
+   "templates | settings | lock | remove | more": [
+    "LineToolEmoji",
+    "LineToolGhostFeed",
+    "LineToolImage",
+    "LineToolSticker"
+   ],
+   "templates | line-tool-color | settings | lock | remove | more": [
+    "LineToolFibChannel"
+   ],
+   "templates | line-tool-color | line-tool-width | settings | add-alert | lock | remove | more": [
+    "LineToolFibRetracement",
+    "LineToolTrendBasedFibExtension"
+   ],
+   "templates | line-tool-color | highlighter-width | settings | lock | remove | more": [
+    "LineToolHighlighter"
+   ],
+   "templates | line-tool-color | text-color | font-size | settings | lock | toggle-anchor | remove | more": [
+    "LineToolNote",
+    "LineToolNoteAbsolute"
+   ],
+   "templates | line-tool-color | background-color | text-color | line-tool-width | settings | add-alert | lock | remove | more": [
+    "LineToolParallelChannel"
+   ],
+   "templates | line-tool-color | background-color | line-tool-width | style | settings | lock | remove | more": [
+    "LineToolPolyline",
+    "LineToolTimeCycles"
+   ],
+   "templates | line-tool-color | background-color | text-color | settings | lock | remove | more": [
+    "LineToolPriceNote",
+    "LineToolTextNote"
+   ],
+   "templates | background-color | background-color | line-tool-width | settings | lock | remove | more": [
+    "LineToolProjection"
+   ],
+   "templates | font-size | settings | lock | remove | more": [
+    "LineToolSignpost"
+   ],
+   "templates | toggle-insert-cells-button-Chart.SelectedObject.InsertColumnTable | toggle-insert-cells-button-Chart.SelectedObject.InsertRowTable | line-tool-color | background-color | text-color | settings | lock | toggle-anchor | remove | more": [
+    "LineToolTable"
+   ],
+   "templates | text-color | font-size | settings | lock | toggle-anchor | remove | more": [
+    "LineToolText",
+    "LineToolTextAbsolute"
+   ],
+   "templates | line-tool-color | line-tool-width | style | settings | add-alert | lock | remove | more": [
+    "LineToolTrendAngle"
+   ]
+  },
+  "moreMenu": [
+   {
+    "label": "Visual order",
+    "hasIcon": true,
+    "submenu": "yes (contents not captured)"
+   },
+   {
+    "label": "Visibility on intervals",
+    "submenu": "yes (contents not captured)"
+   },
+   {
+    "separator": true
+   },
+   {
+    "label": "Clone",
+    "hasIcon": true,
+    "shortcutHint": "Ctrl + Drag"
+   },
+   {
+    "label": "Copy",
+    "shortcutHint": "Ctrl + C"
+   },
+   {
+    "separator": true
+   },
+   {
+    "label": "Hide",
+    "hasIcon": true
+   }
+  ],
+  "lineStyleChoices": [
+   "Solid",
+   "Dashed",
+   "Dotted"
+  ],
+  "specialCases": "Per-tool exception lists exist for Brush, Bezier (quad/cubic), Text-like tools (Text, Anchored text, Balloon, Comment, Callout, Price label), ranges (Date, Price, Date and price), Note/Anchored note, Risk/reward long/short, Path, Regression trend, Bars pattern, Projection, Signpost."
+ },
+ "leftToolbar": {
+  "groups": [
+   {
+    "id": "linetool-group-cursors",
+    "title": "Cursors",
+    "sections": [
+     {
+      "title": null,
+      "items": [
+       {
+        "type": "cursor",
+        "label": "cursor"
+       },
+       {
+        "type": "dot",
+        "label": "dot"
+       },
+       {
+        "type": "arrow",
+        "label": "arrow"
+       },
+       {
+        "type": "demonstration",
+        "label": "demonstration"
+       }
+      ]
+     },
+     {
+      "title": null,
+      "items": [
+       {
+        "type": "eraser",
+        "label": "eraser"
+       },
+       {
+        "type": "switcher:Values tooltip on long press",
+        "label": "switcher:Values tooltip on long press"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "id": "linetool-group-trend-line",
+    "title": "Trend tools",
+    "sections": [
+     {
+      "title": "Lines",
+      "items": [
+       {
+        "type": "LineToolTrendLine",
+        "label": "Trendline",
+        "hotkey": "Alt + T"
+       },
+       {
+        "type": "LineToolRay",
+        "label": "Ray"
+       },
+       {
+        "type": "LineToolInfoLine",
+        "label": "Info line"
+       },
+       {
+        "type": "LineToolExtended",
+        "label": "Extended line"
+       },
+       {
+        "type": "LineToolTrendAngle",
+        "label": "Trend angle"
+       },
+       {
+        "type": "LineToolHorzLine",
+        "label": "Horizontal line",
+        "hotkey": "Alt + H"
+       },
+       {
+        "type": "LineToolHorzRay",
+        "label": "Horizontal ray",
+        "hotkey": "Alt + J"
+       },
+       {
+        "type": "LineToolVertLine",
+        "label": "Vertical line",
+        "hotkey": "Alt + V"
+       },
+       {
+        "type": "LineToolCrossLine",
+        "label": "Crossline",
+        "hotkey": "Alt + C"
+       }
+      ]
+     },
+     {
+      "title": "Channels",
+      "items": [
+       {
+        "type": "LineToolParallelChannel",
+        "label": "Parallel channel"
+       },
+       {
+        "type": "LineToolRegressionTrend",
+        "label": "Regression trend"
+       },
+       {
+        "type": "LineToolFlatBottom",
+        "label": "Flat top/bottom"
+       },
+       {
+        "type": "LineToolDisjointAngle",
+        "label": "Disjoint channel"
+       }
+      ]
+     },
+     {
+      "title": "Pitchforks",
+      "items": [
+       {
+        "type": "LineToolPitchfork",
+        "label": "Pitchfork"
+       },
+       {
+        "type": "LineToolSchiffPitchfork2",
+        "label": "Schiff pitchfork"
+       },
+       {
+        "type": "LineToolSchiffPitchfork",
+        "label": "Modified Schiff pitchfork"
+       },
+       {
+        "type": "LineToolInsidePitchfork",
+        "label": "Inside pitchfork"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "id": "linetool-group-gann-and-fibonacci",
+    "title": "Gann and Fibonacci tools",
+    "sections": [
+     {
+      "title": "Fibonacci",
+      "items": [
+       {
+        "type": "LineToolFibRetracement",
+        "label": "Fib retracement",
+        "hotkey": "Alt + F"
+       },
+       {
+        "type": "LineToolTrendBasedFibExtension",
+        "label": "Trend-based fib extension"
+       },
+       {
+        "type": "LineToolFibChannel",
+        "label": "Fib channel"
+       },
+       {
+        "type": "LineToolFibTimeZone",
+        "label": "Fib time zone"
+       },
+       {
+        "type": "LineToolFibSpeedResistanceFan",
+        "label": "Fib speed resistance fan"
+       },
+       {
+        "type": "LineToolTrendBasedFibTime",
+        "label": "Trend-based fib time"
+       },
+       {
+        "type": "LineToolFibCircles",
+        "label": "Fib circles"
+       },
+       {
+        "type": "LineToolFibSpiral",
+        "label": "Fib spiral"
+       },
+       {
+        "type": "LineToolFibSpeedResistanceArcs",
+        "label": "Fib speed resistance arcs"
+       },
+       {
+        "type": "LineToolFibWedge",
+        "label": "Fib wedge"
+       },
+       {
+        "type": "LineToolPitchfan",
+        "label": "Pitchfan"
+       }
+      ]
+     },
+     {
+      "title": "Gann",
+      "items": [
+       {
+        "type": "LineToolGannSquare",
+        "label": "Gann box"
+       },
+       {
+        "type": "LineToolGannFixed",
+        "label": "Gann square fixed"
+       },
+       {
+        "type": "LineToolGannComplex",
+        "label": "Gann square"
+       },
+       {
+        "type": "LineToolGannFan",
+        "label": "Gann fan"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "id": "linetool-group-patterns",
+    "title": "Patterns",
+    "sections": [
+     {
+      "title": "Chart patterns",
+      "items": [
+       {
+        "type": "LineTool5PointsPattern",
+        "label": "XABCD pattern"
+       },
+       {
+        "type": "LineToolCypherPattern",
+        "label": "Cypher pattern"
+       },
+       {
+        "type": "LineToolHeadAndShoulders",
+        "label": "Head and shoulders"
+       },
+       {
+        "type": "LineToolABCD",
+        "label": "ABCD pattern"
+       },
+       {
+        "type": "LineToolTrianglePattern",
+        "label": "Triangle pattern"
+       },
+       {
+        "type": "LineToolThreeDrivers",
+        "label": "Three drives pattern"
+       }
+      ]
+     },
+     {
+      "title": "Elliott waves",
+      "items": [
+       {
+        "type": "LineToolElliottImpulse",
+        "label": "Elliott impulse wave (1·2·3·4·5)"
+       },
+       {
+        "type": "LineToolElliottCorrection",
+        "label": "Elliott correction wave (A·B·C)"
+       },
+       {
+        "type": "LineToolElliottTriangle",
+        "label": "Elliott triangle wave (A·B·C·D·E)"
+       },
+       {
+        "type": "LineToolElliottDoubleCombo",
+        "label": "Elliott double combo wave (W·X·Y)"
+       },
+       {
+        "type": "LineToolElliottTripleCombo",
+        "label": "Elliott triple combo wave (W·X·Y·X·Z)"
+       }
+      ]
+     },
+     {
+      "title": "Cycles",
+      "items": [
+       {
+        "type": "LineToolCircleLines",
+        "label": "Cyclic lines"
+       },
+       {
+        "type": "LineToolTimeCycles",
+        "label": "Time cycles"
+       },
+       {
+        "type": "LineToolSineLine",
+        "label": "Sine line"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "id": "linetool-group-prediction-and-measurement",
+    "title": "Forecasting and measurement tools",
+    "sections": [
+     {
+      "title": "Forecasting",
+      "items": [
+       {
+        "type": "LineToolRiskRewardLong",
+        "label": "Long position"
+       },
+       {
+        "type": "LineToolRiskRewardShort",
+        "label": "Short position"
+       },
+       {
+        "type": "LineToolPrediction",
+        "label": "Position forecast"
+       },
+       {
+        "type": "LineToolBarsPattern",
+        "label": "Bars pattern"
+       },
+       {
+        "type": "LineToolGhostFeed",
+        "label": "Ghost feed"
+       },
+       {
+        "type": "LineToolProjection",
+        "label": "Sector"
+       }
+      ]
+     },
+     {
+      "title": "Volume-based",
+      "items": [
+       {
+        "type": "LineToolAnchoredVWAP",
+        "label": "Anchored VWAP"
+       },
+       {
+        "type": "LineToolFixedRangeVolumeProfile",
+        "label": "Fixed range volume profile"
+       },
+       {
+        "type": "LineToolAnchoredVolumeProfile",
+        "label": "Anchored volume profile"
+       }
+      ]
+     },
+     {
+      "title": "Measurers",
+      "items": [
+       {
+        "type": "LineToolPriceRange",
+        "label": "Price range"
+       },
+       {
+        "type": "LineToolDateRange",
+        "label": "Date range"
+       },
+       {
+        "type": "LineToolDateAndPriceRange",
+        "label": "Date and price range"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "id": "linetool-group-geometric-shapes",
+    "title": "Geometric shapes",
+    "sections": [
+     {
+      "title": "Brushes",
+      "items": [
+       {
+        "type": "LineToolBrush",
+        "label": "Brush"
+       },
+       {
+        "type": "LineToolHighlighter",
+        "label": "Highlighter"
+       }
+      ]
+     },
+     {
+      "title": "Arrows",
+      "items": [
+       {
+        "type": "LineToolArrowMarker",
+        "label": "Arrow marker"
+       },
+       {
+        "type": "LineToolArrow",
+        "label": "Arrow"
+       },
+       {
+        "type": "LineToolArrowMarkUp",
+        "label": "Arrow mark up"
+       },
+       {
+        "type": "LineToolArrowMarkDown",
+        "label": "Arrow mark down"
+       }
+      ]
+     },
+     {
+      "title": "Shapes",
+      "items": [
+       {
+        "type": "LineToolRectangle",
+        "label": "Rectangle",
+        "hotkey": "Alt + Shift + R"
+       },
+       {
+        "type": "LineToolRotatedRectangle",
+        "label": "Rotated rectangle"
+       },
+       {
+        "type": "LineToolPath",
+        "label": "Path"
+       },
+       {
+        "type": "LineToolCircle",
+        "label": "Circle"
+       },
+       {
+        "type": "LineToolEllipse",
+        "label": "Ellipse"
+       },
+       {
+        "type": "LineToolPolyline",
+        "label": "Polyline"
+       },
+       {
+        "type": "LineToolTriangle",
+        "label": "Triangle"
+       },
+       {
+        "type": "LineToolArc",
+        "label": "Arc"
+       },
+       {
+        "type": "LineToolBezierQuadro",
+        "label": "Curve"
+       },
+       {
+        "type": "LineToolBezierCubic",
+        "label": "Double curve"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "id": "linetool-group-annotation",
+    "title": "Annotation tools",
+    "sections": [
+     {
+      "title": "Text and notes",
+      "items": [
+       {
+        "type": "LineToolText",
+        "label": "Text"
+       },
+       {
+        "type": "LineToolTextNote",
+        "label": "Note"
+       },
+       {
+        "type": "LineToolPriceNote",
+        "label": "Price note"
+       },
+       {
+        "type": "LineToolNote",
+        "label": "Pin"
+       },
+       {
+        "type": "LineToolTable",
+        "label": "Table"
+       },
+       {
+        "type": "LineToolCallout",
+        "label": "Callout"
+       },
+       {
+        "type": "LineToolComment",
+        "label": "Comment"
+       },
+       {
+        "type": "LineToolPriceLabel",
+        "label": "Price label"
+       },
+       {
+        "type": "LineToolSignpost",
+        "label": "Signpost"
+       },
+       {
+        "type": "LineToolFlagMark",
+        "label": "Flag mark"
+       }
+      ]
+     },
+     {
+      "title": "Content",
+      "items": [
+       {
+        "type": "LineToolImage",
+        "label": "Image"
+       },
+       {
+        "type": "LineToolTweet",
+        "label": "Post"
+       },
+       {
+        "type": "LineToolIdea",
+        "label": "Idea"
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "groupButtonBehavior": "Each group is a 52x38 button with a small flyout arrow (11px hit area) on its right edge; clicking the arrow opens a flyout list with section headers (uppercase, 11px) and separators between sections.",
+  "flyoutItem": "Row height 40px: 28px tool icon, label, on hover a help (?) icon next to the label, hotkey hint right-aligned (when the tool has one), and a favorite star button (24x24) at the far right.",
+  "favorites": "The star toggles a tool as favorite (\"Add to favorites\" / \"Remove from favorites\"). Favorited tools appear in a separate floating Favorite Drawing Tools toolbar, toggled by \"Show Favorite Drawing Tools Toolbar\" / \"Hide Favorite Drawing Tools Toolbar\" (only available when at least one favorite exists).",
+  "fontIconsGroup": {
+   "id": "linetool-group-font-icons",
+   "defaultTooltip": "Icon",
+   "content": "Picker for Icon / Emoji / Sticker tools (LineToolIcon, LineToolEmoji, LineToolSticker); see left-toolbar-flyout-font-icons.png"
+  },
+  "groupButtonTooltipObserved": {
+   "linetool-group-cursors": "Cross",
+   "linetool-group-trend-line": "Trendline",
+   "linetool-group-gann-and-fibonacci": "Fib retracement",
+   "linetool-group-patterns": "XABCD pattern",
+   "linetool-group-prediction-and-measurement": "Long position",
+   "linetool-group-geometric-shapes": "Brush",
+   "linetool-group-annotation": "Text",
+   "linetool-group-font-icons": "Icon"
+  },
+  "groupButtonNote": "The group button shows one tool of the group (tooltip = that tool name); whether it tracks the last-used tool was not verified.",
+  "otherButtonsInOrder": [
+   {
+    "dataName": "measure",
+    "tooltip": "Measure",
+    "hint": "Shift + Click on the chart"
+   },
+   {
+    "dataName": "zoom",
+    "tooltip": "Zoom in"
+   },
+   {
+    "separator": true
+   },
+   {
+    "dataName": "magnet-button",
+    "tooltip": "Magnet mode snaps drawings placed near price bars to the closest OHLC value",
+    "hotkeyHint": "Ctrl"
+   },
+   {
+    "dataName": "drawginmode",
+    "tooltip": "Keep drawing"
+   },
+   {
+    "dataName": "lock-all",
+    "tooltip": "Lock drawings and indicators"
+   },
+   {
+    "dataName": "hide-all",
+    "tooltip": "Hide all drawings",
+    "hotkey": "Ctrl + Alt + H"
+   },
+   {
+    "separator": true
+   },
+   {
+    "dataName": "removeAllDrawingTools",
+    "tooltip": "Remove objects"
+   }
+  ],
+  "globalHotkeys": {
+   "LineToolFibRetracement": {
+    "keys": "Alt + F",
+    "action": "select the tool",
+    "description": "Draw fib retracement"
+   },
+   "LineToolHorzLine": {
+    "keys": "Alt + H",
+    "action": "draw immediately at the cursor",
+    "description": "Draw horizontal line here"
+   },
+   "LineToolHorzRay": {
+    "keys": "Alt + J",
+    "action": "draw immediately at the cursor",
+    "description": "Draw horizontal ray here"
+   },
+   "LineToolRectangle": {
+    "keys": "Alt + Shift + R",
+    "action": "select the tool",
+    "description": "Draw rectangle"
+   },
+   "LineToolTrendLine": {
+    "keys": "Alt + T",
+    "action": "select the tool",
+    "description": "Draw trendline"
+   },
+   "LineToolVertLine": {
+    "keys": "Alt + V",
+    "action": "draw immediately at the cursor",
+    "description": "Draw vertical line here"
+   },
+   "LineToolCrossLine": {
+    "keys": "Alt + C",
+    "action": "draw immediately at the cursor",
+    "description": "Draw crossline here"
+   }
+  }
+ }
+}

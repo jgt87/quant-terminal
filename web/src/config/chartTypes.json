@@ -1,0 +1,15 @@
+[
+  { "id": "candles", "label": "Candles" },
+  { "id": "hollow", "label": "Hollow candles" },
+  { "id": "bars", "label": "Bars" },
+  { "id": "line", "label": "Line" },
+  { "id": "area", "label": "Area" },
+  { "id": "baseline", "label": "Baseline" },
+  { "id": "columns", "label": "Columns" },
+  { "id": "heikin-ashi", "label": "Heikin-Ashi" },
+  { "id": "renko", "label": "Renko" },
+  { "id": "kagi", "label": "Kagi" },
+  { "id": "linebreak", "label": "Line Break" },
+  { "id": "pnf", "label": "Point & Figure" },
+  { "id": "range", "label": "Range bars" }
+]

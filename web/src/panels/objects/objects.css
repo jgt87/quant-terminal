@@ -1,0 +1,129 @@
+/* Object tree panel. Colors: theme tokens only. */
+
+.objtree-filter {
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.objtree-filter input {
+  width: 100%;
+}
+
+.objtree-pane-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 8px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-top: 1px solid var(--border);
+}
+
+.objtree-pane:first-child .objtree-pane-head {
+  border-top: 0;
+}
+
+.objtree-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding-right: 4px;
+  color: var(--text);
+  cursor: default;
+  user-select: none;
+}
+
+.objtree-row:hover {
+  background: var(--hover);
+}
+
+.objtree-row.selected {
+  background: var(--accent-soft);
+  color: var(--text-strong);
+}
+
+.objtree-row.dim .objtree-name,
+.objtree-row.dim .objtree-icon {
+  opacity: 0.5;
+}
+
+.objtree-row.group {
+  padding-left: 4px;
+  font-weight: 600;
+}
+
+.objtree-row.drop,
+.objtree-pane-head.drop {
+  outline: 1px dashed var(--accent);
+  outline-offset: -2px;
+  background: var(--accent-soft);
+}
+
+.objtree-caret {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+}
+
+.objtree-icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  color: var(--muted);
+}
+
+.objtree-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.objtree-actions {
+  display: flex;
+  gap: 1px;
+}
+
+/* Actions appear on hover; active states (locked, hidden) stay visible. */
+.objtree-actions .icon-btn {
+  opacity: 0;
+}
+
+.objtree-row:hover .objtree-actions .icon-btn,
+.objtree-row.selected .objtree-actions .icon-btn,
+.objtree-row:focus-within .objtree-actions .icon-btn,
+.objtree-actions .icon-btn[aria-pressed="true"] {
+  opacity: 1;
+}
+
+.objtree-actions .icon-btn {
+  width: 24px;
+  height: 24px;
+}
+
+.objtree-actions .icon-btn[aria-pressed="true"] {
+  color: var(--accent);
+}
+
+.objtree-rename {
+  flex: 1;
+  min-width: 0;
+  height: 22px;
+}
+
+.objtree-hint {
+  padding: 6px 12px;
+  color: var(--dim);
+  font-size: 11px;
+}

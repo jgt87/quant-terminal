@@ -1,0 +1,11 @@
+[
+  { "id": "newTab", "keys": "Alt+N", "label": "New tab", "browser": "Ctrl+T", "note": "Alt+T draws a trend line on the chart" },
+  { "id": "closeTab", "keys": "Alt+W", "label": "Close tab", "browser": "Ctrl+W" },
+  { "id": "reopenTab", "keys": "Alt+Shift+T", "label": "Reopen closed tab", "browser": "Ctrl+Shift+T" },
+  { "id": "duplicateTab", "keys": "Alt+Shift+D", "label": "Duplicate tab" },
+  { "id": "nextTab", "keys": "Alt+PageDown", "label": "Next tab", "browser": "Ctrl+Tab" },
+  { "id": "prevTab", "keys": "Alt+PageUp", "label": "Previous tab", "browser": "Ctrl+Shift+Tab" },
+  { "id": "goToTab", "keys": "Alt+1..9", "label": "Go to tab 1 to 8, 9 = last tab", "browser": "Ctrl+1..9" },
+  { "id": "maximizeCell", "keys": "Alt+Enter", "label": "Maximize or restore the active chart" },
+  { "id": "help", "keys": "?", "label": "Keyboard shortcuts" }
+]

@@ -1,0 +1,128 @@
+{
+ "id": "crypto-top",
+ "name": "Top crypto (Binance USDT)",
+ "description": "30 large crypto assets quoted in USDT on Binance (static list).",
+ "asOf": "2026-10-13",
+ "symbols": [
+  {
+   "symbol": "BINANCE:BTCUSDT",
+   "name": "Bitcoin / USDT"
+  },
+  {
+   "symbol": "BINANCE:ETHUSDT",
+   "name": "Ethereum / USDT"
+  },
+  {
+   "symbol": "BINANCE:BNBUSDT",
+   "name": "BNB / USDT"
+  },
+  {
+   "symbol": "BINANCE:SOLUSDT",
+   "name": "Solana / USDT"
+  },
+  {
+   "symbol": "BINANCE:XRPUSDT",
+   "name": "XRP / USDT"
+  },
+  {
+   "symbol": "BINANCE:DOGEUSDT",
+   "name": "Dogecoin / USDT"
+  },
+  {
+   "symbol": "BINANCE:ADAUSDT",
+   "name": "Cardano / USDT"
+  },
+  {
+   "symbol": "BINANCE:TRXUSDT",
+   "name": "TRON / USDT"
+  },
+  {
+   "symbol": "BINANCE:AVAXUSDT",
+   "name": "Avalanche / USDT"
+  },
+  {
+   "symbol": "BINANCE:LINKUSDT",
+   "name": "Chainlink / USDT"
+  },
+  {
+   "symbol": "BINANCE:DOTUSDT",
+   "name": "Polkadot / USDT"
+  },
+  {
+   "symbol": "BINANCE:TONUSDT",
+   "name": "Toncoin / USDT"
+  },
+  {
+   "symbol": "BINANCE:SUIUSDT",
+   "name": "Sui / USDT"
+  },
+  {
+   "symbol": "BINANCE:LTCUSDT",
+   "name": "Litecoin / USDT"
+  },
+  {
+   "symbol": "BINANCE:BCHUSDT",
+   "name": "Bitcoin Cash / USDT"
+  },
+  {
+   "symbol": "BINANCE:XLMUSDT",
+   "name": "Stellar / USDT"
+  },
+  {
+   "symbol": "BINANCE:SHIBUSDT",
+   "name": "Shiba Inu / USDT"
+  },
+  {
+   "symbol": "BINANCE:HBARUSDT",
+   "name": "Hedera / USDT"
+  },
+  {
+   "symbol": "BINANCE:UNIUSDT",
+   "name": "Uniswap / USDT"
+  },
+  {
+   "symbol": "BINANCE:NEARUSDT",
+   "name": "NEAR Protocol / USDT"
+  },
+  {
+   "symbol": "BINANCE:APTUSDT",
+   "name": "Aptos / USDT"
+  },
+  {
+   "symbol": "BINANCE:PEPEUSDT",
+   "name": "Pepe / USDT"
+  },
+  {
+   "symbol": "BINANCE:AAVEUSDT",
+   "name": "Aave / USDT"
+  },
+  {
+   "symbol": "BINANCE:ICPUSDT",
+   "name": "Internet Computer / USDT"
+  },
+  {
+   "symbol": "BINANCE:ETCUSDT",
+   "name": "Ethereum Classic / USDT"
+  },
+  {
+   "symbol": "BINANCE:FILUSDT",
+   "name": "Filecoin / USDT"
+  },
+  {
+   "symbol": "BINANCE:ATOMUSDT",
+   "name": "Cosmos / USDT"
+  },
+  {
+   "symbol": "BINANCE:ARBUSDT",
+   "name": "Arbitrum / USDT"
+  },
+  {
+   "symbol": "BINANCE:OPUSDT",
+   "name": "Optimism / USDT"
+  },
+  {
+   "symbol": "BINANCE:INJUSDT",
+   "name": "Injective / USDT"
+  }
+ ]
+}

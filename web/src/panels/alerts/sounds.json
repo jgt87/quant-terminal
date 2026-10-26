@@ -1,0 +1,6 @@
+{
+  "chime": { "label": "Chime", "wave": "sine", "notes": [[880, 0.12], [1320, 0.22]] },
+  "beep": { "label": "Beep", "wave": "square", "notes": [[1000, 0.09], [0, 0.06], [1000, 0.09]] },
+  "alarm": { "label": "Alarm", "wave": "sawtooth", "notes": [[660, 0.14], [880, 0.14], [660, 0.14], [880, 0.14]] },
+  "ping": { "label": "Ping", "wave": "triangle", "notes": [[1568, 0.3]] }
+}

@@ -1,0 +1,10 @@
+{
+  "macd": { "macd": "#2962ff", "signal": "#ff9800" },
+  "bb": { "basis": "#ff9800", "upper": "#2962ff", "lower": "#2962ff", "fill": "rgba(41,98,255,0.08)" },
+  "donchian": { "upper": "#2962ff", "basis": "#2962ff", "lower": "#2962ff", "fill": "rgba(41,98,255,0.08)" },
+  "rsi": { "rsi": "#9c27b0", "levelFill": "rgba(156,39,176,0.08)" },
+  "stoch": { "k": "#9c27b0", "d": "#ff9800", "levelFill": "rgba(156,39,176,0.08)" },
+  "vwap": { "vwap": "#ff9800" },
+  "obv": { "obv": "#2962ff" },
+  "atr": { "atr": "#ef5350" }
+}

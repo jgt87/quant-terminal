@@ -1,0 +1,20 @@
+[
+  {
+    "id": "example-sma-ribbon",
+    "name": "SMA ribbon",
+    "kind": "indicator",
+    "source": "// SMA ribbon: six simple moving averages from fast to slow.\nconst lengths = [10, 20, 30, 40, 50, 60];\nfor (const n of lengths) {\n  plot(\"sma\" + n, ta.sma(close, n), { title: \"SMA \" + n, style: \"line\" });\n}\nlog(\"Ribbon over\", bars.length, \"bars; last close\", close[close.length - 1]);\n"
+  },
+  {
+    "id": "example-rsi-divergence",
+    "name": "RSI divergence markers",
+    "kind": "indicator",
+    "source": "// Custom RSI with divergence markers.\n// A swing low/high is confirmed `look` bars after it happens, so markers are for review only.\nconst len = 14;\nconst look = 5;\nconst r = ta.rsi(close, len);\nplot(\"rsi\", r, { title: \"RSI \" + len, pane: \"separate\" });\n\nconst bull = new Array(bars.length).fill(null);\nconst bear = new Array(bars.length).fill(null);\nlet lastLow = null;\nlet lastHigh = null;\nfor (let i = look; i < bars.length - look; i++) {\n  if (r[i] === null) continue;\n  let isLow = true;\n  let isHigh = true;\n  for (let k = i - look; k <= i + look; k++) {\n    if (low[k] < low[i]) isLow = false;\n    if (high[k] > high[i]) isHigh = false;\n  }\n  if (isLow) {\n    // Price makes a lower low while RSI makes a higher low: bullish divergence.\n    if (lastLow && low[i] < low[lastLow.i] && r[i] > lastLow.r) bull[i] = r[i];\n    lastLow = { i, r: r[i] };\n  }\n  if (isHigh) {\n    // Price makes a higher high while RSI makes a lower high: bearish divergence.\n    if (lastHigh && high[i] > high[lastHigh.i] && r[i] < lastHigh.r) bear[i] = r[i];\n    lastHigh = { i, r: r[i] };\n  }\n}\nplot(\"bullDiv\", bull, { title: \"Bullish divergence\", style: \"dots\", pane: \"separate\" });\nplot(\"bearDiv\", bear, { title: \"Bearish divergence\", style: \"dots\", pane: \"separate\" });\nlog(bull.filter((v) => v !== null).length, \"bullish /\", bear.filter((v) => v !== null).length, \"bearish divergences\");\n"
+  },
+  {
+    "id": "example-breakout",
+    "name": "Breakout strategy",
+    "kind": "strategy",
+    "source": "// Breakout strategy: go long when the close breaks above the highest high of the previous\n// 20 bars; exit when it closes below the lowest low of the previous 10 bars.\n// signal(i, ...) on bar i is filled at the open of bar i + 1 by the backtester.\nconst entryLen = 20;\nconst exitLen = 10;\nconst upper = ta.highest(high, entryLen);\nconst lower = ta.lowest(low, exitLen);\nplot(\"upper\", upper, { title: \"Highest \" + entryLen });\nplot(\"lower\", lower, { title: \"Lowest \" + exitLen });\n\nlet long = false;\nfor (let i = 1; i < bars.length; i++) {\n  const hi = upper[i - 1];\n  const lo = lower[i - 1];\n  if (!long && hi !== null && close[i] > hi) {\n    signal(i, \"enter-long\");\n    long = true;\n  } else if (long && lo !== null && close[i] < lo) {\n    signal(i, \"exit\");\n    long = false;\n  }\n}\n"
+  }
+]

@@ -1,0 +1,42 @@
+/* Application grid: toolbar on top, workspace tabs under it, drawing tools left, chart grid
+   center, watchlist right, backtest panel under the charts. */
+.app {
+  display: grid;
+  height: 100%;
+  grid-template-columns: var(--toolbar-btn-w) minmax(0, 1fr) 0;
+  grid-template-rows: 38px 30px minmax(0, 1fr) auto;
+  grid-template-areas:
+    "top top top"
+    "tabs tabs tabs"
+    "tools chart watch"
+    "tools bt watch";
+  background: var(--bg);
+}
+
+.app.with-watchlist {
+  grid-template-columns: var(--toolbar-btn-w) minmax(0, 1fr) 288px;
+}
+
+.top-toolbar {
+  grid-area: top;
+}
+
+.draw-toolbar {
+  grid-area: tools;
+}
+
+.chart-area {
+  grid-area: chart;
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  border-left: 1px solid var(--border);
+}
+
+.watchlist {
+  grid-area: watch;
+}
+
+.backtest {
+  grid-area: bt;
+}

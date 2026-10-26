@@ -1,0 +1,111 @@
+/* The one menu style: context menus, submenus, toolbar dropdowns, flyouts and popovers share
+   these tokens (theme.css): item height, icon column, label, shortcut column, submenu arrow,
+   separators, section headers, check marks, hover and disabled states. */
+.ctx-menu {
+  position: fixed;
+  z-index: 200;
+  min-width: var(--menu-min-w);
+  max-width: 420px;
+  max-height: calc(100vh - 16px);
+  overflow-y: auto;
+  padding: var(--menu-pad-y) 0;
+  border: 1px solid var(--menu-border);
+  border-radius: var(--menu-radius);
+  background: var(--raised);
+  box-shadow: var(--menu-shadow);
+  color: var(--text);
+  font-size: var(--menu-font);
+  outline: none;
+  user-select: none;
+}
+
+.ctx-menu:focus,
+.ctx-menu:focus-visible {
+  outline: none;
+}
+
+.ctx-item {
+  display: grid;
+  grid-template-columns: calc(var(--icon-size) + 8px) minmax(0, 1fr) auto 20px;
+  align-items: center;
+  height: var(--menu-row-h);
+  padding: 0;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.ctx-item.active {
+  background: var(--menu-hover);
+  color: var(--text-strong);
+}
+
+.ctx-item:active {
+  background: var(--menu-pressed);
+}
+
+.ctx-item.disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.ctx-item.disabled.active {
+  background: transparent;
+}
+
+.ctx-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding-left: 8px;
+  color: var(--muted);
+}
+
+.ctx-check > svg {
+  width: var(--icon-size);
+  height: var(--icon-size);
+  flex: none;
+}
+
+.ctx-item.active .ctx-check {
+  color: var(--text-strong);
+}
+
+.ctx-check.on,
+.ctx-item.active .ctx-check.on {
+  color: var(--accent);
+}
+
+.ctx-label {
+  padding-left: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ctx-shortcut {
+  margin-left: 10px;
+  padding-top: 2px;
+  color: var(--menu-hint);
+  font-size: var(--menu-hint-font);
+  text-align: right;
+}
+
+.ctx-arrow {
+  display: inline-flex;
+  margin-left: 6px;
+  color: var(--muted);
+}
+
+.ctx-sep {
+  height: 1px;
+  margin: 6px 0;
+  background: var(--menu-separator);
+}
+
+.ctx-header {
+  padding: 6px var(--menu-pad-x) 4px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}

@@ -1,0 +1,9 @@
+[
+  { "id": "watchlist", "label": "Watchlist", "icon": "watchlist", "key": "1", "width": 300 },
+  { "id": "alerts", "label": "Alerts", "icon": "alerts", "key": "2", "width": 340 },
+  { "id": "screener", "label": "Screener", "icon": "screener", "key": "3", "width": 520 },
+  { "id": "portfolio", "label": "Portfolio", "icon": "portfolio", "key": "4", "width": 480 },
+  { "id": "paper", "label": "Paper trading (simulated)", "icon": "paper", "key": "5", "width": 420 },
+  { "id": "scripts", "label": "Scripts", "icon": "scripts", "key": "6", "width": 520 },
+  { "id": "objects", "label": "Object tree", "icon": "objectTree", "key": "7", "width": 320 }
+]

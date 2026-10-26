@@ -1,0 +1,125 @@
+/* UI color tokens: the single source of truth for the DOM. Dark is the default; the app shell
+   sets data-theme on <html>. Canvas colors live in config/chartTheme.json (same values). */
+:root,
+[data-theme="dark"] {
+  --bg: #131722;
+  --panel: #1e222d;
+  --panel-2: #171b26;
+  --raised: #262a35;
+  --hover: #2a2e39;
+  --active: #363a45;
+  --border: #2a2e39;
+  --border-strong: #363a45;
+  --text: #d1d4dc;
+  --text-strong: #f0f3fa;
+  --muted: #787b86;
+  --dim: #5d606b;
+  --accent: #3b82f6;
+  --accent-hover: #60a5fa;
+  --accent-fg: #ffffff;
+  --accent-soft: rgba(59, 130, 246, 0.16);
+  --up: #26a69a;
+  --down: #ef5350;
+  --pos: var(--up);
+  --neg: var(--down);
+  --focus: var(--accent);
+  --overlay: rgba(19, 23, 34, 0.88);
+  --backdrop: rgba(0, 0, 0, 0.55);
+  --shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
+  /* Chart link-group colors (workspace). */
+  --link-red: #ef5350;
+  --link-orange: #ff9800;
+  --link-yellow: #fdd835;
+  --link-green: #26a69a;
+  --link-cyan: #00bcd4;
+  --link-blue: #3b82f6;
+  --link-purple: #ab47bc;
+  --link-pink: #ec407a;
+  --link-grey: #9598a1;
+  /* Menus, popovers, dialogs, floating toolbars. */
+  --menu-shadow: 0 2px 4px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.28);
+  --menu-border: #363a45;
+  --menu-hover: #2a2e39;
+  --menu-pressed: #363a45;
+  --menu-hint: #6a6d78;
+  --menu-separator: #363a45;
+  --field-bg: #1e222d;
+  --control-border: #4a4e5a;
+  --swatch-border: rgba(255, 255, 255, 0.12);
+  color-scheme: dark;
+}
+
+[data-theme="light"] {
+  --bg: #ffffff;
+  --panel: #f0f3fa;
+  --panel-2: #ffffff;
+  --raised: #ffffff;
+  --hover: #e0e3eb;
+  --active: #d1d4dc;
+  --border: #e0e3eb;
+  --border-strong: #d1d4dc;
+  --text: #131722;
+  --text-strong: #000000;
+  --muted: #787b86;
+  --dim: #9598a1;
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --accent-fg: #ffffff;
+  --accent-soft: rgba(37, 99, 235, 0.12);
+  --up: #26a69a;
+  --down: #ef5350;
+  --pos: var(--up);
+  --neg: var(--down);
+  --focus: var(--accent);
+  --overlay: rgba(255, 255, 255, 0.92);
+  --backdrop: rgba(19, 23, 34, 0.35);
+  --shadow: 0 12px 32px rgba(19, 23, 34, 0.18);
+  --link-red: #e53935;
+  --link-orange: #f57c00;
+  --link-yellow: #f9a825;
+  --link-green: #00897b;
+  --link-cyan: #0097a7;
+  --link-blue: #2563eb;
+  --link-purple: #8e24aa;
+  --link-pink: #d81b60;
+  --link-grey: #787b86;
+  --menu-shadow: 0 2px 4px rgba(19, 23, 34, 0.2), 0 8px 24px rgba(19, 23, 34, 0.1);
+  --menu-border: #e0e3eb;
+  --menu-hover: #f0f3fa;
+  --menu-pressed: #e0e3eb;
+  --menu-hint: #9598a1;
+  --menu-separator: #e0e3eb;
+  --field-bg: #ffffff;
+  --control-border: #c9ccd4;
+  --swatch-border: rgba(19, 23, 34, 0.14);
+  color-scheme: light;
+}
+
+/* One visual language for menus, popovers, dialogs, floating toolbars and flyouts (sizes shared
+   by both themes; colors above). Numbers follow docs/reference/drawing-ui-style.md. */
+:root {
+  --menu-item-h: 32px;
+  --menu-font: 14px;
+  --menu-hint-font: 12px;
+  --menu-radius: 6px;
+  --menu-pad-y: 6px;
+  --menu-pad-x: 12px;
+  --menu-icon-col: 36px;
+  --menu-min-w: 240px;
+  --dialog-width: 380px;
+  --dialog-radius: 6px;
+  --dialog-pad: 20px;
+  --row-h: 50px;
+  --control-h: 34px;
+  --control-radius: 8px;
+  --swatch-w: 52px;
+  --swatch-h: 34px;
+  --floatbar-h: 38px;
+  --floatbar-cell: 38px;
+  --flyout-row-h: 40px;
+  --toolbar-btn-w: 52px;
+  --toolbar-btn-h: 38px;
+  --lefttoolbar-w: 52px;
+  --icon-size: 28px;
+  --menu-row-h: 32px;
+}

@@ -1,0 +1,103 @@
+/* Paper trading panel (simulated). */
+
+.pp-badge {
+  padding: 1px 6px;
+  border: 1px dashed var(--link-orange);
+  border-radius: 3px;
+  color: var(--link-orange);
+  font-size: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.pp-select {
+  max-width: 140px;
+}
+
+.pp-equity {
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.pp-ticket {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.pp-sides {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+}
+
+.pp-side {
+  height: 26px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--panel-2);
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.pp-side.buy.on {
+  border-color: var(--pos);
+  background: var(--pos);
+  color: var(--accent-fg);
+}
+
+.pp-side.sell.on {
+  border-color: var(--neg);
+  background: var(--neg);
+  color: var(--accent-fg);
+}
+
+.pp-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.pp-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.pp-grid input,
+.pp-grid select {
+  width: 100%;
+}
+
+.pp-submit {
+  justify-content: center;
+  font-weight: 600;
+  color: var(--accent-fg);
+}
+
+.pp-submit.buy,
+.pp-submit.buy:hover:not(:disabled) {
+  border-color: var(--pos);
+  background: var(--pos);
+  color: var(--accent-fg);
+}
+
+.pp-submit.sell,
+.pp-submit.sell:hover:not(:disabled) {
+  border-color: var(--neg);
+  background: var(--neg);
+  color: var(--accent-fg);
+}
+
+.pp-submit:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+.pp-close {
+  height: 20px;
+  padding: 0 8px;
+}

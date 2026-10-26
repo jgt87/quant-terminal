@@ -1,0 +1,276 @@
+/* Alerts panel and dialog. */
+
+.al-list,
+.al-log {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.al-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 7px 6px 7px 10px;
+  border-bottom: 1px solid var(--border);
+  border-left: 2px solid transparent;
+}
+
+.al-item:hover,
+.al-item:focus-within {
+  background: var(--hover);
+}
+
+.al-item.off {
+  color: var(--muted);
+}
+
+.al-item.err {
+  border-left-color: var(--neg);
+}
+
+.al-item > input {
+  margin-top: 2px;
+}
+
+.al-item-main {
+  flex: 1;
+  min-width: 0;
+  cursor: pointer;
+}
+
+.al-item-head {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.al-sym {
+  font-weight: 600;
+  color: var(--text-strong);
+}
+
+.al-item.off .al-sym {
+  color: var(--muted);
+}
+
+.al-iv {
+  padding: 0 4px;
+  border-radius: 3px;
+  background: var(--active);
+  color: var(--text);
+  font-size: 10px;
+}
+
+.al-name {
+  overflow: hidden;
+  color: var(--text);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.al-item-cond {
+  margin-top: 2px;
+  overflow-wrap: anywhere;
+}
+
+.al-item-meta {
+  margin-top: 1px;
+  font-size: 11px;
+}
+
+.al-item-err {
+  margin-top: 2px;
+  color: var(--neg);
+  font-size: 11px;
+}
+
+.al-item-actions {
+  display: flex;
+  visibility: hidden;
+}
+
+.al-item:hover .al-item-actions,
+.al-item:focus-within .al-item-actions {
+  visibility: visible;
+}
+
+.al-ev {
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border);
+  border-left: 2px solid transparent;
+  cursor: pointer;
+}
+
+.al-ev:hover {
+  background: var(--hover);
+}
+
+.al-ev.unread {
+  border-left-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.al-ev-head {
+  display: flex;
+  gap: 8px;
+  font-size: 11px;
+}
+
+.al-ev-msg {
+  margin-top: 2px;
+  color: var(--text-strong);
+  overflow-wrap: anywhere;
+}
+
+.al-ev:not(.unread) .al-ev-msg {
+  color: var(--text);
+}
+
+/* ---------- Dialog ---------- */
+
+.al-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.al-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.al-line > label,
+.al-msg {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.al-line > label.grow {
+  flex: 1;
+  min-width: 160px;
+}
+
+.al-line > label.al-check,
+.al-check {
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  color: var(--text);
+  font-size: 12px;
+}
+
+.al-section-title {
+  margin-top: 4px;
+  color: var(--text-strong);
+  font-weight: 600;
+}
+
+.al-cond {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 6px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--panel);
+}
+
+.al-cond-tag {
+  min-width: 32px;
+  padding-top: 4px;
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.al-cond-body {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.al-operand {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+
+.al-num {
+  width: 90px;
+  text-align: right;
+}
+
+.al-num.small {
+  width: 58px;
+}
+
+.al-op {
+  font-weight: 600;
+}
+
+.al-add {
+  align-self: flex-start;
+}
+
+.al-msg textarea {
+  min-height: 44px;
+  padding: 4px 6px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--panel-2);
+  color: var(--text-strong);
+  font: inherit;
+  resize: vertical;
+}
+
+.al-chip {
+  margin-left: 4px;
+  padding: 0 5px;
+  border: 1px solid var(--border-strong);
+  border-radius: 3px;
+  background: var(--panel);
+  color: var(--text);
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 10px;
+}
+
+.al-chip:hover {
+  background: var(--hover);
+}
+
+.al-notify {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 6px 8px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.al-notify legend {
+  padding: 0 4px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.al-errors {
+  margin: 0;
+  padding: 6px 8px 6px 24px;
+  border-left: 2px solid var(--neg);
+  background: var(--panel);
+  color: var(--neg);
+}
+
+.al-foot-hint {
+  font-size: 11px;
+}

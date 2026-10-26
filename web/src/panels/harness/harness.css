@@ -1,0 +1,23 @@
+/* Stand-in shell of panels.html. */
+
+.harness {
+  grid-template-rows: 38px minmax(0, 1fr);
+  grid-template-areas:
+    "top top watch"
+    "tools chart watch";
+}
+
+.harness-top {
+  grid-area: top;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 10px;
+  border-bottom: 1px solid var(--border);
+  background: var(--panel);
+}
+
+.harness-chart {
+  grid-area: chart;
+  padding: 12px;
+}

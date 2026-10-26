@@ -1,0 +1,285 @@
+.backtest {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border-top: 1px solid var(--border);
+  border-left: 1px solid var(--border);
+  background: var(--panel);
+}
+
+.backtest.open {
+  height: 330px;
+}
+
+.bt-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 34px;
+  padding: 0 8px;
+  flex: none;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.bt-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 8px 0 4px;
+  border: 0;
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--text-strong);
+  font-weight: 600;
+}
+
+.bt-toggle:hover {
+  background: var(--hover);
+}
+
+.bt-tabs {
+  display: flex;
+  gap: 2px;
+}
+
+.bt-tabs button {
+  height: 26px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--muted);
+}
+
+.bt-tabs button:hover {
+  color: var(--text-strong);
+}
+
+.bt-tabs button.active {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.bt-ranon {
+  color: var(--dim);
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bt-error {
+  color: var(--text-strong);
+  font-style: italic;
+}
+
+.bt-body {
+  display: grid;
+  grid-template-columns: minmax(480px, 0.95fr) minmax(0, 1.4fr);
+  min-height: 0;
+  flex: 1;
+}
+
+.bt-form {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  padding: 10px 12px;
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+}
+
+.bt-form section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.bt-form h3 {
+  margin: 0 0 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--dim);
+}
+
+.bt-form .form-row {
+  grid-template-columns: minmax(0, 1fr) 82px;
+}
+
+.bt-form section:first-child .form-row:first-of-type {
+  grid-template-columns: 1fr;
+}
+
+.bt-form section:first-child .form-row:first-of-type > span {
+  display: none;
+}
+
+.bt-desc {
+  margin: 0 0 4px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.bt-results {
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+}
+
+.bt-overview {
+  display: grid;
+  grid-template-columns: minmax(300px, 1fr) minmax(0, 1.3fr);
+  height: 100%;
+}
+
+.bt-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2px;
+  margin: 0;
+  padding: 10px;
+  align-content: start;
+}
+
+.metric {
+  padding: 4px 6px;
+  border-radius: 3px;
+  background: var(--panel-2);
+}
+
+.metric dt {
+  color: var(--dim);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.metric dd {
+  margin: 0;
+  color: var(--text-strong);
+  font-weight: 600;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.metric.pos dd {
+  color: var(--pos);
+}
+
+.metric.neg dd {
+  color: var(--neg);
+}
+
+.bt-equity {
+  position: relative;
+  min-height: 180px;
+  margin: 10px 10px 10px 0;
+}
+
+.bt-equity canvas {
+  position: absolute;
+  inset: 0;
+}
+
+.bt-empty {
+  padding: 14px;
+  margin: 0;
+}
+
+.bt-table-wrap {
+  overflow: auto;
+}
+
+.bt-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+
+.bt-table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 5px 8px;
+  background: var(--panel);
+  color: var(--dim);
+  font-weight: 500;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.bt-table td {
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.bt-table tbody tr {
+  cursor: pointer;
+}
+
+.bt-table tbody tr:hover td {
+  background: var(--hover);
+}
+
+.bt-table td.neg {
+  color: var(--neg);
+}
+
+.bt-table td.pos {
+  color: var(--pos);
+}
+
+.bt-table .r {
+  text-align: right;
+}
+
+.sweep {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+}
+
+.sweep-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+}
+
+.sweep-axis {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sweep-axis .num {
+  width: 64px;
+}
+
+.sweep-label {
+  color: var(--dim);
+  min-width: 14px;
+}
+
+.sweep-grid tbody th {
+  position: static;
+  font-variant-numeric: tabular-nums;
+}
+
+.sweep-cell {
+  cursor: pointer;
+}
+
+.sweep-cell:hover {
+  outline: 1px solid var(--accent);
+  outline-offset: -1px;
+}

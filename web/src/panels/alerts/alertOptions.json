@@ -1,0 +1,28 @@
+{
+  "operators": [
+    { "id": "crosses", "label": "Crossing" },
+    { "id": "crosses-up", "label": "Crossing up" },
+    { "id": "crosses-down", "label": "Crossing down" },
+    { "id": "greater", "label": "Greater than" },
+    { "id": "less", "label": "Less than" },
+    { "id": "enters-channel", "label": "Entering channel" },
+    { "id": "exits-channel", "label": "Exiting channel" },
+    { "id": "moving-up-pct", "label": "Moving up %" },
+    { "id": "moving-down-pct", "label": "Moving down %" }
+  ],
+  "triggers": [
+    { "id": "once", "label": "Only once" },
+    { "id": "once-per-bar", "label": "Once per bar" },
+    { "id": "once-per-bar-close", "label": "Once per bar close" },
+    { "id": "every-time", "label": "Every time" }
+  ],
+  "operandKinds": [
+    { "id": "price", "label": "Price" },
+    { "id": "value", "label": "Value" },
+    { "id": "indicator", "label": "Indicator" },
+    { "id": "drawing", "label": "Drawing" }
+  ],
+  "priceFields": ["close", "high", "low"],
+  "defaultMessage": "{{symbol}} alert at {{price}} ({{time}})",
+  "placeholders": ["{{symbol}}", "{{price}}", "{{time}}", "{{name}}", "{{interval}}"]
+}

@@ -1,0 +1,3 @@
+[
+  { "id": "main", "name": "Main", "symbols": ["^NDX", "^GSPC", "AAPL", "MSFT", "NVDA", "BINANCE:BTCUSDT", "BINANCE:ETHUSDT", "EURUSD=X"] }
+]

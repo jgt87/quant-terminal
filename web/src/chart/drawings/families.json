@@ -1,0 +1,16 @@
+[
+  { "id": "lines", "label": "Lines", "icon": "trendline" },
+  { "id": "channels", "label": "Channels", "icon": "channel" },
+  { "id": "pitchforks", "label": "Pitchforks", "icon": "pitchfork" },
+  { "id": "fibonacci", "label": "Fibonacci", "icon": "fib" },
+  { "id": "gann", "label": "Gann", "icon": "gann" },
+  { "id": "patterns", "label": "Chart patterns", "icon": "pattern" },
+  { "id": "elliott", "label": "Elliott waves", "icon": "elliott" },
+  { "id": "cycles", "label": "Cycles", "icon": "cycles" },
+  { "id": "projection", "label": "Forecasting", "icon": "projection" },
+  { "id": "brushes", "label": "Brushes", "icon": "brush" },
+  { "id": "arrows", "label": "Arrows", "icon": "arrow" },
+  { "id": "shapes", "label": "Shapes", "icon": "rectangle" },
+  { "id": "text", "label": "Text and notes", "icon": "text" },
+  { "id": "icons", "label": "Icons", "icon": "emoji" }
+]

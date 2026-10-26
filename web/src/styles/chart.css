@@ -1,0 +1,193 @@
+.chart-view {
+  position: absolute;
+  inset: 0;
+}
+
+.chart-host {
+  position: absolute;
+  inset: 0;
+  outline: none;
+  touch-action: none;
+  user-select: none;
+}
+
+.chart-host:focus,
+.chart-host:focus-visible {
+  outline: none;
+}
+
+.qt-chart-layer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: block;
+}
+
+.qt-chart-ui {
+  pointer-events: none;
+}
+
+.chart-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.pane-legend {
+  position: absolute;
+  left: 8px;
+  right: 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.legend-main {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+  font-size: 12px;
+}
+
+.legend-symbol {
+  color: var(--text-strong);
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.legend-meta,
+.legend-name {
+  color: var(--muted);
+}
+
+.legend-name {
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.legend-ohlc {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 2px 10px;
+}
+
+.legend-field {
+  display: inline-flex;
+  gap: 3px;
+}
+
+.legend-key {
+  color: var(--dim);
+}
+
+.legend-val,
+.legend-chg {
+  color: var(--pos);
+  font-variant-numeric: tabular-nums;
+}
+
+.legend-ohlc.neg .legend-val,
+.legend-ohlc.neg .legend-chg {
+  color: var(--neg);
+}
+
+.legend-loading {
+  color: var(--dim);
+  font-style: italic;
+}
+
+.legend-ind {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  align-self: flex-start;
+  min-height: 20px;
+  padding: 0 4px 0 0;
+  border-radius: 3px;
+  pointer-events: auto;
+}
+
+.legend-ind:hover {
+  background: var(--overlay);
+}
+
+.legend-ind.hidden .legend-ind-name,
+.legend-ind.hidden .legend-ind-val {
+  opacity: 0.4;
+}
+
+.legend-ind-name {
+  color: var(--text);
+}
+
+.legend-ind-val {
+  font-variant-numeric: tabular-nums;
+}
+
+.legend-error {
+  color: var(--muted);
+  font-style: italic;
+}
+
+.legend-actions {
+  display: none;
+}
+
+.legend-ind:hover .legend-actions {
+  display: inline-flex;
+}
+
+.legend-actions .icon-btn {
+  width: 20px;
+  height: 20px;
+}
+
+.legend-transform {
+  color: var(--accent);
+  font-size: 11px;
+}
+
+.legend-compare .legend-actions {
+  display: inline-flex;
+}
+
+.legend-swatch {
+  width: 10px;
+  height: 3px;
+  border-radius: 2px;
+}
+
+.chart-tip {
+  position: absolute;
+  z-index: 5;
+  padding: 4px 8px;
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+  color: var(--text);
+  font-size: 11px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.chart-tip.event {
+  transform: translate(-50%, -100%);
+}
+
+.tip-line.bullish,
+.tip-line.dividend {
+  color: var(--up);
+}
+
+.tip-line.bearish {
+  color: var(--down);
+}
+
+.tip-line.split {
+  color: var(--link-orange);
+}

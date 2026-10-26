@@ -1,0 +1,88 @@
+{
+ "chart": {
+  "result": [
+   {
+    "meta": {
+     "currency": "USD",
+     "symbol": "TEST",
+     "exchangeName": "NMS",
+     "fullExchangeName": "NasdaqGS",
+     "instrumentType": "EQUITY",
+     "firstTradeDate": 345479400,
+     "regularMarketTime": 1786564800,
+     "gmtoffset": -14400,
+     "timezone": "EDT",
+     "regularMarketPrice": 204.0,
+     "chartPreviousClose": 202.0,
+     "longName": "Test Corp"
+    },
+    "timestamp": [
+     1786368600,
+     1786455000,
+     1786541400
+    ],
+    "events": {
+     "dividends": {
+      "1786455000": {
+       "amount": 0.26,
+       "date": 1786455000
+      },
+      "1778506200": {
+       "amount": 0.25,
+       "date": 1778506200
+      }
+     },
+     "splits": {
+      "1598880600": {
+       "date": 1598880600,
+       "numerator": 4,
+       "denominator": 1,
+       "splitRatio": "4:1"
+      }
+     }
+    },
+    "indicators": {
+     "quote": [
+      {
+       "open": [
+        199.0,
+        201.0,
+        203.0
+       ],
+       "high": [
+        201.0,
+        203.0,
+        205.0
+       ],
+       "low": [
+        198.0,
+        200.0,
+        202.0
+       ],
+       "close": [
+        200.0,
+        202.0,
+        204.0
+       ],
+       "volume": [
+        1000,
+        1100,
+        1200
+       ]
+      }
+     ],
+     "adjclose": [
+      {
+       "adjclose": [
+        199.0,
+        201.0,
+        204.0
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "error": null
+ }
+}

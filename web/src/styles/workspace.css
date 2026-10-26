@@ -1,0 +1,405 @@
+/* Workspace: in-app tab strip, chart grid with splitters, cell headers, link groups, grid
+   picker and the shortcut help. All colors come from theme tokens. */
+
+/* ---------- link colors ---------- */
+.link-red { --link: var(--link-red); }
+.link-orange { --link: var(--link-orange); }
+.link-yellow { --link: var(--link-yellow); }
+.link-green { --link: var(--link-green); }
+.link-cyan { --link: var(--link-cyan); }
+.link-blue { --link: var(--link-blue); }
+.link-purple { --link: var(--link-purple); }
+.link-pink { --link: var(--link-pink); }
+.link-grey { --link: var(--link-grey); }
+
+.link-dot {
+  display: block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--link, transparent);
+  border: 1.5px solid var(--link, var(--dim));
+}
+
+/* ---------- tab strip ---------- */
+.tab-strip {
+  grid-area: tabs;
+  display: flex;
+  align-items: stretch;
+  gap: 2px;
+  min-width: 0;
+  padding: 0 6px;
+  background: var(--panel-2);
+  border-bottom: 1px solid var(--border);
+}
+
+.ws-tabs {
+  display: flex;
+  align-items: stretch;
+  gap: 1px;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.ws-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 200px;
+  padding: 0 4px 0 10px;
+  border-top: 2px solid transparent;
+  color: var(--muted);
+  cursor: default;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.ws-tab:hover {
+  background: var(--hover);
+  color: var(--text);
+}
+
+.ws-tab.active {
+  background: var(--bg);
+  border-top-color: var(--accent);
+  color: var(--text-strong);
+}
+
+.ws-tab.drop {
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+
+.ws-tab:focus-visible {
+  outline: 1px solid var(--focus);
+  outline-offset: -1px;
+}
+
+.ws-tab .grid-icon {
+  flex: none;
+}
+
+.ws-tab-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ws-tab-input {
+  width: 120px;
+  height: 20px;
+  padding: 0 4px;
+  font: inherit;
+}
+
+.ws-tab-close,
+.ws-tab-new {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  border: 0;
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--muted);
+}
+
+.ws-tab-close {
+  width: 18px;
+  height: 18px;
+  opacity: 0;
+}
+
+.ws-tab:hover .ws-tab-close,
+.ws-tab.active .ws-tab-close {
+  opacity: 1;
+}
+
+.ws-tab-new {
+  width: 26px;
+  align-self: center;
+  height: 24px;
+}
+
+.ws-tab-close:hover,
+.ws-tab-new:hover {
+  background: var(--active);
+  color: var(--text-strong);
+}
+
+/* ---------- grid ---------- */
+.chart-grid {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.grid-slot {
+  position: absolute;
+  overflow: hidden;
+}
+
+.chart-grid.multi .grid-slot {
+  border-right: 1px solid var(--border-strong);
+  border-bottom: 1px solid var(--border-strong);
+}
+
+.chart-grid.has-max .grid-slot {
+  border: 0;
+}
+
+.grid-slot.hidden {
+  display: none;
+}
+
+.grid-cell {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.chart-grid.multi .grid-cell.active::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.cell-body {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+.cell-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  height: 24px;
+  padding: 0 4px 0 2px;
+  background: var(--panel-2);
+  border-bottom: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.grid-cell.active .cell-head {
+  color: var(--text);
+}
+
+.cell-title {
+  display: inline-flex;
+  gap: 6px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cell-title strong {
+  color: var(--text-strong);
+  font-weight: 600;
+}
+
+.cell-interval {
+  font-variant-numeric: tabular-nums;
+}
+
+.cell-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 20px;
+  flex: none;
+  border: 0;
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--muted);
+}
+
+.cell-btn:hover {
+  background: var(--hover);
+  color: var(--text-strong);
+}
+
+.grid-splitter {
+  position: absolute;
+  z-index: 6;
+  touch-action: none;
+}
+
+.grid-splitter.col {
+  width: 7px;
+  margin-left: -4px;
+  cursor: col-resize;
+}
+
+.grid-splitter.row {
+  height: 7px;
+  margin-top: -4px;
+  cursor: row-resize;
+}
+
+.grid-splitter:hover,
+.grid-splitter:active {
+  background: var(--accent-soft);
+}
+
+/* ---------- link popover ---------- */
+.link-pop {
+  position: fixed;
+  z-index: 40;
+  width: 210px;
+  padding: 10px;
+  background: var(--raised);
+  border: 1px solid var(--menu-border);
+  border-radius: var(--menu-radius);
+  box-shadow: var(--menu-shadow);
+}
+
+.link-swatches {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+}
+
+.link-swatch {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 26px;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  background: transparent;
+}
+
+.link-swatch .link-dot {
+  width: 14px;
+  height: 14px;
+}
+
+.link-swatch:hover {
+  background: var(--hover);
+}
+
+.link-swatch.selected {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.link-channels {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.link-channels-title {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.link-channel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text);
+}
+
+/* ---------- grid picker ---------- */
+.grid-icon rect {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.1;
+}
+
+.grid-menu {
+  position: absolute;
+  z-index: 30;
+  top: 32px;
+  left: 0;
+  display: grid;
+  grid-template-columns: repeat(5, 52px);
+  gap: 4px;
+  padding: 8px;
+  background: var(--raised);
+  border: 1px solid var(--menu-border);
+  border-radius: var(--menu-radius);
+  box-shadow: var(--menu-shadow);
+}
+
+.grid-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 2px 4px;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.grid-option:hover {
+  background: var(--hover);
+  color: var(--text-strong);
+}
+
+.grid-option.active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+/* ---------- shortcut help ---------- */
+.shortcut-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.shortcut-table th {
+  text-align: left;
+  color: var(--muted);
+  font-weight: 500;
+  font-size: 11px;
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--border);
+}
+
+.shortcut-table td {
+  padding: 5px 6px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+.shortcut-note {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+kbd {
+  display: inline-block;
+  padding: 1px 6px;
+  border: 1px solid var(--border-strong);
+  border-bottom-width: 2px;
+  border-radius: var(--radius);
+  background: var(--panel);
+  color: var(--text-strong);
+  font: 11px/1.5 ui-monospace, Consolas, monospace;
+  white-space: nowrap;
+}
+
+.shortcut-foot {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}

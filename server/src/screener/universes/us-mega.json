@@ -1,0 +1,216 @@
+{
+ "id": "us-mega",
+ "name": "US mega caps",
+ "description": "About 50 of the largest US-listed companies by market value (static list).",
+ "asOf": "2026-10-13",
+ "symbols": [
+  {
+   "symbol": "AAPL",
+   "name": "Apple"
+  },
+  {
+   "symbol": "MSFT",
+   "name": "Microsoft"
+  },
+  {
+   "symbol": "NVDA",
+   "name": "NVIDIA"
+  },
+  {
+   "symbol": "AMZN",
+   "name": "Amazon"
+  },
+  {
+   "symbol": "GOOGL",
+   "name": "Alphabet A"
+  },
+  {
+   "symbol": "META",
+   "name": "Meta Platforms"
+  },
+  {
+   "symbol": "AVGO",
+   "name": "Broadcom"
+  },
+  {
+   "symbol": "TSLA",
+   "name": "Tesla"
+  },
+  {
+   "symbol": "BRK-B",
+   "name": "Berkshire Hathaway B"
+  },
+  {
+   "symbol": "LLY",
+   "name": "Eli Lilly"
+  },
+  {
+   "symbol": "JPM",
+   "name": "JPMorgan Chase"
+  },
+  {
+   "symbol": "V",
+   "name": "Visa"
+  },
+  {
+   "symbol": "WMT",
+   "name": "Walmart"
+  },
+  {
+   "symbol": "ORCL",
+   "name": "Oracle"
+  },
+  {
+   "symbol": "MA",
+   "name": "Mastercard"
+  },
+  {
+   "symbol": "XOM",
+   "name": "Exxon Mobil"
+  },
+  {
+   "symbol": "UNH",
+   "name": "UnitedHealth"
+  },
+  {
+   "symbol": "COST",
+   "name": "Costco"
+  },
+  {
+   "symbol": "NFLX",
+   "name": "Netflix"
+  },
+  {
+   "symbol": "PG",
+   "name": "Procter & Gamble"
+  },
+  {
+   "symbol": "JNJ",
+   "name": "Johnson & Johnson"
+  },
+  {
+   "symbol": "HD",
+   "name": "Home Depot"
+  },
+  {
+   "symbol": "ABBV",
+   "name": "AbbVie"
+  },
+  {
+   "symbol": "BAC",
+   "name": "Bank of America"
+  },
+  {
+   "symbol": "KO",
+   "name": "Coca-Cola"
+  },
+  {
+   "symbol": "PLTR",
+   "name": "Palantir"
+  },
+  {
+   "symbol": "AMD",
+   "name": "AMD"
+  },
+  {
+   "symbol": "CRM",
+   "name": "Salesforce"
+  },
+  {
+   "symbol": "CVX",
+   "name": "Chevron"
+  },
+  {
+   "symbol": "MRK",
+   "name": "Merck"
+  },
+  {
+   "symbol": "CSCO",
+   "name": "Cisco"
+  },
+  {
+   "symbol": "PEP",
+   "name": "PepsiCo"
+  },
+  {
+   "symbol": "TMO",
+   "name": "Thermo Fisher"
+  },
+  {
+   "symbol": "ADBE",
+   "name": "Adobe"
+  },
+  {
+   "symbol": "ACN",
+   "name": "Accenture"
+  },
+  {
+   "symbol": "MCD",
+   "name": "McDonald's"
+  },
+  {
+   "symbol": "LIN",
+   "name": "Linde"
+  },
+  {
+   "symbol": "WFC",
+   "name": "Wells Fargo"
+  },
+  {
+   "symbol": "ABT",
+   "name": "Abbott"
+  },
+  {
+   "symbol": "IBM",
+   "name": "IBM"
+  },
+  {
+   "symbol": "GE",
+   "name": "GE Aerospace"
+  },
+  {
+   "symbol": "INTU",
+   "name": "Intuit"
+  },
+  {
+   "symbol": "QCOM",
+   "name": "Qualcomm"
+  },
+  {
+   "symbol": "TXN",
+   "name": "Texas Instruments"
+  },
+  {
+   "symbol": "DIS",
+   "name": "Disney"
+  },
+  {
+   "symbol": "CAT",
+   "name": "Caterpillar"
+  },
+  {
+   "symbol": "AMGN",
+   "name": "Amgen"
+  },
+  {
+   "symbol": "GS",
+   "name": "Goldman Sachs"
+  },
+  {
+   "symbol": "NOW",
+   "name": "ServiceNow"
+  },
+  {
+   "symbol": "ISRG",
+   "name": "Intuitive Surgical"
+  },
+  {
+   "symbol": "UBER",
+   "name": "Uber"
+  },
+  {
+   "symbol": "MU",
+   "name": "Micron"
+  }
+ ]
+}

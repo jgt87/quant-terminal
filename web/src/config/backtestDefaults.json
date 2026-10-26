@@ -1,0 +1,14 @@
+{
+  "initialCapital": 100000,
+  "commissionBps": 5,
+  "commissionFixed": 0,
+  "slippageBps": 2,
+  "sizingMode": "percent-equity",
+  "sizingPercent": 100,
+  "sizingQty": 10,
+  "sizingCash": 10000,
+  "allowShort": false,
+  "stopLossPct": 0,
+  "takeProfitPct": 0,
+  "riskFreeRate": 0
+}

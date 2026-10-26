@@ -1,0 +1,19 @@
+{
+  "doji": { "abbr": "D", "label": "Doji" },
+  "hammer": { "abbr": "H", "label": "Hammer" },
+  "hanging-man": { "abbr": "HM", "label": "Hanging man" },
+  "inverted-hammer": { "abbr": "IH", "label": "Inverted hammer" },
+  "shooting-star": { "abbr": "SS", "label": "Shooting star" },
+  "bullish-engulfing": { "abbr": "BE", "label": "Bullish engulfing" },
+  "bearish-engulfing": { "abbr": "BE", "label": "Bearish engulfing" },
+  "piercing-line": { "abbr": "PL", "label": "Piercing line" },
+  "dark-cloud-cover": { "abbr": "DC", "label": "Dark cloud cover" },
+  "bullish-harami": { "abbr": "BH", "label": "Bullish harami" },
+  "bearish-harami": { "abbr": "BH", "label": "Bearish harami" },
+  "tweezer-top": { "abbr": "TT", "label": "Tweezer top" },
+  "tweezer-bottom": { "abbr": "TB", "label": "Tweezer bottom" },
+  "morning-star": { "abbr": "MS", "label": "Morning star" },
+  "evening-star": { "abbr": "ES", "label": "Evening star" },
+  "three-white-soldiers": { "abbr": "3W", "label": "Three white soldiers" },
+  "three-black-crows": { "abbr": "3B", "label": "Three black crows" }
+}

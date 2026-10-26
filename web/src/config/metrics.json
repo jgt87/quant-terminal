@@ -1,0 +1,19 @@
+[
+  { "key": "totalReturnPct", "label": "Total return", "format": "pct" },
+  { "key": "benchmarkReturnPct", "label": "Buy & hold", "format": "pct" },
+  { "key": "cagrPct", "label": "CAGR", "format": "pct" },
+  { "key": "volatilityPct", "label": "Volatility", "format": "pctAbs" },
+  { "key": "sharpe", "label": "Sharpe", "format": "ratio" },
+  { "key": "sortino", "label": "Sortino", "format": "ratio" },
+  { "key": "maxDrawdownPct", "label": "Max drawdown", "format": "pct" },
+  { "key": "maxDrawdownBars", "label": "DD duration", "format": "bars" },
+  { "key": "calmar", "label": "Calmar", "format": "ratio" },
+  { "key": "winRatePct", "label": "Win rate", "format": "pctAbs" },
+  { "key": "profitFactor", "label": "Profit factor", "format": "ratio" },
+  { "key": "expectancy", "label": "Expectancy", "format": "money" },
+  { "key": "avgWin", "label": "Avg win", "format": "money" },
+  { "key": "avgLoss", "label": "Avg loss", "format": "money" },
+  { "key": "exposurePct", "label": "Exposure", "format": "pctAbs" },
+  { "key": "trades", "label": "Trades", "format": "int" },
+  { "key": "totalFees", "label": "Fees", "format": "money" }
+]

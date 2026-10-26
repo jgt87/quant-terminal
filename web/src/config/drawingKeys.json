@@ -1,0 +1,46 @@
+[
+  {
+    "keys": "Ctrl+Z",
+    "label": "Undo drawing change"
+  },
+  {
+    "keys": "Ctrl+Y / Ctrl+Shift+Z",
+    "label": "Redo drawing change"
+  },
+  {
+    "keys": "Ctrl+C / Ctrl+V",
+    "label": "Copy / paste selected drawings"
+  },
+  {
+    "keys": "Ctrl+Click / Ctrl+Drag",
+    "label": "Add to selection / select by rectangle"
+  },
+  {
+    "keys": "Ctrl+Drag / Alt+Drag",
+    "label": "Clone the selected drawings"
+  },
+  {
+    "keys": "Arrows (Shift: ×10)",
+    "label": "Nudge the selected drawings"
+  },
+  {
+    "keys": "Shift (while drawing)",
+    "label": "Constrain to horizontal / vertical / 45°"
+  },
+  {
+    "keys": "Enter / Esc",
+    "label": "Finish a path / remove its last point"
+  },
+  {
+    "keys": "Delete",
+    "label": "Remove the selected drawings"
+  },
+  {
+    "keys": "Alt+A",
+    "label": "Add alert (selected drawing, else the cursor price)"
+  },
+  {
+    "keys": "Ctrl+Alt+H",
+    "label": "Hide / show all drawings"
+  }
+]

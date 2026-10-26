@@ -1,0 +1,166 @@
+/* Bar Replay: control bar and trade list at the bottom of a chart. */
+.replay-wrap {
+  position: absolute;
+  left: 8px;
+  right: 76px;
+  bottom: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  pointer-events: none;
+  z-index: 4;
+}
+
+.replay-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 4px 6px;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+  color: var(--text);
+  font-size: 12px;
+  pointer-events: auto;
+}
+
+.chart-overlay > .replay-bar {
+  position: absolute;
+  left: 8px;
+  bottom: 30px;
+  z-index: 4;
+}
+
+.replay-hint {
+  color: var(--accent);
+  font-weight: 600;
+  padding: 0 4px;
+}
+
+.replay-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 26px;
+  padding: 0 6px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  font: inherit;
+}
+
+.replay-btn:hover:not(:disabled) {
+  background: var(--hover);
+}
+
+.replay-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.replay-btn.active {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.replay-btn.buy {
+  background: var(--up);
+  color: var(--accent-fg);
+  font-weight: 600;
+}
+
+.replay-btn.sell {
+  background: var(--down);
+  color: var(--accent-fg);
+  font-weight: 600;
+}
+
+.replay-btn.buy:hover:not(:disabled),
+.replay-btn.sell:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+.replay-speed {
+  height: 26px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--raised);
+  color: var(--text);
+}
+
+.replay-sep {
+  width: 1px;
+  height: 18px;
+  background: var(--border-strong);
+}
+
+.replay-qty {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--muted);
+}
+
+.replay-qty input {
+  width: 64px;
+  height: 24px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--raised);
+  color: var(--text);
+  padding: 0 4px;
+}
+
+.replay-pos {
+  color: var(--text-strong);
+  font-variant-numeric: tabular-nums;
+}
+
+.replay-pnl {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.replay-pnl.pos,
+.replay-trades .pos {
+  color: var(--pos);
+}
+
+.replay-pnl.neg,
+.replay-trades .neg {
+  color: var(--neg);
+}
+
+.replay-trades {
+  max-height: 180px;
+  overflow: auto;
+  padding: 6px 8px;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+  font-size: 11px;
+  pointer-events: auto;
+}
+
+.replay-trades table {
+  border-collapse: collapse;
+}
+
+.replay-trades th,
+.replay-trades td {
+  padding: 2px 8px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.replay-trades th {
+  color: var(--muted);
+  font-weight: 500;
+}

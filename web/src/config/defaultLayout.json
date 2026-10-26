@@ -1,0 +1,13 @@
+{
+  "id": "default",
+  "name": "Default",
+  "symbol": "^NDX",
+  "interval": "1D",
+  "chartType": "candles",
+  "logScale": false,
+  "indicators": [
+    { "indicatorId": "ema", "inputs": { "length": 20 } },
+    { "indicatorId": "rsi", "inputs": { "length": 14 } }
+  ],
+  "drawings": {}
+}

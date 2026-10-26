@@ -1,0 +1,39 @@
+{
+  "fields": [
+    { "id": "close", "label": "Close", "short": "Close", "format": "price" },
+    { "id": "changePct", "label": "Change %", "short": "Chg%", "format": "pct" },
+    { "id": "volume", "label": "Volume", "short": "Vol", "format": "compact" },
+    { "id": "relVolume", "label": "Relative volume", "short": "RVol", "format": "ratio" },
+    { "id": "rsi14", "label": "RSI (14)", "short": "RSI", "format": "num" },
+    { "id": "sma50", "label": "SMA 50", "short": "SMA50", "format": "price" },
+    { "id": "sma200", "label": "SMA 200", "short": "SMA200", "format": "price" },
+    { "id": "ema20", "label": "EMA 20", "short": "EMA20", "format": "price" },
+    { "id": "atr14Pct", "label": "ATR (14) %", "short": "ATR%", "format": "pctPlain" },
+    { "id": "perf1W", "label": "Perf 1W", "short": "1W", "format": "pct" },
+    { "id": "perf1M", "label": "Perf 1M", "short": "1M", "format": "pct" },
+    { "id": "perf3M", "label": "Perf 3M", "short": "3M", "format": "pct" },
+    { "id": "perfYTD", "label": "Perf YTD", "short": "YTD", "format": "pct" },
+    { "id": "high52wPct", "label": "From 52w high %", "short": "52wH", "format": "pct" },
+    { "id": "low52wPct", "label": "From 52w low %", "short": "52wL", "format": "pct" }
+  ],
+  "ops": [
+    { "id": ">", "label": ">" },
+    { "id": ">=", "label": "≥" },
+    { "id": "<", "label": "<" },
+    { "id": "<=", "label": "≤" },
+    { "id": "between", "label": "between" },
+    { "id": "above-field", "label": "above" },
+    { "id": "below-field", "label": "below" }
+  ],
+  "defaultColumns": ["close", "changePct", "volume", "rsi14", "perf1M", "perfYTD"],
+  "refreshOptions": [
+    { "ms": 0, "label": "Auto-refresh off" },
+    { "ms": 60000, "label": "Every 1 min" },
+    { "ms": 300000, "label": "Every 5 min" }
+  ],
+  "builtInPresets": [
+    { "name": "Above SMA 200, RSI > 50", "universe": "us-mega", "filters": [{ "field": "close", "op": "above-field", "otherField": "sma200" }, { "field": "rsi14", "op": ">", "value": 50 }], "columns": ["close", "changePct", "rsi14", "sma200", "perf1M"] },
+    { "name": "Oversold (RSI < 30)", "universe": "nasdaq100", "filters": [{ "field": "rsi14", "op": "<", "value": 30 }], "columns": ["close", "changePct", "rsi14", "perf1W", "low52wPct"] },
+    { "name": "Near 52-week high", "universe": "us-mega", "filters": [{ "field": "high52wPct", "op": ">=", "value": -3 }], "columns": ["close", "changePct", "high52wPct", "perf3M", "relVolume"] }
+  ]
+}

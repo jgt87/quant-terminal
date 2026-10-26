@@ -1,0 +1,10 @@
+{
+  "barsPageSize": 1000,
+  "historyThresholdBars": 50,
+  "pollIntradayMs": 5000,
+  "pollDailyMs": 30000,
+  "quotesPollMs": 10000,
+  "autosaveDebounceMs": 1000,
+  "showVolume": true,
+  "hitTolerancePx": 6
+}

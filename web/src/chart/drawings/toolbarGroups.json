@@ -1,0 +1,248 @@
+[
+  {
+    "id": "trend",
+    "label": "Trend tools",
+    "families": [
+      "lines",
+      "channels",
+      "pitchforks"
+    ],
+    "sections": [
+      {
+        "title": "Lines",
+        "items": [
+          "LineToolTrendLine",
+          "LineToolRay",
+          "LineToolInfoLine",
+          "LineToolExtended",
+          "LineToolTrendAngle",
+          "LineToolHorzLine",
+          "LineToolHorzRay",
+          "LineToolVertLine",
+          "LineToolCrossLine"
+        ]
+      },
+      {
+        "title": "Channels",
+        "items": [
+          "LineToolParallelChannel",
+          "LineToolRegressionTrend",
+          "LineToolFlatBottom",
+          "LineToolDisjointAngle"
+        ]
+      },
+      {
+        "title": "Pitchforks",
+        "items": [
+          "LineToolPitchfork",
+          "LineToolSchiffPitchfork2",
+          "LineToolSchiffPitchfork",
+          "LineToolInsidePitchfork"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gann-fib",
+    "label": "Gann and Fibonacci tools",
+    "families": [
+      "fibonacci",
+      "gann"
+    ],
+    "sections": [
+      {
+        "title": "Fibonacci",
+        "items": [
+          "LineToolFibRetracement",
+          "LineToolTrendBasedFibExtension",
+          "LineToolFibChannel",
+          "LineToolFibTimeZone",
+          "LineToolFibSpeedResistanceFan",
+          "LineToolTrendBasedFibTime",
+          "LineToolFibCircles",
+          "LineToolFibSpiral",
+          "LineToolFibSpeedResistanceArcs",
+          "LineToolFibWedge",
+          "LineToolPitchfan"
+        ]
+      },
+      {
+        "title": "Gann",
+        "items": [
+          "LineToolGannSquare",
+          "LineToolGannFixed",
+          "LineToolGannComplex",
+          "LineToolGannFan"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "patterns",
+    "label": "Patterns",
+    "families": [
+      "patterns",
+      "elliott",
+      "cycles"
+    ],
+    "sections": [
+      {
+        "title": "Chart patterns",
+        "items": [
+          "LineTool5PointsPattern",
+          "LineToolCypherPattern",
+          "LineToolHeadAndShoulders",
+          "LineToolABCD",
+          "LineToolTrianglePattern",
+          "LineToolThreeDrivers"
+        ]
+      },
+      {
+        "title": "Elliott waves",
+        "items": [
+          "LineToolElliottImpulse",
+          "LineToolElliottCorrection",
+          "LineToolElliottTriangle",
+          "LineToolElliottDoubleCombo",
+          "LineToolElliottTripleCombo"
+        ]
+      },
+      {
+        "title": "Cycles",
+        "items": [
+          "LineToolCircleLines",
+          "LineToolTimeCycles",
+          "LineToolSineLine"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "forecast",
+    "label": "Forecasting and measurement tools",
+    "families": [
+      "projection",
+      "measure"
+    ],
+    "sections": [
+      {
+        "title": "Forecasting",
+        "items": [
+          "LineToolRiskRewardLong",
+          "LineToolRiskRewardShort",
+          "LineToolPrediction",
+          "LineToolBarsPattern",
+          "LineToolGhostFeed",
+          "LineToolProjection"
+        ]
+      },
+      {
+        "title": "Volume-based",
+        "items": [
+          "LineToolAnchoredVWAP",
+          "LineToolFixedRangeVolumeProfile",
+          "LineToolAnchoredVolumeProfile"
+        ]
+      },
+      {
+        "title": "Measurers",
+        "items": [
+          "LineToolPriceRange",
+          "LineToolDateRange",
+          "LineToolDateAndPriceRange"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "shapes",
+    "label": "Geometric shapes",
+    "families": [
+      "brushes",
+      "arrows",
+      "shapes"
+    ],
+    "sections": [
+      {
+        "title": "Brushes",
+        "items": [
+          "LineToolBrush",
+          "LineToolHighlighter"
+        ]
+      },
+      {
+        "title": "Arrows",
+        "items": [
+          "LineToolArrowMarker",
+          "LineToolArrow",
+          "LineToolArrowMarkUp",
+          "LineToolArrowMarkDown"
+        ]
+      },
+      {
+        "title": "Shapes",
+        "items": [
+          "LineToolRectangle",
+          "LineToolRotatedRectangle",
+          "LineToolPath",
+          "LineToolCircle",
+          "LineToolEllipse",
+          "LineToolPolyline",
+          "LineToolTriangle",
+          "LineToolArc",
+          "LineToolBezierQuadro",
+          "LineToolBezierCubic"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "annotation",
+    "label": "Annotation tools",
+    "families": [
+      "text"
+    ],
+    "sections": [
+      {
+        "title": "Text and notes",
+        "items": [
+          "LineToolText",
+          "LineToolTextNote",
+          "LineToolPriceNote",
+          "LineToolNote",
+          "LineToolTable",
+          "LineToolCallout",
+          "LineToolComment",
+          "LineToolPriceLabel",
+          "LineToolSignpost",
+          "LineToolFlagMark"
+        ]
+      },
+      {
+        "title": "Content",
+        "items": [
+          "LineToolImage",
+          "LineToolTweet",
+          "LineToolIdea"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "icons",
+    "label": "Icons",
+    "families": [
+      "icons"
+    ],
+    "sections": [
+      {
+        "title": "Icons",
+        "items": [
+          "LineToolIcon",
+          "LineToolEmoji",
+          "LineToolSticker"
+        ]
+      }
+    ]
+  }
+]

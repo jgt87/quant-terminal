@@ -1,0 +1,12 @@
+Normal use: double-click Start Terminal.cmd in the Quant Terminal folder. It rebuilds the app, starts the local server and opens http://localhost:4180 in your browser.
+
+With live FX from MetaTrader 5: open MT5 first, then double-click Start Terminal (MT5).cmd. Its Python environment (bridge\.venv) already exists, so you don't need to run bridge\setup.cmd again.
+
+From a terminal, run these from the Quant Terminal folder:
+npm run build
+npm start
+Then open http://localhost:4180.
+
+While developing: npm run dev gives hot reload at http://localhost:5180. If you keep using :4180 instead, also run npx vite build --watch inside web\, or your changes won't show up there.
+
+Don't open web/index.html directly: it's only the build template, and the app needs the local server for its data.

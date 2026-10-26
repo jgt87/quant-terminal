@@ -1,0 +1,145 @@
+/* Watchlist extras: flag filter, dynamic columns, flag dots (link-color tokens). */
+
+.wlx .wl-head select {
+  min-width: 0;
+}
+
+.wlx-flags {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.wlx-flagbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 20px;
+  padding: 0 4px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.wlx-flagbtn:hover {
+  background: var(--hover);
+}
+
+.wlx-flagbtn.on {
+  border-color: var(--border-strong);
+  background: var(--active);
+  color: var(--text-strong);
+}
+
+.wlx-dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+
+.wlx-cols,
+.wlx-row {
+  display: grid;
+  align-items: center;
+  gap: 6px;
+  padding: 0 8px 0 6px;
+}
+
+.wlx-cols {
+  height: 24px;
+  border-bottom: 1px solid var(--border);
+  color: var(--dim);
+  font-size: 11px;
+}
+
+.wlx-cols span {
+  overflow: hidden;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+}
+
+.wlx-cols .r {
+  text-align: right;
+}
+
+.wlx-row {
+  position: relative;
+  height: 28px;
+  border-left: 2px solid transparent;
+  cursor: pointer;
+}
+
+.wlx-row:hover {
+  background: var(--hover);
+}
+
+.wlx-row.active {
+  border-left-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.wlx-row:focus-visible {
+  outline-offset: -2px;
+}
+
+.wlx-row.pos .wl-chg,
+.wlx-row .wl-num.pos {
+  color: var(--pos);
+}
+
+.wlx-row.neg .wl-chg,
+.wlx-row .wl-num.neg {
+  color: var(--neg);
+}
+
+.wlx-flag {
+  width: 10px;
+  height: 10px;
+  padding: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+  background: transparent;
+}
+
+.wlx-flag:hover {
+  border-color: var(--text);
+}
+
+.wlx-flag[class*="flag-"] {
+  border-color: transparent;
+}
+
+.flag-red {
+  background: var(--link-red);
+}
+
+.flag-orange {
+  background: var(--link-orange);
+}
+
+.flag-yellow {
+  background: var(--link-yellow);
+}
+
+.flag-green {
+  background: var(--link-green);
+}
+
+.flag-cyan {
+  background: var(--link-cyan);
+}
+
+.flag-blue {
+  background: var(--link-blue);
+}
+
+.flag-purple {
+  background: var(--link-purple);
+}

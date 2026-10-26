@@ -1,0 +1,100 @@
+/* Portfolio panel. */
+
+.pf-select {
+  max-width: 200px;
+}
+
+.pf-donut {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.pf-donut svg {
+  flex: none;
+}
+
+.pf-donut-empty {
+  padding: 10px;
+}
+
+.pf-legend {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 11px;
+}
+
+.pf-legend li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 6px;
+  height: 18px;
+}
+
+.pf-legend-label {
+  overflow: hidden;
+  color: var(--text-strong);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.pf-missing {
+  padding: 6px 10px;
+  font-size: 11px;
+}
+
+.pf-txform {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.pf-txform select.buy {
+  color: var(--pos);
+}
+
+.pf-txform select.sell {
+  color: var(--neg);
+}
+
+.pf-sym {
+  width: 90px;
+}
+
+.pf-n {
+  width: 72px;
+  text-align: right;
+}
+
+.pf-n.small {
+  width: 52px;
+}
+
+.pf-time {
+  width: 160px;
+}
+
+.pf-note {
+  flex: 1;
+  min-width: 60px;
+}
+
+.pf-form-err {
+  flex-basis: 100%;
+  font-size: 11px;
+}
+
+.pf-note-cell {
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

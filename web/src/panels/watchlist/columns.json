@@ -1,0 +1,17 @@
+{
+  "columns": [
+    { "id": "last", "label": "Last", "short": "Last", "source": "quote" },
+    { "id": "chg", "label": "Change", "short": "Chg", "source": "quote" },
+    { "id": "chgPct", "label": "Change %", "short": "Chg%", "source": "quote" },
+    { "id": "volume", "label": "Volume", "short": "Vol", "source": "screener" },
+    { "id": "relVolume", "label": "Relative volume", "short": "RVol", "source": "screener" },
+    { "id": "rsi14", "label": "RSI (14)", "short": "RSI", "source": "screener" },
+    { "id": "atr14Pct", "label": "ATR (14) %", "short": "ATR%", "source": "screener" },
+    { "id": "perf1W", "label": "Perf 1W", "short": "1W", "source": "screener" },
+    { "id": "perf1M", "label": "Perf 1M", "short": "1M", "source": "screener" },
+    { "id": "perfYTD", "label": "Perf YTD", "short": "YTD", "source": "screener" },
+    { "id": "high52wPct", "label": "From 52w high %", "short": "52wH", "source": "screener" }
+  ],
+  "defaults": ["last", "chg", "chgPct"],
+  "screenerRefreshMs": 300000
+}

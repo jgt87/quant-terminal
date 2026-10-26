@@ -1,0 +1,396 @@
+{
+  "at": "2026-10-13T13:43:51.401Z",
+  "results": [
+    {
+      "name": "loads default layout",
+      "ok": true,
+      "detail": "symbol=^NDX interval=1D indicators=ema,rsi"
+    },
+    {
+      "name": "legend shows OHLC values",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "symbol switch via type-to-search",
+      "ok": true,
+      "detail": "layout.symbol=MT5:EURUSD"
+    },
+    {
+      "name": "interval change persists",
+      "ok": true,
+      "detail": "interval=15m"
+    },
+    {
+      "name": "MT5 bars available for chart",
+      "ok": true,
+      "detail": "{\"time\":1791898200,\"open\":1.11987,\"high\":1.12046,\"low\":1.1198,\"close\":1.12002,\"volume\":564}"
+    },
+    {
+      "name": "add indicator MACD",
+      "ok": true,
+      "detail": "ema,rsi,macd"
+    },
+    {
+      "name": "price-axis badges do not overlap (MACD lines + hist)",
+      "ok": true,
+      "detail": "6 badges, MACD pane: macd@684.6-702.6 signal@703.6-721.6 hist@724.5-742.5"
+    },
+    {
+      "name": "price-axis menu (auto scale off)",
+      "ok": true,
+      "detail": "Auto scale / Logarithmic / Percent / Reset price scale / Show last price label | auto was true"
+    },
+    {
+      "name": "drawings saved for symbol",
+      "ok": true,
+      "detail": "hline,trendline"
+    },
+    {
+      "name": "right-click opens the app menu (no browser menu)",
+      "ok": true,
+      "detail": "Reset chart view / Copy price 1.12082 / Add alert on MT5:EURUSD at 1.12082… / Chart type / Log scale / Object tree / Remove 2 drawings / Hide all drawings / Lock all drawings / Sync drawings across charts / Remove indicators (3) / Export data (CSV) / Save image (PNG) / Chart settings… | defaultPrevented=[true]"
+    },
+    {
+      "name": "drawing settings window applies (OK)",
+      "ok": true,
+      "detail": "menu: Add alert on horizontal line… / Template / Visual order / Visibility on intervals / Object tree / Clone / Copy / Lock / Hide / Remove / Settings… | tabs: Style,Text,Coordinates,Visibility | color=#f23645"
+    },
+    {
+      "name": "drawing settings Cancel reverts the preview",
+      "ok": true,
+      "detail": "preview=#4caf50 -> after cancel=#f23645"
+    },
+    {
+      "name": "reload keeps symbol/interval/indicators/drawings",
+      "ok": true,
+      "detail": "MT5:EURUSD 15m ind=3 draw=2"
+    },
+    {
+      "name": "legend lists MACD after reload",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "drawings survive symbol round trip",
+      "ok": true,
+      "detail": "MT5:EURUSD draw=2"
+    },
+    {
+      "name": "stream survives an unknown symbol (errors frame + ticks)",
+      "ok": true,
+      "detail": "errors=[\"MT5:NOPE_E2E\"] ticks=2 ids=MT5:EURUSD,MT5:GBPUSD"
+    },
+    {
+      "name": "live ticks update the last bar",
+      "ok": true,
+      "detail": "close 1.12011 -> 1.1201 (stream open)"
+    },
+    {
+      "name": "backtest runs and shows metrics",
+      "ok": true,
+      "detail": "SHARPE −13.89 SORTINO −17.51 MAX DRAWDOWN −2.62% DD DURATION 962 b"
+    },
+    {
+      "name": "theme toggle switches light/dark",
+      "ok": true,
+      "detail": "light -> dark"
+    },
+    {
+      "name": "new tab (Alt+N)",
+      "ok": true,
+      "detail": "tabs 1 -> 2, active tmv6q85fq82p"
+    },
+    {
+      "name": "grid 4 shows four independent charts",
+      "ok": true,
+      "detail": "cells=cmv6q85fq76e,cmv6q8824f9e,cmv6q8824gf7,cmv6q8824hi8"
+    },
+    {
+      "name": "link two cells red",
+      "ok": true,
+      "detail": "red,red,-,-"
+    },
+    {
+      "name": "symbol change propagates to the link group only",
+      "ok": true,
+      "detail": "MSFT / MSFT / MT5:EURUSD"
+    },
+    {
+      "name": "crosshair sync draws in both linked cells",
+      "ok": true,
+      "detail": "x: 285 / 285 / "
+    },
+    {
+      "name": "reload restores tabs, grid, sizes, active cell, links and crosshair sync",
+      "ok": true,
+      "detail": "{\"tabs\":2,\"activeTab\":\"tmv6q85fq82p\",\"cells\":4,\"active\":\"3\",\"links\":\"red,red,none,none\",\"sync\":\"true\",\"w0\":509.484375,\"w1\":749.5,\"symbols\":\"MSFT,MSFT,MT5:EURUSD,MT5:EURUSD\"} sizes=[0.40468625893566323,0.5953137410643368,0.5,0.5]"
+    },
+    {
+      "name": "Alt+Enter maximizes and restores the active chart",
+      "ok": true,
+      "detail": "1 -> 4"
+    },
+    {
+      "name": "close tab (Alt+W) and reopen it (Alt+Shift+T)",
+      "ok": true,
+      "detail": "closed=true reopened=tmv6q85fq82p"
+    },
+    {
+      "name": "shortcut help lists the actual bindings",
+      "ok": true,
+      "detail": "Keyboard shortcuts Action Keys Browser key (not used) New tab Alt+T draws a trend line on the chart Alt+N Ctrl+T Close t"
+    },
+    {
+      "name": "deep link ?symbol=MSFT loads into the active cell and the URL follows it",
+      "ok": true,
+      "detail": "{\"sym\":\"AAPL\",\"iv\":\"1h\",\"url\":\"?symbol=AAPL&interval=1h&tab=tmv6q85fq82p\"} then {\"sym\":\"MSFT\",\"url\":\"?symbol=MSFT&tab=tmv6q85fq82p&interval=15m\"}"
+    },
+    {
+      "name": "bar requests are deduplicated across cells",
+      "ok": true,
+      "detail": "{\"dupes\":0,\"total\":3,\"streams\":0}"
+    },
+    {
+      "name": "panels page mounts the panel host and rail",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "watchlist flags (key 1-7, dot click) are stored in the watchlist JSON",
+      "ok": true,
+      "detail": "^NDX: cyan"
+    },
+    {
+      "name": "flag filter shows only flagged symbols",
+      "ok": true,
+      "detail": "1 rows"
+    },
+    {
+      "name": "watchlist row click loads the symbol on the chart",
+      "ok": true,
+      "detail": "^NDX"
+    },
+    {
+      "name": "alert dialog creates close > 1",
+      "ok": true,
+      "detail": "[{\"left\":{\"kind\":\"price\"},\"op\":\"greater\",\"right\":{\"kind\":\"value\",\"value\":1}}]"
+    },
+    {
+      "name": "fired alert shows an in-app toast (SSE)",
+      "ok": true,
+      "detail": "e2e close > 1 AAPL alert at 340.97 (2026-10-13 13:40:20 UTC)"
+    },
+    {
+      "name": "alert event is logged",
+      "ok": true,
+      "detail": "12 events"
+    },
+    {
+      "name": "unread badge on the alerts rail icon",
+      "ok": true,
+      "detail": "badge=12"
+    },
+    {
+      "name": "clicking the toast loads the symbol",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "screener runs with a filter (close > 1)",
+      "ok": true,
+      "detail": "52 rows · 52 rows · computed 3:40:32 PM"
+    },
+    {
+      "name": "portfolio transaction shows up in holdings and totals",
+      "ok": true,
+      "detail": "AAPL 70 100.00 342.93 24,005.10 +17005.10 0.00 | EQUITY 27,005.10 VALUE 24,005.10 CASH 3,000.00 UNREALIZED +17005.10 REALIZED 0.00 DAY +137.20"
+    },
+    {
+      "name": "allocation donut drawn",
+      "ok": true,
+      "detail": "3 circles"
+    },
+    {
+      "name": "paper market order opens a position",
+      "ok": true,
+      "detail": "AAPL 21 342.11 342.02 −1.86 Close | labelled=true"
+    },
+    {
+      "name": "SMA-ribbon example runs in the worker and lists its outputs",
+      "ok": true,
+      "detail": "6 plots · Ran over 500 bars in 11 ms · 6 plots"
+    },
+    {
+      "name": "script plots handed to the chart (onAddScriptPlots)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "runaway script is terminated after 2 s",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "chart type Renko (index axis, transformed status)",
+      "ok": true,
+      "detail": "Transformed: Renko · box ATR(14) = 6.693 · 172 bricks"
+    },
+    {
+      "name": "Volume Profile visible range added",
+      "ok": true,
+      "detail": "vp-visible"
+    },
+    {
+      "name": "candlestick patterns overlay (labels + tooltip)",
+      "ok": true,
+      "detail": "tooltip: Bearish harami"
+    },
+    {
+      "name": "auto fib converts to an editable fib drawing",
+      "ok": true,
+      "detail": "[{\"time\":1790812800,\"price\":325.80999755859375},{\"time\":1791763200,\"price\":342.6300048828125}]"
+    },
+    {
+      "name": "compare MSFT as a percent overlay",
+      "ok": true,
+      "detail": "MSFT +31.13%"
+    },
+    {
+      "name": "compare overlay extends after the main series pages",
+      "ok": true,
+      "detail": "main from 1980-12-12, MSFT from 1986-03-13 (more=false), MSFT older page requested: true"
+    },
+    {
+      "name": "formula chart AAPL/MSFT",
+      "ok": true,
+      "detail": "999 bars, last ratio 0.6300840540289968"
+    },
+    {
+      "name": "custom interval 2h (from 1h) with history paging",
+      "ok": true,
+      "detail": "bars 1143 -> 1991, older page requested: true"
+    },
+    {
+      "name": "2h buckets on AAPL start at the session open (13:30 / 14:30 UTC by DST)",
+      "ok": true,
+      "detail": "501/501 days aligned (summer 332, winter 169)"
+    },
+    {
+      "name": "replay: start, step 5, buy, step 5, P&L shown",
+      "ok": true,
+      "detail": "bars full=1000 start=926 +5=931 +10=936 · Long 10 @ 310.72 · P&L +39.82"
+    },
+    {
+      "name": "replay exit restores every bar",
+      "ok": true,
+      "detail": "1000 of 1000"
+    },
+    {
+      "name": "export CSV produces a download with every bar",
+      "ok": true,
+      "detail": "time,open,high,low,close,volume · 1000 rows / 1000 bars"
+    },
+    {
+      "name": "save image produces a PNG",
+      "ok": true,
+      "detail": "{\"type\":\"image/png\",\"size\":64345}"
+    },
+    {
+      "name": "drag-to-create draws trend lines in one gesture",
+      "ok": true,
+      "detail": "[[1776902400,1781481600],[1776902400,1781481600]]"
+    },
+    {
+      "name": "multi-select two drawings and move them together",
+      "ok": true,
+      "detail": "selected=2 t0 1776902400->1778198400 / 1776902400->1778198400"
+    },
+    {
+      "name": "Ctrl+Z undoes the group move",
+      "ok": true,
+      "detail": "[1776902400,1776902400]"
+    },
+    {
+      "name": "Ctrl+C / Ctrl+V duplicates the selected drawings",
+      "ok": true,
+      "detail": "after paste 4, after Delete 2"
+    },
+    {
+      "name": "floating toolbar shows the per-tool controls",
+      "ok": true,
+      "detail": "Move toolbar,Template,Drawing color,Text color,Line width,Line style,Drawing settings,Add alert on this drawing,Lock drawing,Remove drawing,More"
+    },
+    {
+      "name": "drawing menu per spec; template Save as… and apply",
+      "ok": true,
+      "detail": "menu: Add alert on trendline… / Template / Visual order / Visibility on intervals / Object tree / Clone / Copy / Lock / Hide / Remove / Settings… | template {\"name\":\"Red\",\"style\":{\"color\":\"#f23645\",\"width\":2,\"lineStyle\":\"solid\",\"textColor\":\"#2962ff\",\"textSize\":14,\"bold\":false,\"italic\":false},\"props\":{\"extendLeft\":false,\"extendRight\":false,\"leftEnd\":0,\"rightEnd\":0,\"showMiddlePoint\":false,\"showPriceLabels\":false,\"showPriceRange\":false,\"showPercentPriceRange\":false,\"showPipsPriceRange\":false,\"showBarsRange\":false,\"showDateTimeRange\":false,\"showDistance\":false,\"showAngle\":false,\"statsPosition\":2,\"alwaysShowStats\":false,\"vertLabelsAlign\":\"bottom\",\"horzLabelsAlign\":\"center\"}} | line2 #f23645"
+    },
+    {
+      "name": "settings window from the tool schema",
+      "ok": true,
+      "detail": "Style,Text,Coordinates,Visibility extend=true"
+    },
+    {
+      "name": "favorites bar: star adds, bar activates the tool, unstar removes",
+      "ok": true,
+      "detail": "shown=true pressed=true gone=true"
+    },
+    {
+      "name": "left toolbar buttons are 52×38 with 28×28 icons",
+      "ok": true,
+      "detail": "52x38x28x28"
+    },
+    {
+      "name": "every toolbar group has a flyout",
+      "ok": true,
+      "detail": "cursors,trend,gann-fib,patterns,forecast,shapes,annotation,icons"
+    },
+    {
+      "name": "lock all drawings prevents moving",
+      "ok": true,
+      "detail": "t 1776902400 -> 1776902400"
+    },
+    {
+      "name": "object tree hides, locks and deletes drawings",
+      "ok": true,
+      "detail": "hidden+locked=true left=1"
+    },
+    {
+      "name": "flyouts list exactly the reference tools (hidden tools excluded)",
+      "ok": true,
+      "detail": "listed 87 / reference 87; hidden shown: none"
+    },
+    {
+      "name": "inline text editing: creation opens the multi-line editor; double-click and Enter re-open it",
+      "ok": true,
+      "detail": "opened=true text=\"Hello\\nWorld\" dblclick=true esc=true enter=true"
+    },
+    {
+      "name": "table cells are edited in place (creation edits the first cell, double-click another)",
+      "ok": true,
+      "detail": "after create: \"A1 | \\n | \" | after double-click: \"A1 | \\n | B2\""
+    },
+    {
+      "name": "long position: ticks <-> price stay in sync, Entry price moves the entry anchor",
+      "ok": true,
+      "detail": "entry 279.9578766928085 (anchor 279.9578766928085) · 250 ticks -> 282.4578766928085 · stop 278.7078766928085 -> 125 ticks · entry 280.96 -> target 283.46, anchor 280.96"
+    },
+    {
+      "name": "tool chooser opens on pick (flyout and favorites bar) and the choice is drawn",
+      "ok": true,
+      "detail": "flyout picker=true icon=heart favorites picker=true cancel=true"
+    },
+    {
+      "name": "alert on an info line (Add alert menu → dialog) fires on the server",
+      "ok": true,
+      "detail": "operators crosses,crosses-up,crosses-down,greater,less,moving-up-pct,moving-down-pct · greater line≈247.26 close 342.6499938964844 · fired 2026-10-13T13:43:50.482Z"
+    },
+    {
+      "name": "no uncaught page errors",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "errors": []
+}

@@ -1,0 +1,16 @@
+{
+  "tools": {
+    "LineToolImage": "Content tool: needs an uploaded image (no upload store); out of scope.",
+    "LineToolTweet": "Content tool (social post embed); out of scope.",
+    "LineToolIdea": "Content tool (published idea embed); out of scope.",
+    "LineToolOrder": "Trading order line (broker integration), not a drawing; the MT5 bridge is read-only by design.",
+    "LineToolPosition": "Trading position line (broker integration), not a drawing; the MT5 bridge is read-only by design.",
+    "LineToolElliott": "Legacy Elliott tool superseded by the five Elliott wave tools; not in the drawing toolbar.",
+    "LineToolVbPFixed": "Legacy duplicate of the fixed range volume profile (LineToolFixedRangeVolumeProfile); not in the drawing toolbar."
+  },
+  "toolbarItems": {
+    "LineToolImage": "Content (out of scope)",
+    "LineToolTweet": "Content (out of scope)",
+    "LineToolIdea": "Content (out of scope)"
+  }
+}

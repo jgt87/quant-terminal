@@ -1,0 +1,311 @@
+{
+ "id": "nasdaq100",
+ "name": "Nasdaq-100",
+ "description": "Nasdaq-100 constituents as a static list. Snapshot after the December 2025 annual reconstitution; index changes since then are not reflected - update this file when the index changes.",
+ "asOf": "2025-12-22",
+ "symbols": [
+  {
+   "symbol": "AAPL"
+  },
+  {
+   "symbol": "ABNB"
+  },
+  {
+   "symbol": "ADBE"
+  },
+  {
+   "symbol": "ADI"
+  },
+  {
+   "symbol": "ADP"
+  },
+  {
+   "symbol": "ADSK"
+  },
+  {
+   "symbol": "AEP"
+  },
+  {
+   "symbol": "ALNY"
+  },
+  {
+   "symbol": "AMAT"
+  },
+  {
+   "symbol": "AMD"
+  },
+  {
+   "symbol": "AMGN"
+  },
+  {
+   "symbol": "AMZN"
+  },
+  {
+   "symbol": "APP"
+  },
+  {
+   "symbol": "ARM"
+  },
+  {
+   "symbol": "ASML"
+  },
+  {
+   "symbol": "AVGO"
+  },
+  {
+   "symbol": "AXON"
+  },
+  {
+   "symbol": "AZN"
+  },
+  {
+   "symbol": "BKNG"
+  },
+  {
+   "symbol": "BKR"
+  },
+  {
+   "symbol": "CCEP"
+  },
+  {
+   "symbol": "CDNS"
+  },
+  {
+   "symbol": "CEG"
+  },
+  {
+   "symbol": "CHTR"
+  },
+  {
+   "symbol": "CMCSA"
+  },
+  {
+   "symbol": "COST"
+  },
+  {
+   "symbol": "CPRT"
+  },
+  {
+   "symbol": "CRWD"
+  },
+  {
+   "symbol": "CSCO"
+  },
+  {
+   "symbol": "CSGP"
+  },
+  {
+   "symbol": "CSX"
+  },
+  {
+   "symbol": "CTAS"
+  },
+  {
+   "symbol": "CTSH"
+  },
+  {
+   "symbol": "DASH"
+  },
+  {
+   "symbol": "DDOG"
+  },
+  {
+   "symbol": "DXCM"
+  },
+  {
+   "symbol": "EA"
+  },
+  {
+   "symbol": "EXC"
+  },
+  {
+   "symbol": "FANG"
+  },
+  {
+   "symbol": "FAST"
+  },
+  {
+   "symbol": "FER"
+  },
+  {
+   "symbol": "FTNT"
+  },
+  {
+   "symbol": "GEHC"
+  },
+  {
+   "symbol": "GILD"
+  },
+  {
+   "symbol": "GOOG"
+  },
+  {
+   "symbol": "GOOGL"
+  },
+  {
+   "symbol": "HON"
+  },
+  {
+   "symbol": "IDXX"
+  },
+  {
+   "symbol": "INSM"
+  },
+  {
+   "symbol": "INTC"
+  },
+  {
+   "symbol": "INTU"
+  },
+  {
+   "symbol": "ISRG"
+  },
+  {
+   "symbol": "KDP"
+  },
+  {
+   "symbol": "KHC"
+  },
+  {
+   "symbol": "KLAC"
+  },
+  {
+   "symbol": "LIN"
+  },
+  {
+   "symbol": "LRCX"
+  },
+  {
+   "symbol": "MAR"
+  },
+  {
+   "symbol": "MCHP"
+  },
+  {
+   "symbol": "MDLZ"
+  },
+  {
+   "symbol": "MELI"
+  },
+  {
+   "symbol": "META"
+  },
+  {
+   "symbol": "MNST"
+  },
+  {
+   "symbol": "MPWR"
+  },
+  {
+   "symbol": "MRVL"
+  },
+  {
+   "symbol": "MSFT"
+  },
+  {
+   "symbol": "MSTR"
+  },
+  {
+   "symbol": "MU"
+  },
+  {
+   "symbol": "NFLX"
+  },
+  {
+   "symbol": "NVDA"
+  },
+  {
+   "symbol": "NXPI"
+  },
+  {
+   "symbol": "ODFL"
+  },
+  {
+   "symbol": "ORLY"
+  },
+  {
+   "symbol": "PANW"
+  },
+  {
+   "symbol": "PAYX"
+  },
+  {
+   "symbol": "PCAR"
+  },
+  {
+   "symbol": "PDD"
+  },
+  {
+   "symbol": "PEP"
+  },
+  {
+   "symbol": "PLTR"
+  },
+  {
+   "symbol": "PYPL"
+  },
+  {
+   "symbol": "QCOM"
+  },
+  {
+   "symbol": "REGN"
+  },
+  {
+   "symbol": "ROP"
+  },
+  {
+   "symbol": "ROST"
+  },
+  {
+   "symbol": "SBUX"
+  },
+  {
+   "symbol": "SHOP"
+  },
+  {
+   "symbol": "SNPS"
+  },
+  {
+   "symbol": "STX"
+  },
+  {
+   "symbol": "TEAM"
+  },
+  {
+   "symbol": "TMUS"
+  },
+  {
+   "symbol": "TRI"
+  },
+  {
+   "symbol": "TSLA"
+  },
+  {
+   "symbol": "TTWO"
+  },
+  {
+   "symbol": "TXN"
+  },
+  {
+   "symbol": "VRSK"
+  },
+  {
+   "symbol": "VRTX"
+  },
+  {
+   "symbol": "WBD"
+  },
+  {
+   "symbol": "WDAY"
+  },
+  {
+   "symbol": "WDC"
+  },
+  {
+   "symbol": "XEL"
+  },
+  {
+   "symbol": "ZS"
+  }
+ ]
+}

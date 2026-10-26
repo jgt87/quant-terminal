@@ -1,0 +1,10 @@
+{
+  "_note": "Annualization assumptions. Bars per year = tradingDays x ceil(sessionHours*3600 / intervalSeconds) for intraday; daily = tradingDays; weekly = 52; monthly = 12. Stocks/ETFs/indices/futures: 252 days x 6.5h regular session (partial last bar counted, e.g. 1h = 7 bars/day). FX: 252 days x 24h. Crypto: 365 days x 24h.",
+  "stock": { "tradingDays": 252, "sessionHours": 6.5 },
+  "etf": { "tradingDays": 252, "sessionHours": 6.5 },
+  "index": { "tradingDays": 252, "sessionHours": 6.5 },
+  "future": { "tradingDays": 252, "sessionHours": 23 },
+  "fx": { "tradingDays": 252, "sessionHours": 24 },
+  "crypto": { "tradingDays": 365, "sessionHours": 24 },
+  "other": { "tradingDays": 252, "sessionHours": 6.5 }
+}

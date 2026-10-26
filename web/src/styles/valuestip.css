@@ -1,0 +1,29 @@
+/* Long-press values tooltip on the chart. */
+.values-tip {
+  position: absolute;
+  z-index: 25;
+  min-width: 150px;
+  padding: 6px 10px;
+  border: 1px solid var(--menu-border);
+  border-radius: var(--menu-radius);
+  background: var(--raised);
+  box-shadow: var(--menu-shadow);
+  color: var(--text);
+  font-size: 12px;
+  pointer-events: none;
+}
+
+.values-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  line-height: 20px;
+}
+
+.values-row span:first-child {
+  color: var(--muted);
+}
+
+.values-row span:last-child {
+  font-variant-numeric: tabular-nums;
+}

@@ -1,0 +1,97 @@
+{
+ "chart": {
+  "result": [
+   {
+    "meta": {
+     "currency": "USD",
+     "symbol": "AAPL",
+     "exchangeName": "NMS",
+     "fullExchangeName": "NasdaqGS",
+     "instrumentType": "EQUITY",
+     "firstTradeDate": 345479400,
+     "regularMarketTime": 1791835201,
+     "hasPrePostMarketData": true,
+     "gmtoffset": -14400,
+     "timezone": "EDT",
+     "exchangeTimezoneName": "America/New_York",
+     "regularMarketPrice": 340.97,
+     "regularMarketChangePercent": 1.286,
+     "fulldayPrice": 340.92,
+     "fulldayChange": 4.28,
+     "fulldayChangePercent": 1.271,
+     "fiftyTwoWeekHigh": 345.34,
+     "fiftyTwoWeekLow": 243.42,
+     "regularMarketDayHigh": 342.63,
+     "regularMarketDayLow": 337.6,
+     "regularMarketVolume": 25796997,
+     "longName": "Apple Inc.",
+     "shortName": "Apple Inc.",
+     "chartPreviousClose": 332.89,
+     "priceHint": 2,
+     "dataGranularity": "1d",
+     "range": "5d"
+    },
+    "timestamp": [
+     1791293400,
+     1791379800,
+     1791466200,
+     1791552600,
+     1791811800
+    ],
+    "indicators": {
+     "quote": [
+      {
+       "low": [
+        330.6199951171875,
+        332.7799987792969,
+        335.8999938964844,
+        330.70001220703125,
+        337.6000061035156
+       ],
+       "volume": [
+        30449000,
+        34147900,
+        35332400,
+        37855000,
+        25796997
+       ],
+       "close": [
+        333.6300048828125,
+        336.6700134277344,
+        340.4200134277344,
+        336.6400146484375,
+        340.9700012207031
+       ],
+       "open": [
+        332.2799987792969,
+        336.9599914550781,
+        336.82000732421875,
+        331.70001220703125,
+        338.1600036621094
+       ],
+       "high": [
+        334.3800048828125,
+        338.6700134277344,
+        341.57000732421875,
+        338.6099853515625,
+        342.6300048828125
+       ]
+      }
+     ],
+     "adjclose": [
+      {
+       "adjclose": [
+        333.6300048828125,
+        336.6700134277344,
+        340.4200134277344,
+        336.6400146484375,
+        340.9700012207031
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "error": null
+ }
+}

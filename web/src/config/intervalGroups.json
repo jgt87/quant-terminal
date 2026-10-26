@@ -1,0 +1,7 @@
+[
+  { "id": "minutes", "label": "Minutes" },
+  { "id": "hours", "label": "Hours" },
+  { "id": "days", "label": "Days" },
+  { "id": "weeks", "label": "Weeks" },
+  { "id": "months", "label": "Months" }
+]

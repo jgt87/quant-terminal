@@ -1,0 +1,48 @@
+{
+ "id": "fx-majors",
+ "name": "FX majors",
+ "description": "Major currency pairs. Served by MT5 when QT_FX_PROVIDER=mt5, otherwise by Yahoo.",
+ "asOf": "2026-10-13",
+ "symbols": [
+  {
+   "symbol": "EURUSD=X",
+   "name": "Euro / US Dollar"
+  },
+  {
+   "symbol": "GBPUSD=X",
+   "name": "British Pound / US Dollar"
+  },
+  {
+   "symbol": "USDJPY=X",
+   "name": "US Dollar / Japanese Yen"
+  },
+  {
+   "symbol": "USDCHF=X",
+   "name": "US Dollar / Swiss Franc"
+  },
+  {
+   "symbol": "AUDUSD=X",
+   "name": "Australian Dollar / US Dollar"
+  },
+  {
+   "symbol": "USDCAD=X",
+   "name": "US Dollar / Canadian Dollar"
+  },
+  {
+   "symbol": "NZDUSD=X",
+   "name": "New Zealand Dollar / US Dollar"
+  },
+  {
+   "symbol": "EURGBP=X",
+   "name": "Euro / British Pound"
+  },
+  {
+   "symbol": "EURJPY=X",
+   "name": "Euro / Japanese Yen"
+  },
+  {
+   "symbol": "GBPJPY=X",
+   "name": "British Pound / Japanese Yen"
+  }
+ ]
+}

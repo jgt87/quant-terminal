@@ -1,0 +1,157 @@
+.top-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 8px;
+  border-bottom: 1px solid var(--border);
+  background: var(--panel);
+  min-width: 0;
+}
+
+.brand {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--text-strong);
+  padding: 0 10px 0 4px;
+  white-space: nowrap;
+}
+
+.tb-group {
+  display: flex;
+  gap: 1px;
+}
+
+.tb-sep {
+  width: 1px;
+  height: 20px;
+  margin: 0 6px;
+  background: var(--border-strong);
+  flex: none;
+}
+
+.tb-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: var(--toolbar-btn-h);
+  padding: 0 8px;
+  border: 0;
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.tb-btn:hover {
+  background: var(--hover);
+  color: var(--text-strong);
+}
+
+.tb-btn.active {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.tb-btn.interval {
+  min-width: 30px;
+  justify-content: center;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.symbol-btn {
+  min-width: 120px;
+  border: 1px solid var(--border-strong);
+  color: var(--text-strong);
+  font-weight: 700;
+}
+
+.dropdown {
+  position: relative;
+}
+
+.dropdown-menu {
+  position: absolute;
+  z-index: 30;
+  top: 32px;
+  left: 0;
+  min-width: 180px;
+  margin: 0;
+  padding: var(--menu-pad-y);
+  list-style: none;
+  background: var(--raised);
+  border: 1px solid var(--menu-border);
+  border-radius: var(--menu-radius);
+  box-shadow: var(--menu-shadow);
+  font-size: var(--menu-font);
+}
+
+.dropdown-menu button {
+  display: block;
+  width: 100%;
+  height: var(--menu-item-h);
+  padding: 0 calc(var(--menu-pad-x) - var(--menu-pad-y));
+  border: 0;
+  border-radius: calc(var(--menu-radius) - 3px);
+  background: transparent;
+  text-align: left;
+  color: var(--text);
+  font-size: var(--menu-font);
+}
+
+.dropdown-menu button:hover {
+  background: var(--menu-hover);
+  color: var(--text-strong);
+}
+
+.dropdown-menu button.active {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* Custom interval picker. */
+.custom-interval-menu {
+  width: 200px;
+}
+.ci-presets {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px;
+}
+.custom-interval-menu .ci-presets button {
+  height: 28px;
+  text-align: center;
+  padding: 0;
+}
+.ci-form {
+  display: flex;
+  gap: 4px;
+  margin-top: 6px;
+}
+.ci-form input {
+  flex: 1;
+  min-width: 0;
+  height: 26px;
+  padding: 0 6px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--panel-2);
+  color: var(--text);
+}
+.custom-interval-menu .ci-form button {
+  width: auto;
+  display: inline-block;
+  text-align: center;
+}
+.ci-error {
+  margin: 4px 2px 0;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+/* Icons in the top toolbar use the shared 28px icon box. */
+.tb-btn > svg {
+  width: var(--icon-size);
+  height: var(--icon-size);
+  flex: none;
+}

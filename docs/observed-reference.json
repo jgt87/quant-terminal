@@ -1,0 +1,7 @@
+{
+  "note": "Values read off a third-party chart UI on 2026-10-12 (local evening) for cross-checking our data pipeline. Data only, no code.",
+  "observations": [
+    { "symbol": "AAPL", "interval": "1D", "bar": "last session (2026-10-12)", "open": 338.22, "high": 342.63, "low": 337.60, "close": 340.97, "change": 4.33, "changePct": 1.29 },
+    { "symbol": "^NDX", "interval": "1D", "field": "last", "value": 30664.70, "changePct": -0.71 }
+  ]
+}

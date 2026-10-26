@@ -1,0 +1,21 @@
+# dependencies and build output
+node_modules/
+dist/
+*.tsbuildinfo
+
+# local runtime data: market-data cache, layouts/watchlists/portfolios store, logs
+data/
+*.log
+
+# Python bridge environment
+bridge/.venv/
+__pycache__/
+*.pyc
+
+# local env / editor files
+.env
+.env.*
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store

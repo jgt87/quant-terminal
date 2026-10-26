@@ -1,0 +1,76 @@
+/* Screener panel. */
+
+.sc-universe {
+  max-width: 200px;
+}
+
+.sc-refresh {
+  max-width: 130px;
+}
+
+.sc-presets {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sc-presets select {
+  max-width: 180px;
+}
+
+.sc-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sc-filter {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sc-filter select {
+  min-width: 0;
+}
+
+.sc-op {
+  width: 76px;
+}
+
+.sc-val {
+  width: 70px;
+  text-align: right;
+}
+
+.sc-add {
+  align-self: flex-start;
+  height: 22px;
+  padding: 0 8px;
+}
+
+.sc-errors {
+  height: 20px;
+  padding: 0 6px;
+  border-color: var(--neg);
+  color: var(--neg);
+  font-size: 11px;
+}
+
+.sc-error-list {
+  max-height: 120px;
+  margin: 0;
+  padding: 4px 10px 6px 24px;
+  overflow: auto;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.sc-error-list b {
+  color: var(--text-strong);
+}

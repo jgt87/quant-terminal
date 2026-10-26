@@ -1,0 +1,74 @@
+[
+  {
+    "id": "vp-visible",
+    "name": "Volume Profile Visible Range",
+    "shortName": "VPVR",
+    "inputs": [
+      { "key": "rows", "label": "Rows", "type": "int", "default": 24, "min": 4, "max": 200 },
+      { "key": "valueArea", "label": "Value area %", "type": "int", "default": 70, "min": 10, "max": 100 },
+      { "key": "width", "label": "Width % of chart", "type": "int", "default": 25, "min": 5, "max": 80 }
+    ]
+  },
+  {
+    "id": "vp-session",
+    "name": "Volume Profile Session",
+    "shortName": "VPS",
+    "inputs": [
+      { "key": "rows", "label": "Rows", "type": "int", "default": 24, "min": 4, "max": 200 },
+      { "key": "valueArea", "label": "Value area %", "type": "int", "default": 70, "min": 10, "max": 100 },
+      { "key": "sessionStart", "label": "Session start (UTC hour)", "type": "float", "default": 0, "min": 0, "max": 23.75, "step": 0.25 }
+    ]
+  },
+  {
+    "id": "tpo",
+    "name": "TPO Market Profile",
+    "shortName": "TPO",
+    "inputs": [
+      { "key": "period", "label": "Period (minutes)", "type": "int", "default": 30, "min": 5, "max": 240 },
+      { "key": "rows", "label": "Rows (target)", "type": "int", "default": 40, "min": 5, "max": 200 },
+      { "key": "valueArea", "label": "Value area %", "type": "int", "default": 70, "min": 10, "max": 100 },
+      { "key": "sessionStart", "label": "Session start (UTC hour)", "type": "float", "default": 0, "min": 0, "max": 23.75, "step": 0.25 }
+    ]
+  },
+  {
+    "id": "candle-patterns",
+    "name": "Candlestick patterns",
+    "shortName": "Candles",
+    "inputs": [
+      { "key": "oneBar", "label": "One-bar patterns", "type": "bool", "default": true },
+      { "key": "twoBar", "label": "Two-bar patterns", "type": "bool", "default": true },
+      { "key": "threeBar", "label": "Three-bar patterns", "type": "bool", "default": true },
+      { "key": "bullish", "label": "Bullish", "type": "bool", "default": true },
+      { "key": "bearish", "label": "Bearish", "type": "bool", "default": true },
+      { "key": "neutral", "label": "Neutral (doji)", "type": "bool", "default": false }
+    ]
+  },
+  {
+    "id": "chart-patterns",
+    "name": "Auto chart patterns",
+    "shortName": "Patterns",
+    "inputs": [
+      { "key": "deviation", "label": "Deviation %", "type": "float", "default": 3, "min": 0.1, "max": 50, "step": 0.1 },
+      { "key": "depth", "label": "Depth (bars)", "type": "int", "default": 1, "min": 1, "max": 100 },
+      { "key": "tolerance", "label": "Tolerance %", "type": "float", "default": 1.5, "min": 0.1, "max": 20, "step": 0.1 }
+    ]
+  },
+  {
+    "id": "zigzag",
+    "name": "Zig Zag",
+    "shortName": "ZigZag",
+    "inputs": [
+      { "key": "deviation", "label": "Deviation %", "type": "float", "default": 5, "min": 0.1, "max": 50, "step": 0.1 },
+      { "key": "depth", "label": "Depth (bars)", "type": "int", "default": 1, "min": 1, "max": 100 }
+    ]
+  },
+  {
+    "id": "autofib",
+    "name": "Auto Fib retracement",
+    "shortName": "Auto Fib",
+    "inputs": [
+      { "key": "deviation", "label": "Deviation %", "type": "float", "default": 5, "min": 0.1, "max": 50, "step": 0.1 },
+      { "key": "depth", "label": "Depth (bars)", "type": "int", "default": 1, "min": 1, "max": 100 }
+    ]
+  }
+]

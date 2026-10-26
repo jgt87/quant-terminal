@@ -1,0 +1,158 @@
+/* Scripts panel and code editor. Syntax colors use the link-color tokens. */
+
+.sp-open {
+  max-width: 200px;
+}
+
+.sp-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sp-name {
+  flex: 1;
+  min-width: 80px;
+}
+
+.code-editor {
+  --code-line: 18px;
+  display: flex;
+  flex: 0 0 auto;
+  height: 46%;
+  min-height: 160px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  font-size: 12px;
+  line-height: var(--code-line);
+  overflow: hidden;
+}
+
+.code-gutter {
+  flex: none;
+  width: 40px;
+  padding: 6px 6px 6px 0;
+  overflow: hidden;
+  border-right: 1px solid var(--border);
+  color: var(--dim);
+  text-align: right;
+  user-select: none;
+}
+
+.code-gutter .err {
+  background: var(--neg);
+  color: var(--accent-fg);
+}
+
+.code-stack {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+.code-hl,
+.code-input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 6px 8px;
+  border: 0;
+  font: inherit;
+  line-height: var(--code-line);
+  letter-spacing: 0;
+  tab-size: 2;
+  white-space: pre;
+  overflow: auto;
+}
+
+.code-hl {
+  color: var(--text);
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.code-input {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  color: transparent;
+  caret-color: var(--text-strong);
+  outline: none;
+  resize: none;
+}
+
+.code-input:focus-visible {
+  box-shadow: inset 0 0 0 1px var(--focus);
+}
+
+.code-input::selection {
+  background: var(--accent-soft);
+  color: transparent;
+}
+
+.tk-kw {
+  color: var(--link-purple);
+}
+
+.tk-str {
+  color: var(--link-green);
+}
+
+.tk-num {
+  color: var(--link-orange);
+}
+
+.tk-com {
+  color: var(--dim);
+  font-style: italic;
+}
+
+.tk-fn {
+  color: var(--link-blue);
+}
+
+.tk-api {
+  color: var(--link-cyan);
+}
+
+.sp-out {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 6px 8px;
+}
+
+.sp-error {
+  padding: 6px 8px;
+  border-left: 2px solid var(--neg);
+  background: var(--panel-2);
+  color: var(--neg);
+  white-space: pre-wrap;
+}
+
+.sp-section {
+  color: var(--text-strong);
+  font-weight: 600;
+}
+
+.sp-log {
+  max-height: 160px;
+  margin: 0;
+  padding: 6px 8px;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--text);
+  font: 11px/1.5 ui-monospace, Consolas, monospace;
+  white-space: pre-wrap;
+}
+
+.sp-plots td:first-child {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

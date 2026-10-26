@@ -1,0 +1,94 @@
+/* Floating toolbar over the selected drawing. */
+.float-bar {
+  position: absolute;
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: var(--floatbar-h);
+  padding: 0 6px 0 2px;
+  border: 1px solid var(--menu-border);
+  border-radius: var(--menu-radius);
+  background: var(--raised);
+  box-shadow: var(--menu-shadow);
+  pointer-events: auto;
+}
+
+.float-bar .icon-btn,
+.float-bar .tb-btn {
+  height: 28px;
+  border-radius: var(--control-radius);
+}
+
+.float-bar .icon-btn {
+  width: var(--floatbar-cell);
+  height: var(--floatbar-cell);
+}
+
+.float-bar .icon-btn > svg,
+.float-bar .fb-grip > svg {
+  width: var(--icon-size);
+  height: var(--icon-size);
+}
+
+.float-bar .icon-btn:hover:not(:disabled),
+.float-bar .tb-btn:hover {
+  background: var(--menu-hover);
+  color: var(--text-strong);
+}
+
+.float-bar .icon-btn.on {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.float-bar .color-field {
+  margin: 0 2px;
+}
+
+.float-bar .color-pop {
+  top: 30px;
+  left: 0;
+  right: auto;
+}
+
+.fb-width {
+  height: var(--floatbar-cell);
+  min-width: 68px;
+  padding: 0 6px;
+  justify-content: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.fb-sep {
+  width: 1px;
+  height: 18px;
+  margin: 0 3px;
+  background: var(--border-strong);
+}
+
+.fb-grip {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: var(--floatbar-h);
+  color: var(--dim);
+  cursor: grab;
+}
+
+.fb-grip:active {
+  cursor: grabbing;
+}
+
+.fb-color {
+  display: inline-flex;
+}
+
+.fb-width-sample {
+  display: inline-block;
+  width: 16px;
+  margin-right: 6px;
+  vertical-align: middle;
+  border-radius: 1px;
+  background: currentColor;
+}
