@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## v0.1.1 — 2026-10-28
+
+- README: feature overview, screenshot (`docs/screenshot.png`), market-data section (no licensed datafeed or API keys included; Yahoo Finance delays and limits for stocks, forex and intraday history; app refresh rates; Binance limits) and how the read-only MT5 bridge relays live ticks.
+
 ## v0.1.0 — 2026-10-26
 
 - Repository: public Git repo with `.gitignore` for dependencies, build output, local runtime data (`data/`), logs and the Python bridge environment.
