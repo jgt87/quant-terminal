@@ -4,7 +4,7 @@ dist/
 *.tsbuildinfo
 
 # local runtime data: market-data cache, layouts/watchlists/portfolios store, logs
-data/
+/data/
 *.log
 
 # Python bridge environment
