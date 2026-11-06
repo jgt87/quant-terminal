@@ -1,0 +1,4 @@
+# Windows batch files must keep CRLF line endings, or cmd.exe can misparse labels (goto/call)
+# when the repo is cloned with core.autocrlf=false or downloaded as a ZIP.
+*.cmd text eol=crlf
+*.bat text eol=crlf

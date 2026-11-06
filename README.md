@@ -43,8 +43,24 @@ a screener, portfolios, paper trading, user scripts and a backtesting engine wit
 
 ## Run
 
-Double-click **`Start Terminal.cmd`** (or **`Start Terminal (MT5).cmd`** for live prices from a running MetaTrader 5).
-It builds the app, starts the local server and opens **http://localhost:4180** in your browser.
+Install with git so the launcher can keep it up to date:
+
+```
+git clone https://github.com/jgt87/quant-terminal.git
+```
+
+Then double-click **`Start Terminal.cmd`** (or **`Start Terminal (MT5).cmd`** for live prices from a running
+MetaTrader 5). It updates to the latest release, installs the dependencies, builds the app, starts the local server
+and opens **http://localhost:4180** in your browser once it is ready. Keep its window open while you use the
+terminal; closing it stops the server.
+
+### Updates
+On every start the launcher fetches the release tags and fast-forwards to the newest release (`vX.Y.Z`), then
+restarts itself from the updated files. It never discards work: it only updates on branch `main` with no changes to
+tracked files and only by fast-forward, and otherwise says why it skipped. When offline it starts the installed
+version. Dependencies are installed with `npm ci` (exactly what `package-lock.json` pins) only when the lockfile
+changed. Set `QT_NO_UPDATE=1` to turn updates off. A ZIP download cannot update itself; the launcher tells you when a
+newer release is available.
 
 From a terminal:
 
@@ -61,6 +77,7 @@ Development with hot reload: `npm run dev`, then open http://localhost:5180.
 
 ### Requirements
 - Node.js 20+
+- Git, for automatic updates (optional)
 - Optional, for the MT5 feed: Windows, MetaTrader 5 installed, running and logged in, and 64-bit Python 3.12
   (`bridge\setup.cmd` once)
 
@@ -150,7 +167,7 @@ The bridge port can be changed with `MT5_BRIDGE_PORT`, and the server's bridge a
   paper trading); also serves the built web app.
 - `web/`: React + Vite app with its own canvas chart engine (`web/src/chart/`).
 - `bridge/`: the MetaTrader 5 market-data bridge.
-- `tools/`: browser end-to-end checks and screenshot sheets.
+- `tools/`: launcher helpers (`update.mjs` auto-updater, `ensure-deps.mjs`), browser end-to-end checks and screenshot sheets.
 
 Commands: `npm test` · `npm run typecheck` · `npm run build` · `npm run dev`.
 

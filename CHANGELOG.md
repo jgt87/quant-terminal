@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+## v0.3.0 — 2026-11-06
+
+- Auto-update: the launchers update a git checkout to the newest release tag before starting (fast-forward only, on `main` with no changes to tracked files; skipped when offline; `QT_NO_UPDATE=1` turns it off) and restart from the updated files. ZIP installs are told when a newer release exists. Code in `tools/update.mjs`, tests in `server/test/updater.test.ts`. Installs from v0.2.0 or older get it after one manual `git pull`.
+- Launchers: dependencies are installed with `npm ci` only when `package-lock.json` changed (`tools/ensure-deps.mjs`), so a launch never modifies tracked files. Clear messages and a paused window when Node.js is missing or older than 20, or when the install, build or server fails. The browser opens once the server is listening, not before (`QT_OPEN_BROWSER=1`, set by the launchers); a second start while the terminal is running says so and shows the running one.
+- MT5 bridge setup (`bridge\setup.cmd`): checks for 64-bit Python 3.12, reports failures and is re-run by the MT5 launcher when an earlier setup did not finish.
+- `*.cmd` files are checked out with CRLF line endings (`.gitattributes`), so cmd.exe parses them correctly from ZIP downloads and `core.autocrlf=false` clones.
+- `package.json`: `engines.node >=20` and the repository URL. Dependencies: `tsx` 4.23.15 (fixes a Node 26 deprecation warning; newer esbuild), `vite` 5.4.21 and `vitest` 2.1.9 (security patches). Remaining `npm audit` findings are in the dev server and test runner (Vite 5, Vitest 2) and need major upgrades.
+- Docs: `how to start.txt` no longer says the MT5 bridge environment already exists.
+
 ## v0.2.0 — 2026-11-06
 
 - Indicators: 42 new built-in indicators (54 in total), from public formula definitions, in the indicator picker and as alert operands, with default colors. Moving averages: DEMA, TEMA, Hull, ALMA, KAMA, Least Squares (LSMA), Smoothed (SMMA), Volume Weighted (VWMA). Trend and bands: Keltner Channels, Envelope, Ichimoku Cloud (conversion, base, lagging span, leading spans with cloud fill; the cloud ahead of the last bar is not drawn yet), SuperTrend, Parabolic SAR, Chandelier Exit. Momentum: Stochastic RSI, CCI, Williams %R, Rate of Change, Momentum, Awesome Oscillator, TRIX, Ultimate Oscillator, Chande Momentum, Detrended Price Oscillator, True Strength Index, Coppock Curve. Trend strength: DMI (+DI, −DI, ADX), ADX, Aroon, Aroon Oscillator, Vortex, Choppiness Index. Volatility: Historical Volatility, Bollinger %B, Bollinger Bandwidth. Volume: Money Flow Index, Chaikin Money Flow, Accumulation/Distribution, Chaikin Oscillator, Elder Force Index, Ease of Movement, Price Volume Trend. Code in `core/src/indicators/` (`movingAverages`, `directional`, `momentum`, `bands`, `volumeFlow`, shared helpers in `series`); tests in `core/test/indicators-extended.test.ts`.
