@@ -18,6 +18,9 @@ export interface ChartMenuState {
   lockAllDrawings?: boolean;
   syncDrawings?: boolean;
   symbol?: string;
+  /** Order flow parts switched on; `orderFlowAvailable` is false for non-Binance symbols. */
+  orderFlow?: { footprint?: boolean; bubbles?: boolean; delta?: boolean; cvd?: boolean };
+  orderFlowAvailable?: boolean;
 }
 
 export interface ChartMenuActions {
@@ -25,6 +28,9 @@ export interface ChartMenuActions {
   convert?: { label: string; run(): void }[];
   exportCsv?(): void;
   exportPng?(): void;
+  exportSvg?(): void;
+  /** Opens the data table panel (bars and indicator values). */
+  dataTable?(): void;
   resetView(): void;
   copy(text: string): void;
   setChartType(t: ChartType): void;
@@ -40,6 +46,35 @@ export interface ChartMenuActions {
   /** "Add alert on {symbol} at {price}…" (Alt+A). */
   addAlert?(): void;
   objectTree?(): void;
+  setOrderFlow?(patch: { footprint?: boolean; bubbles?: boolean; delta?: boolean; cvd?: boolean }): void;
+  /** Opens the time and sales panel. */
+  timeAndSales?(): void;
+}
+
+/** "Order flow ▸": footprint, bubbles, delta panes and the time and sales panel (Binance symbols). */
+function orderFlowMenu(s: ChartMenuState, a: ChartMenuActions): MenuItem[] {
+  if (!a.setOrderFlow) return [];
+  const f = s.orderFlow ?? {};
+  const off = s.orderFlowAvailable === false;
+  const item = (label: string, key: "footprint" | "bubbles" | "delta" | "cvd") => ({
+    label,
+    checked: Boolean(f[key]),
+    disabled: off && !f[key],
+    onSelect: () => a.setOrderFlow?.({ [key]: !f[key] }),
+  });
+  return [
+    {
+      label: "Order flow",
+      submenu: [
+        ...(off ? [{ type: "header" as const, label: "Needs a Binance symbol" }] : []),
+        item("Footprint", "footprint"),
+        item("Volume bubbles", "bubbles"),
+        item("Delta", "delta"),
+        item("Cumulative delta", "cvd"),
+        ...(a.timeAndSales ? [SEP, { label: "Time and sales", onSelect: a.timeAndSales }] : []),
+      ],
+    },
+  ];
 }
 
 export function chartMenu(s: ChartMenuState, a: ChartMenuActions): MenuItem[] {
@@ -56,6 +91,7 @@ export function chartMenu(s: ChartMenuState, a: ChartMenuActions): MenuItem[] {
       submenu: chartTypes.map((t) => ({ label: t.label, checked: t.id === s.chartType, onSelect: () => a.setChartType(t.id as ChartType) })),
     },
     { label: "Log scale", checked: s.logScale, onSelect: () => a.setLog(!s.logScale) },
+    ...orderFlowMenu(s, a),
     SEP,
     ...(a.convert ?? []).map((c) => ({ label: c.label, onSelect: c.run })),
     ...(a.convert?.length ? [SEP] : []),
@@ -71,32 +107,69 @@ export function chartMenu(s: ChartMenuState, a: ChartMenuActions): MenuItem[] {
     SEP,
     ...(a.exportCsv ? [{ label: "Export data (CSV)", onSelect: a.exportCsv }] : []),
     ...(a.exportPng ? [{ label: "Save image (PNG)", onSelect: a.exportPng }] : []),
-    ...(a.exportCsv || a.exportPng ? [SEP] : []),
+    ...(a.exportSvg ? [{ label: "Save image (SVG)", onSelect: a.exportSvg }] : []),
+    ...(a.dataTable ? [{ label: "Data table", onSelect: a.dataTable }] : []),
+    ...(a.exportCsv || a.exportPng || a.exportSvg || a.dataTable ? [SEP] : []),
     { label: "Chart settings…", icon: "settings", onSelect: a.openChartSettings },
   ];
 }
 
 // Drawing menus live in state/drawingMenu.ts (generic, multi-selection and per-tool menus).
 
+/** Where an indicator can be moved: the price pane, a new pane, or the pane of another indicator. */
+export type PaneTarget = { kind: "overlay" } | { kind: "new" } | { kind: "with"; uid: string };
+
+/** Another separate pane the indicator can join (its first indicator names it). */
+export interface PaneChoice {
+  uid: string;
+  label: string;
+  /** The indicator is in this pane now. */
+  current: boolean;
+}
+
+export interface IndicatorPaneState {
+  /** Other indicator panes (the price pane and "new pane" are added by the menu). */
+  panes: PaneChoice[];
+  ownScale: boolean;
+  /** The indicator's pane is maximised / collapsed. */
+  maximized: boolean;
+  collapsed: boolean;
+}
+
 export interface IndicatorMenuActions {
   /** Built-in studies with geometry (auto fib, chart patterns, zig zag): make editable drawings. */
   convert?(): void;
   settings(): void;
   toggleVisible(): void;
-  movePane(to: "overlay" | "separate"): void;
+  movePane(to: PaneTarget): void;
+  setOwnScale(on: boolean): void;
+  toggleMaximized(): void;
+  toggleCollapsed(): void;
   remove(): void;
 }
 
 /** `pane` is where the indicator is drawn now (definition default or instance override). */
-export function indicatorMenu(inst: IndicatorInstance, pane: "overlay" | "separate", a: IndicatorMenuActions): MenuItem[] {
+export function indicatorMenu(inst: IndicatorInstance, pane: "overlay" | "separate", a: IndicatorMenuActions, s?: IndicatorPaneState): MenuItem[] {
+  const moveTo: MenuItem[] = [
+    { label: "Price pane", checked: pane === "overlay", onSelect: () => a.movePane({ kind: "overlay" }) },
+    { label: "New pane below", onSelect: () => a.movePane({ kind: "new" }) },
+    ...(s?.panes.length ? [SEP, ...s.panes.map((p) => ({ label: p.label, checked: p.current, onSelect: () => a.movePane({ kind: "with", uid: p.uid }) }))] : []),
+  ];
   return [
     { label: "Settings…", onSelect: a.settings },
     { label: inst.visible ? "Hide" : "Show", onSelect: a.toggleVisible },
     ...(a.convert ? [{ label: "Convert to drawing", onSelect: a.convert }] : []),
     SEP,
-    pane === "overlay"
-      ? { label: "Move to new pane", onSelect: () => a.movePane("separate") }
-      : { label: "Move to main pane (overlay)", onSelect: () => a.movePane("overlay") },
+    { label: "Move to", submenu: moveTo },
+    {
+      label: "Scale",
+      submenu: [
+        { label: "Pane scale", checked: !s?.ownScale, onSelect: () => a.setOwnScale(false) },
+        { label: "Own scale (no axis)", checked: Boolean(s?.ownScale), onSelect: () => a.setOwnScale(true) },
+      ],
+    },
+    { label: s?.maximized ? "Restore panes" : "Maximize pane", shortcut: "Ctrl+Dbl-click", onSelect: a.toggleMaximized },
+    ...(pane === "separate" ? [{ label: s?.collapsed ? "Expand pane" : "Collapse pane", onSelect: a.toggleCollapsed }] : []),
     SEP,
     { label: "Remove", onSelect: a.remove },
   ];
@@ -107,15 +180,23 @@ export interface PriceAxisState {
   autoScale: boolean;
   log: boolean;
   percent: boolean;
+  indexed: boolean;
+  inverted: boolean;
   lastPriceLabel: boolean;
+  maximized: boolean;
+  collapsed: boolean;
 }
 
 export interface PriceAxisActions {
   setAuto(on: boolean): void;
   setLog(on: boolean): void;
   setPercent(on: boolean): void;
+  setIndexed(on: boolean): void;
+  setInverted(on: boolean): void;
   reset(): void;
   setLastPriceLabel(on: boolean): void;
+  toggleMaximized(): void;
+  toggleCollapsed(): void;
 }
 
 export function priceAxisMenu(s: PriceAxisState, a: PriceAxisActions): MenuItem[] {
@@ -123,6 +204,11 @@ export function priceAxisMenu(s: PriceAxisState, a: PriceAxisActions): MenuItem[
     { label: "Auto scale", checked: s.autoScale, onSelect: () => a.setAuto(!s.autoScale) },
     { label: "Logarithmic", checked: s.log, disabled: !s.main, onSelect: () => a.setLog(!s.log) },
     { label: "Percent", checked: s.percent, disabled: !s.main, onSelect: () => a.setPercent(!s.percent) },
+    { label: "Indexed to 100", checked: s.indexed, disabled: !s.main, onSelect: () => a.setIndexed(!s.indexed) },
+    { label: "Invert scale", checked: s.inverted, disabled: !s.main, onSelect: () => a.setInverted(!s.inverted) },
+    SEP,
+    { label: s.maximized ? "Restore panes" : "Maximize pane", shortcut: "Ctrl+Dbl-click", onSelect: a.toggleMaximized },
+    ...(s.main ? [] : [{ label: s.collapsed ? "Expand pane" : "Collapse pane", onSelect: a.toggleCollapsed }]),
     SEP,
     { label: "Reset price scale", onSelect: a.reset },
     SEP,

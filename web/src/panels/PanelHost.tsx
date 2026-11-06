@@ -1,6 +1,6 @@
 // Right-side panel host: an always-visible icon rail (Watchlist, Alerts, Screener, Portfolio,
-// Paper trading, Scripts) and the open panel next to it (resizable by its left edge). Clicking
-// the open panel's icon collapses it. Alt+Shift+1..7 open the panels. The alert center (live
+// Paper trading, Scripts, Object tree, Time and sales, Data table) and the open panel next to it (resizable by
+// its left edge). Clicking the open panel's icon collapses it. Alt+Shift+1..9 open the panels. The alert center (live
 // stream, toasts, sounds, desktop notifications) runs here, so it works while panels are closed.
 
 import { useEffect, useRef, useState } from "react";
@@ -16,6 +16,8 @@ import { PANELS, panelDef, type PanelId, type PanelIntegration } from "./registr
 import { ScreenerPanel } from "./screener/ScreenerPanel";
 import { ScriptsPanel } from "./scripts/ScriptsPanel";
 import { ObjectTreePanel } from "./objects/ObjectTreePanel";
+import { TapePanel } from "./tape/TapePanel";
+import { DataTablePanel } from "./data/DataTablePanel";
 import { WatchlistPlus } from "./watchlist/WatchlistPlus";
 import "./panels.css";
 
@@ -52,7 +54,7 @@ export function PanelHost({ open, onOpenChange, integration }: Props) {
   showRef.current = show;
   useEffect(() => openPanelRequests.on((id) => showRef.current(id)), []);
 
-  // Alt+Shift+1..7 open a panel.
+  // Alt+Shift+1..9 open a panel.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (!e.altKey || !e.shiftKey || e.ctrlKey || e.metaKey) return;
@@ -97,6 +99,8 @@ export function PanelHost({ open, onOpenChange, integration }: Props) {
           {activeId === "paper" && <PaperPanel integration={integration} visible={visible("paper")} />}
           {activeId === "scripts" && <ScriptsPanel integration={integration} />}
           {activeId === "objects" && <ObjectTreePanel chart={integration.activeChart ?? null} />}
+          {activeId === "data" && <DataTablePanel chart={integration.activeChart ?? null} />}
+          {activeId === "tape" && <TapePanel symbol={integration.activeSymbol} visible={visible("tape")} />}
         </div>
       )}
       <nav className="panel-rail" aria-label="Panels">

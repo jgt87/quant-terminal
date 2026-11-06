@@ -16,7 +16,8 @@ type DragMode =
   | { kind: "priceScale"; pane: number; lastY: number }
   | { kind: "timeScale"; lastX: number }
   | { kind: "separator"; index: number; lastY: number }
-  | { kind: "drawing" };
+  | { kind: "drawing" }
+  | { kind: "trade"; id: string; moved: boolean };
 
 const HOTKEYS = hotkeyMap();
 const mods = (ev: MouseEvent | KeyboardEvent) => ({ shift: ev.shiftKey, ctrl: ev.ctrlKey || ev.metaKey, alt: ev.altKey });
@@ -84,7 +85,17 @@ export class ChartInteraction {
       e.replayDispatch({ type: "start", time: e.sourceTimeAtX(x), times: e.replayTimes() });
       return;
     }
-    if (r.kind === "plot" && r.pane === 0 && e.data.length > 0 && e.drawings.pointerDown(x, y - e.mainPane.top, mods(ev))) {
+    // Paper trading lines: the × button acts, a draggable line starts a drag.
+    const trade = r.kind === "plot" && r.pane === 0 && e.drawings.tool === "cursor" && !e.drawings.placingDrawing() ? e.tradeLineAt(x, y - e.mainPane.top) : null;
+    if (trade?.part === "close") {
+      e.events.emit("tradeAction", { kind: "button", line: trade.line });
+      return;
+    }
+    if (trade && trade.line.field) {
+      this.drag = { kind: "trade", id: trade.line.id, moved: false };
+      e.tradeDrag = { id: trade.line.id, price: trade.line.price };
+      this.setCursor("ns-resize");
+    } else if (r.kind === "plot" && r.pane === 0 && e.data.length > 0 && e.drawings.pointerDown(x, y - e.mainPane.top, mods(ev))) {
       this.drag = { kind: "drawing" };
     } else if (r.kind === "plot") {
       this.drag = { kind: "pan", pane: r.pane, lastX: x, lastY: y };
@@ -111,6 +122,10 @@ export class ChartInteraction {
       switch (d.kind) {
         case "drawing":
           this.setCursor(e.drawings.pointerMove(x, y - e.mainPane.top, mods(ev)) ?? "crosshair");
+          break;
+        case "trade":
+          if (e.tradeDrag) e.tradeDrag = { id: d.id, price: e.mainPane.ps.fromY(y - e.mainPane.top) };
+          d.moved = true;
           break;
         case "pan": {
           e.ts.pan(x - d.lastX);
@@ -147,7 +162,10 @@ export class ChartInteraction {
     const prevSep = e.hoverSeparator;
     e.hoverSeparator = r.kind === "separator" ? r.index : -1;
     let cursor = "default";
-    if (r.kind === "plot") {
+    const tradeHover = r.kind === "plot" && r.pane === 0 ? e.tradeLineAt(x, y - e.mainPane.top) : null;
+    if (tradeHover) {
+      cursor = tradeHover.part === "close" ? "pointer" : tradeHover.line.field ? "ns-resize" : "default";
+    } else if (r.kind === "plot") {
       const hint = r.pane === 0 ? e.drawings.pointerMove(x, y - e.mainPane.top, mods(ev)) : null;
       cursor = hint ?? plotCursor(e.drawings.cursorStyle);
     } else if (r.kind === "priceAxis") cursor = "ns-resize";
@@ -161,6 +179,21 @@ export class ChartInteraction {
     if (this.drag?.kind === "drawing") {
       const p = this.pos(ev);
       this.e.drawings.pointerUp(p.x, p.y - this.e.mainPane.top, mods(ev));
+    }
+    if (this.drag?.kind === "trade") {
+      const d = this.drag;
+      const line = this.e.tradeLines.find((l) => l.id === d.id);
+      const raw = this.e.tradeDrag?.price;
+      // Round to the decimals the price scale shows.
+      const dec = raw === undefined ? 0 : this.e.mainPane.ps.formatDecimals(raw);
+      const price = raw === undefined ? undefined : Number(raw.toFixed(dec));
+      if (line && d.moved && price !== undefined && price > 0 && Math.abs(price - line.price) > 1e-12) {
+        // Show the line at its new price until the account refresh confirms it.
+        line.price = price;
+        this.e.events.emit("tradeAction", { kind: "move", line, price });
+      }
+      this.e.tradeDrag = null;
+      this.e.invalidate();
     }
     if (this.drag?.kind === "separator") {
       this.e.events.emit("layout", this.e.paneInfos());
@@ -222,6 +255,10 @@ export class ChartInteraction {
     const e = this.e;
     const { x, y } = this.pos(ev);
     const r = this.region(x, y);
+    if ((ev.ctrlKey || ev.metaKey) && (r.kind === "plot" || r.kind === "priceAxis")) {
+      e.togglePaneMaximized(r.pane);
+      return;
+    }
     if (r.kind === "priceAxis") e.panes[r.pane]?.ps.resetAuto();
     else if (r.kind === "timeAxis") {
       e.ts.reset();

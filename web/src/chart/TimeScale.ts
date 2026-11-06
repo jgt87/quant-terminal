@@ -202,10 +202,14 @@ export class TimeScale {
     return Math.max(this.intervalSec, (this.times[n - 1] - this.times[0]) / (n - 1));
   }
 
-  /** Tick marks for the time axis at calendar boundaries, at least `minLabelPx` apart. */
+  /**
+   * Tick marks for the time axis at calendar boundaries, at least `minLabelPx` apart. Empty
+   * space right of the last bar gets ticks at projected times (one interval per bar).
+   */
   ticks(minLabelPx = 80): TimeTick[] {
-    const { from, to } = this.visibleRange();
-    if (from > to) return [];
+    const { from, to: lastVisible } = this.visibleRange();
+    if (from > lastVisible) return [];
+    const to = lastVisible < this.lastIndex ? lastVisible : Math.max(lastVisible, Math.ceil(this.xToIndex(this.width)));
     const wanted = (this.avgSecondsPerBar() / this.barSpacing) * minLabelPx;
     let span = LABEL_SPANS[LABEL_SPANS.length - 1];
     for (const s of LABEL_SPANS) {
@@ -219,7 +223,7 @@ export class TimeScale {
     let prevKey: number | null = prevTime == null ? null : bucketKey(prevTime, span);
     let lastX = -Infinity;
     for (let i = from; i <= to; i++) {
-      const t = this.times[i];
+      const t = i <= this.lastIndex ? this.times[i] : this.indexToTime(i);
       const key = bucketKey(t, span);
       if (prevKey !== null && key !== prevKey) {
         const x = this.indexToX(i);

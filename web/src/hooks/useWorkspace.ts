@@ -48,7 +48,7 @@ function writeJson(key: string, value: unknown): void {
 
 /** Workspace content without the per-browser-tab view (active tab, active cells). */
 function contentKey(ws: WorkspaceDoc): string {
-  return JSON.stringify([ws.tabs.map((t) => ({ ...t, activeCell: undefined })), ws.linkGroups, ws.crosshairSync]);
+  return JSON.stringify([ws.tabs.map((t) => ({ ...t, activeCell: undefined })), ws.linkGroups, ws.crosshairSync, ws.timeSync === true]);
 }
 
 /** The server keeps only the shared contract: active cells are restored from this browser. */

@@ -51,6 +51,7 @@ export type WsAction =
   | { type: "cellLayout"; tabId: string; index: number; layoutId: string }
   | { type: "linkGroup"; group: LinkGroup }
   | { type: "crosshairSync"; on: boolean }
+  | { type: "timeSync"; on: boolean }
   | { type: "linkValue"; color: LinkColor; change: LinkChange; at: number }
   | { type: "replace"; ws: WorkspaceDoc };
 
@@ -101,6 +102,7 @@ export function normalizeWorkspace(raw: unknown): WorkspaceDoc {
     activeTab: tabs.some((t) => t.id === w.activeTab) ? (w.activeTab as string) : tabs[0].id,
     linkGroups: normalizeLinkGroups(w.linkGroups),
     crosshairSync: w.crosshairSync === true,
+    ...(w.timeSync === true ? { timeSync: true } : {}),
     updatedAt: typeof w.updatedAt === "number" ? w.updatedAt : d.updatedAt,
     ...(linkValues ? { linkValues } : {}),
   };
@@ -272,6 +274,11 @@ export function workspaceReducer(s: WsState, a: WsAction): WsState {
     }
     case "crosshairSync":
       return ws.crosshairSync === a.on ? s : withWs(s, { ...ws, crosshairSync: a.on });
+    case "timeSync": {
+      if ((ws.timeSync === true) === a.on) return s;
+      const { timeSync: _off, ...rest } = ws;
+      return withWs(s, a.on ? { ...rest, timeSync: true } : rest);
+    }
     case "linkValue": {
       const linkValues = recordLinkChange(ws.linkValues, groupFor(ws.linkGroups, a.color), a.change, a.at);
       return linkValues === ws.linkValues || (ws.linkValues === undefined && Object.keys(linkValues).length === 0) ? s : withWs(s, { ...ws, linkValues });

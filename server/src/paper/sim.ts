@@ -62,14 +62,17 @@ export function resetAccount(acc: SimAccount): SimAccount {
  * Market: last ± slippage. Limit buy: last <= limit, fills at min(last, limit) (sell mirrored),
  * no slippage. Stop buy: last >= stop, fills at max(last, stop) + slippage (sell mirrored).
  */
-export function triggerPrice(o: Pick<PaperOrder, "type" | "side" | "price">, last: number, slippageBps: number): number | null {
+export function triggerPrice(o: Pick<PaperOrder, "type" | "side" | "price" | "triggered">, last: number, slippageBps: number): number | null {
   if (!Number.isFinite(last) || last <= 0) return null;
   const slip = slippageBps / 10_000;
   const buy = o.side === "buy";
   switch (o.type) {
     case "market":
       return buy ? last * (1 + slip) : last * (1 - slip);
+    case "stop-limit":
     case "limit": {
+      // A stop-limit works as a limit only after its stop price was reached.
+      if (o.type === "stop-limit" && !o.triggered) return null;
       const p = o.price!;
       if (buy) return last <= p ? Math.min(last, p) : null;
       return last >= p ? Math.max(last, p) : null;
@@ -165,6 +168,10 @@ export function processAccount(acc: SimAccount, prices: PriceMap, now: number): 
     if (o.status !== "working") continue; // cancelled by an OCO sibling in this pass
     const last = prices.get(symKey(o.symbol));
     if (last === undefined) continue;
+    if (o.type === "stop-limit" && !o.triggered && stopReached(o, last)) {
+      o.triggered = true;
+      changed = true;
+    }
     const price = triggerPrice(o, last, acc.slippageBps);
     if (price === null) continue;
     fillOrder(acc, o, price, now);
@@ -172,6 +179,13 @@ export function processAccount(acc: SimAccount, prices: PriceMap, now: number): 
   }
   if (changed) pruneOrders(acc);
   return changed;
+}
+
+/** Stop-limit trigger: a buy when the price trades at or above the stop, a sell at or below. */
+export function stopReached(o: Pick<PaperOrder, "side" | "stopPrice">, last: number): boolean {
+  const s = o.stopPrice;
+  if (s === undefined || !Number.isFinite(last)) return false;
+  return o.side === "buy" ? last >= s : last <= s;
 }
 
 /** Keep all working orders and the newest MAX_CLOSED_ORDERS finished ones. */

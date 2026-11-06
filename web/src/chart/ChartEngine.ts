@@ -2,7 +2,9 @@
 // batches redraws with requestAnimationFrame, and reports state through events.
 
 import { distanceToSegment, visibleOnInterval } from "@qt/core";
-import type { Anchor, Bar, ChartSettings, ChartType, CorporateEvent, Drawing, IndicatorInstance, Interval, ScriptRunResult, Series, TransformKind } from "@qt/core";
+import type { Anchor, Bar, BarFlow, ChartSettings, ChartType, CorporateEvent, Drawing, FootprintBar, IndicatorInstance, Interval, ScriptRunResult, Series, TransformKind } from "@qt/core";
+import { flowIndicators, groupDelta, groupFootprints } from "./orderFlow";
+import { tradeLineHit, type TradeLine } from "./tradeLines";
 import { CanvasLayer } from "./canvas";
 import { DrawingController, type Tool } from "./drawings/DrawingController";
 import { drawingVisible } from "./drawings/visible";
@@ -10,6 +12,7 @@ import { Emitter } from "./Emitter";
 import { IndicatorSet } from "./IndicatorSet";
 import { ChartInteraction } from "./Interaction";
 import { layoutPanes, Pane } from "./Pane";
+import { PriceScale } from "./PriceScale";
 import { renderScene, renderUi, fitScales } from "./render";
 import type { TradeMarker } from "./renderers/overlays";
 import { heikinAshi, SeriesData, type UpsertResult } from "./SeriesData";
@@ -20,7 +23,7 @@ import { TimeScale } from "./TimeScale";
 import { buildLegend, type LegendData } from "./legend";
 import { alignCloses, type CompareSeries } from "./compare";
 import { placeEventMarkers, type EventMarker } from "./events";
-import { REPLAY_OFF, replayReducer, revealBars, type ReplayAction, type ReplayState } from "./replay";
+import { countAtOrBefore, formingBar, REPLAY_OFF, replayReducer, revealBars, TICK_FRAME_MS, tickStep, type ReplayAction, type ReplayState, type ReplayTick } from "./replay";
 import { scriptIndicators } from "./scriptPlots";
 import { StudyCache } from "./studies/cache";
 import type { StudyResult } from "./studies/compute";
@@ -28,6 +31,27 @@ import { studyHit } from "./studies/render";
 import { lastAtrValue, pnfBoxSize, transformLabel, transformOf, transformSeries, type AxisBar } from "./transform";
 
 const DEFAULT_PANE_RATIO = 0.28;
+
+/**
+ * Pane root of each separate-pane indicator: follows `paneWith` while it names another
+ * separate-pane indicator (cycles and missing targets end at the indicator itself).
+ */
+export function paneRoots(items: readonly { uid: string; paneWith?: string }[]): Map<string, string> {
+  const by = new Map(items.map((c) => [c.uid, c]));
+  const out = new Map<string, string>();
+  for (const c of items) {
+    let cur = c;
+    const seen = new Set<string>([cur.uid]);
+    while (cur.paneWith && by.has(cur.paneWith) && !seen.has(cur.paneWith)) {
+      cur = by.get(cur.paneWith)!;
+      seen.add(cur.uid);
+    }
+    // A cycle has no natural root: the first member in list order hosts it.
+    if (cur.paneWith && seen.has(cur.paneWith) && by.has(cur.paneWith)) cur = items.find((x) => seen.has(x.uid))!;
+    out.set(c.uid, cur.uid);
+  }
+  return out;
+}
 /** History paging stops at this many source bars on price-only chart types. */
 const MAX_TRANSFORM_SOURCE_BARS = 20000;
 
@@ -43,8 +67,11 @@ export interface PaneInfo {
   id: string;
   main: boolean;
   top: number;
+  /** 0 while another pane is maximised. */
   height: number;
   uids: string[];
+  collapsed: boolean;
+  maximized: boolean;
 }
 
 export interface EngineEvents extends Record<string, unknown> {
@@ -65,6 +92,8 @@ export interface EngineEvents extends Record<string, unknown> {
   paneRatios: Record<string, number>;
   /** The user panned/zoomed/reset the time axis: visible range in UTC seconds (link groups). */
   viewChange: { from: number; to: number };
+  /** A paper trading line was dragged to a new price, or its × button was clicked. */
+  tradeAction: { kind: "move"; line: TradeLine; price: number } | { kind: "button"; line: TradeLine };
   /** Bar Replay state changed (phase, cursor, playing, speed). */
   replay: ReplayState;
   /** The script plots were removed from the chart (legend remove button). */
@@ -95,6 +124,10 @@ export class ChartEngine {
   readonly scene: CanvasLayer;
   readonly ui: CanvasLayer;
   panes: Pane[] = [new Pane("main", true, 1)];
+  /** Id of the maximised pane (the others are hidden), null when none. */
+  maximizedPane: string | null = null;
+  /** Hidden scales of indicators drawn with `scale: "own"` (fitted each frame). */
+  readonly ownScales = new Map<string, PriceScale>();
 
   meta: SeriesMeta = { symbol: "", intervalSec: 86400, intraday: false, fx: false };
   chartType: ChartType = "candles";
@@ -116,6 +149,14 @@ export class ChartEngine {
   pnfBox: number | null = null;
   private transformText: string | null = null;
   replay: ReplayState = REPLAY_OFF;
+  /** Tick replay: loads the recorded ticks of [from, to) (UTC seconds); null when the symbol has none. */
+  tickSource: ((from: number, to: number) => Promise<ReplayTick[]>) | null = null;
+  /** Tick replay status for the replay bar ("Loading ticks…", "No ticks: whole bars"). */
+  tickNote: string | null = null;
+  private tickPlay: { time: number; ticks: ReplayTick[]; shown: number } | null = null;
+  private tickLoading = false;
+  /** The bar being formed from ticks (shown after the revealed bars). */
+  private replayForming: Bar | null = null;
   compare: CompareSeries[] = [];
   corpEvents: CorporateEvent[] = [];
   eventMarkers: EventMarker[] = [];
@@ -127,6 +168,16 @@ export class ChartEngine {
   private htf = new Map<string, readonly Bar[]>();
   private instances: IndicatorInstance[] = [];
   private scriptPlots: { plots: NonNullable<ScriptRunResult["plots"]>; outputs: Record<string, Series> } | null = null;
+  private scriptItems: ComputedIndicator[] = [];
+  private flowItems: ComputedIndicator[] = [];
+  /** Order flow as loaded (provider interval), null when off or not available. */
+  private flowRaw: { flow: readonly BarFlow[]; footprints: readonly FootprintBar[]; tick: number } | null = null;
+  /** Footprints by displayed bar index, and their price bin size. */
+  flowFootprints = new Map<number, FootprintBar>();
+  flowTick = 0;
+  /** Paper trading lines on the price pane, and the line being dragged (preview price). */
+  tradeLines: TradeLine[] = [];
+  tradeDrag: { id: string; price: number } | null = null;
   private replayTimer = 0;
 
   width = 0;
@@ -248,7 +299,9 @@ export class ChartEngine {
    */
   private rebuild(mode: "reset" | "set" | "live"): void {
     const before = this.data.length;
-    const src = revealBars(this.raw.bars, this.replay) as Bar[];
+    let src = revealBars(this.raw.bars, this.replay) as Bar[];
+    const forming = this.replayForming;
+    if (forming && this.replay.phase === "on" && (!src.length || forming.time > src[src.length - 1].time)) src = [...src, forming];
     let bars: readonly Bar[] = src;
     this.pnfBox = null;
     if (this.transform) {
@@ -277,6 +330,7 @@ export class ChartEngine {
     this.indicators.computeAll(this.data.bars as Bar[], false, this.htfProvider, this.meta.intervalSec);
     this.alignCompare();
     this.placeEvents();
+    this.alignFlow(false);
     this.events.emit("data", this.data.length);
     this.invalidate();
   }
@@ -354,8 +408,39 @@ export class ChartEngine {
    */
   setScriptPlots(plots: ScriptRunResult["plots"] | null, outputs: Record<string, Series> = {}): void {
     this.scriptPlots = plots && plots.length ? { plots, outputs } : null;
-    this.indicators.setExternal(this.scriptPlots ? scriptIndicators(this.scriptPlots.plots, this.scriptPlots.outputs, this.instances.length) : []);
+    this.scriptItems = this.scriptPlots ? scriptIndicators(this.scriptPlots.plots, this.scriptPlots.outputs, this.instances.length) : [];
+    this.indicators.setExternal([...this.scriptItems, ...this.flowItems]);
     this.setIndicators(this.instances);
+  }
+
+  /**
+   * Order flow data (taker flow per provider bar, footprint bars and their bin size), or null to
+   * remove it. What is drawn follows `settings.orderFlow`.
+   */
+  setOrderFlow(raw: { flow: readonly BarFlow[]; footprints: readonly FootprintBar[]; tick: number } | null): void {
+    this.flowRaw = raw;
+    this.alignFlow(true);
+  }
+
+  /** Groups the order flow into the displayed bars; `panes` also rebuilds the Delta / CVD panes. */
+  private alignFlow(panes: boolean): void {
+    const raw = this.flowRaw;
+    const show = this.settings.orderFlow ?? {};
+    // Price-only chart types have no time axis to put trades on.
+    const times = raw && !this.transform ? this.data.times : [];
+    this.flowFootprints = raw && (show.footprint || show.bubbles) ? groupFootprints(times, raw.footprints) : new Map();
+    this.flowTick = raw?.tick ?? 0;
+    const delta = raw && (show.delta || show.cvd) ? groupDelta(times, raw.flow) : [];
+    const next = raw && times.length ? flowIndicators(delta, show, this.instances.length + this.scriptItems.length) : [];
+    const sameSet = next.length === this.flowItems.length && next.every((c, i) => c.uid === this.flowItems[i].uid);
+    if (sameSet && !panes) {
+      // Same panes: refresh the values in place (live updates, history pages).
+      next.forEach((c, i) => (this.flowItems[i].series = c.series));
+      return;
+    }
+    this.flowItems = next;
+    this.indicators.setExternal([...this.scriptItems, ...this.flowItems]);
+    if (panes || !sameSet) this.setIndicators(this.instances);
   }
 
   /** Removes the script plots and tells the host (legend remove button). */
@@ -369,6 +454,20 @@ export class ChartEngine {
     return this.studies.get(c, this.data.bars as Bar[], this.meta.intervalSec);
   }
 
+  // ---------- paper trading lines ----------
+
+  setTradeLines(lines: TradeLine[]): void {
+    // Keep a dragged line's preview until the drag ends.
+    this.tradeLines = lines;
+    this.invalidate();
+  }
+
+  /** Trade line part under main-pane coordinates (x in plot px, y relative to the pane top). */
+  tradeLineAt(x: number, y: number): { line: TradeLine; part: "close" | "label" | "line" } | null {
+    if (!this.tradeLines.length) return null;
+    return tradeLineHit(this.ui.ctx, this.theme, this.tradeLines, (p) => this.mainPane.ps.toY(p), x, y);
+  }
+
   // ---------- bar replay ----------
 
   /** Applies a replay action; reveals/hides bars and drives the play timer. */
@@ -377,7 +476,10 @@ export class ChartEngine {
     const next = replayReducer(prev, a);
     if (next === prev) return;
     this.replay = next;
-    if (prev.cursor !== next.cursor || prev.phase !== next.phase) {
+    if (prev.cursor !== next.cursor || prev.phase !== next.phase || (prev.ticks && !next.ticks)) {
+      // A new cursor (or leaving tick mode) drops the bar that was forming.
+      this.tickPlay = null;
+      this.replayForming = null;
       const forward = prev.phase === "on" && next.phase === "on" && (next.cursor ?? 0) > (prev.cursor ?? 0);
       this.rebuild(forward ? "live" : "set");
     }
@@ -399,11 +501,64 @@ export class ChartEngine {
   private syncReplayTimer(prev: ReplayState): void {
     const r = this.replay;
     const running = r.phase === "on" && r.playing;
-    if (running && this.replayTimer && prev.playing && prev.speed === r.speed) return;
+    const ticks = Boolean(r.ticks && this.tickSource);
+    if (running && this.replayTimer && prev.playing && prev.speed === r.speed && Boolean(prev.ticks) === Boolean(r.ticks)) return;
     window.clearInterval(this.replayTimer);
     this.replayTimer = 0;
-    if (running) this.replayTimer = window.setInterval(() => this.replayDispatch({ type: "step", times: this.raw.times }), 1000 / r.speed);
+    if (!running) return;
+    if (ticks) this.replayTimer = window.setInterval(this.tickFrame, TICK_FRAME_MS);
+    else this.replayTimer = window.setInterval(() => this.replayDispatch({ type: "step", times: this.raw.times }), 1000 / r.speed);
   }
+
+  private setTickNote(note: string | null): void {
+    if (note === this.tickNote) return;
+    this.tickNote = note;
+    this.events.emit("replay", this.replay);
+  }
+
+  /** Tick replay frame: load the next bar's ticks, then reveal them a few at a time. */
+  private tickFrame = (): void => {
+    const r = this.replay;
+    if (r.phase !== "on" || r.cursor == null || this.tickLoading) return;
+    const times = this.raw.times;
+    if (!this.tickPlay) {
+      const k = countAtOrBefore(times, r.cursor);
+      const time = times[k];
+      if (time === undefined) return this.replayDispatch({ type: "pause" });
+      const end = times[k + 1] ?? time + this.meta.intervalSec;
+      const source = this.tickSource;
+      if (!source) return this.replayDispatch({ type: "step", times });
+      this.tickLoading = true;
+      this.setTickNote("Loading ticks…");
+      source(time, end)
+        .then((ticks) => {
+          if (this.replay.cursor !== r.cursor || this.replay.phase !== "on") return;
+          if (!ticks.length) {
+            // No recorded ticks for this bar: reveal it whole and go on.
+            this.setTickNote("No ticks for this bar");
+            this.replayDispatch({ type: "step", times: this.raw.times });
+            return;
+          }
+          this.setTickNote(null);
+          this.tickPlay = { time, ticks, shown: 0 };
+        })
+        .catch((e: unknown) => {
+          this.setTickNote(`Ticks unavailable: ${e instanceof Error ? e.message : String(e)}`);
+          this.replayDispatch({ type: "pause" });
+        })
+        .finally(() => (this.tickLoading = false));
+      return;
+    }
+    const p = this.tickPlay;
+    p.shown = Math.min(p.ticks.length, p.shown + tickStep(p.ticks.length, r.speed));
+    if (p.shown >= p.ticks.length) {
+      // The bar is complete: reveal the real bar (this also clears the forming one).
+      this.replayDispatch({ type: "step", times });
+      return;
+    }
+    this.replayForming = formingBar(p.ticks, p.shown, p.time);
+    this.rebuild("live");
+  };
 
   /** Time and close of the last revealed source bar (replay fills), null without data. */
   replayPrice(): { time: number; close: number } | null {
@@ -428,10 +583,15 @@ export class ChartEngine {
   setChartSettings(cs: ChartSettings | undefined): void {
     const prevPlacement = this.settings.scales?.placement;
     const prevTransform = JSON.stringify(this.settings.symbol?.transform ?? null);
+    const prevFlow = JSON.stringify(this.settings.orderFlow ?? null);
     this.settings = cs ?? {};
+    if (JSON.stringify(this.settings.orderFlow ?? null) !== prevFlow) this.alignFlow(true);
     if (this.transform && JSON.stringify(this.settings.symbol?.transform ?? null) !== prevTransform) this.rebuild("reset");
     this.theme = chartTheme(this.themeMode, this.settings);
-    if (!this.settings.scales?.percent) this.mainPane.ps.percentBase = null;
+    const sc = this.settings.scales;
+    if (!sc?.percent && !sc?.indexed) this.mainPane.ps.percentBase = null;
+    this.mainPane.ps.indexed = sc?.indexed === true;
+    this.mainPane.ps.inverted = sc?.inverted === true;
     if (prevPlacement !== this.settings.scales?.placement) this.layoutDirty = true;
     this.invalidate();
   }
@@ -495,16 +655,27 @@ export class ChartEngine {
     this.indicators.setInstances(instances);
     this.indicators.computeAll(this.data.bars as Bar[], true, this.htfProvider, this.meta.intervalSec);
     this.studies.retain(new Set(this.indicators.items.map((c) => c.uid)));
-    // One pane per separate indicator; keep existing panes (ratios, scale state).
+    // One pane per separate indicator, or the pane of the indicator named by `paneWith`; keep
+    // existing panes (ratios, scale state, collapsed).
     const old = new Map(this.panes.map((p) => [p.id, p]));
     const next: Pane[] = [this.mainPane];
     this.mainPane.uids = this.indicators.overlays().map((c) => c.uid);
-    for (const c of this.indicators.separates()) {
+    const separates = this.indicators.separates();
+    const rootOf = paneRoots(separates);
+    const byRoot = new Map<string, Pane>();
+    for (const c of separates) {
+      if (rootOf.get(c.uid) !== c.uid) continue;
       const id = `pane-${c.uid}`;
       const pane = old.get(id) ?? new Pane(id, false, this.storedRatios[c.uid] ?? DEFAULT_PANE_RATIO);
-      pane.uids = [c.uid];
+      pane.uids = [];
+      byRoot.set(c.uid, pane);
       next.push(pane);
     }
+    for (const c of separates) byRoot.get(rootOf.get(c.uid)!)!.uids.push(c.uid);
+    // The pane's own indicator comes first (it names the pane and keys its height).
+    for (const [root, pane] of byRoot) pane.uids.sort((x, y) => (x === root ? -1 : y === root ? 1 : 0));
+    for (const uid of [...this.ownScales.keys()]) if (this.indicators.get(uid)?.scale !== "own") this.ownScales.delete(uid);
+    if (this.maximizedPane && !next.some((p) => p.id === this.maximizedPane)) this.maximizedPane = null;
     const changed = next.length !== this.panes.length || next.some((p, i) => p !== this.panes[i]);
     this.panes = next;
     if (changed) this.layoutDirty = true;
@@ -531,6 +702,28 @@ export class ChartEngine {
     const out: Record<string, number> = {};
     for (const p of this.panes) out[p.main ? "main" : p.uids[0]] = Math.round(p.ratio * 1e4) / 1e4;
     return out;
+  }
+
+  /** Maximise pane `index` (hide the others), or restore all panes when it is already maximised. */
+  togglePaneMaximized(index: number): void {
+    const pane = this.panes[index];
+    if (!pane) return;
+    this.maximizedPane = this.maximizedPane === pane.id || this.panes.length < 2 ? null : pane.id;
+    this.invalidateLayout();
+  }
+
+  /** Collapse an indicator pane to its legend row, or expand it again. The price pane never collapses. */
+  togglePaneCollapsed(index: number): void {
+    const pane = this.panes[index];
+    if (!pane || pane.main) return;
+    pane.collapsed = !pane.collapsed;
+    if (pane.collapsed && this.maximizedPane === pane.id) this.maximizedPane = null;
+    this.invalidateLayout();
+  }
+
+  /** Scale an indicator's values are drawn on: its own hidden scale, else its pane's scale. */
+  scaleFor(uid: string, pane: Pane): PriceScale {
+    return this.ownScales.get(uid) ?? pane.ps;
   }
 
   /** Called by the interaction layer when a separator drag ends. */
@@ -589,6 +782,7 @@ export class ChartEngine {
       const c = this.indicators.get(uid);
       if (!c || !this.indicatorShown(c)) continue;
       if (pane.main && studyHit(this, c, x, ly, tol)) return uid;
+      const ps = this.scaleFor(uid, pane);
       for (let j = 0; j < c.def.outputs.length; j++) {
         const out = c.def.outputs[j];
         if (!outputStyle(this.theme, c, j, out).visible) continue;
@@ -597,8 +791,8 @@ export class ChartEngine {
         if (out.style === "histogram") {
           const v = s[i];
           if (v == null) continue;
-          const y0 = pane.ps.toY(0);
-          const yv = pane.ps.toY(v);
+          const y0 = ps.toY(0);
+          const yv = ps.toY(v);
           if (Math.abs(this.ts.indexToX(i) - x) <= Math.max(tol, this.ts.barSpacing / 2) && ly >= Math.min(y0, yv) - tol && ly <= Math.max(y0, yv) + tol) return uid;
           continue;
         }
@@ -606,7 +800,7 @@ export class ChartEngine {
           const a = s[k];
           const b = s[k + 1];
           if (a == null || b == null || !isFinite(a) || !isFinite(b)) continue;
-          const d = distanceToSegment(x, ly, this.ts.indexToX(k), pane.ps.toY(a), this.ts.indexToX(k + 1), pane.ps.toY(b));
+          const d = distanceToSegment(x, ly, this.ts.indexToX(k), ps.toY(a), this.ts.indexToX(k + 1), ps.toY(b));
           if (d <= tol) return uid;
         }
       }
@@ -713,7 +907,7 @@ export class ChartEngine {
   }
 
   paneInfos(): PaneInfo[] {
-    return this.panes.map((p) => ({ id: p.id, main: p.main, top: p.top, height: p.height, uids: [...p.uids] }));
+    return this.panes.map((p) => ({ id: p.id, main: p.main, top: p.top, height: p.height, uids: [...p.uids], collapsed: p.collapsed, maximized: p.id === this.maximizedPane }));
   }
 
   // ---------- rendering ----------
@@ -742,6 +936,7 @@ export class ChartEngine {
     this.scene.resize(w, h, dpr);
     this.ui.resize(w, h, dpr);
     this.ts.setWidth(this.plotWidth);
+    for (const p of this.panes) p.hidden = this.maximizedPane != null && p.id !== this.maximizedPane;
     layoutPanes(this.panes, this.plotHeight, t.separatorHeight);
     this.events.emit("layout", this.paneInfos());
   }

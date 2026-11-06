@@ -14,22 +14,32 @@ a screener, portfolios, paper trading, user scripts and a backtesting engine wit
 
 ## Features
 
-- **Charts:** candles, hollow candles, bars, line, area, baseline, columns, Heikin-Ashi, Renko, Kagi, Line Break,
-  Point & Figure and Range; log and auto scale, symbol compare, custom intervals, bar replay, dark and light themes.
-- **Indicators and studies:** SMA, EMA, WMA, Bollinger Bands, Donchian, VWAP, RSI, MACD, Stochastic, ATR, OBV and
-  volume, plus volume profile, pivots, auto Fibonacci and candlestick / chart pattern detection.
+- **Charts:** candles, hollow candles, bars, line, area, baseline, columns, volume candles, HLC area, high-low,
+  line with markers, step line, Heikin-Ashi, Renko, Kagi, Line Break, Point & Figure and Range; log, percent,
+  indexed-to-100 and inverted scales; indicators can share panes or use their own scale; panes maximise and collapse;
+  symbol compare, custom intervals, bar replay (also tick by tick for Binance and MT5), dark, light and high-contrast
+  themes.
+- **Indicators and studies:** 54 built-in indicators: moving averages (SMA, EMA, WMA, DEMA, TEMA, Hull, ALMA, KAMA,
+  LSMA, SMMA, VWMA), bands and trend overlays (Bollinger, Keltner, Donchian, Envelope, Ichimoku, SuperTrend,
+  Parabolic SAR, Chandelier Exit, VWAP), momentum (RSI, MACD, Stochastic, Stochastic RSI, CCI, Williams %R, ROC,
+  Awesome, TRIX, Ultimate, TSI, Coppock, …), trend strength (DMI/ADX, Aroon, Vortex, Choppiness), volatility and
+  volume (ATR, Historical Volatility, OBV, MFI, CMF, A/D, Chaikin, Force Index, …), plus volume profile, pivots,
+  auto Fibonacci and candlestick / chart pattern detection. The Ichimoku cloud is drawn ahead of the last bar.
+- **Crypto order flow (Binance):** footprint bars, volume bubbles, delta and cumulative delta panes, and a time and
+  sales panel.
 - **Drawing tools:** lines, channels, pitchforks, Fibonacci and Gann tools, Elliott waves, harmonic patterns,
   cycles, shapes, brushes, text and notes, icons, long/short position and measuring tools; anchors are stored in
   price/time so drawings survive zoom, timeframe changes and reloads; templates, visibility per interval, object tree.
-- **Workspace:** tabs and multi-chart grids with linked symbol, interval and crosshair; layouts and watchlists are
-  autosaved to a local JSON store.
+- **Workspace:** tabs and multi-chart grids with linked symbol, interval, crosshair and time range (link groups or a
+  tab-wide time sync); layouts and watchlists are autosaved to a local JSON store.
 - **Alerts:** price, indicator and drawing conditions, browser notifications, sounds and webhooks.
-- **Research:** screener over built-in universes, portfolios with transactions, simulated paper trading, and
+- **Research:** screener over built-in universes, portfolios with transactions, simulated paper trading (market,
+  limit, stop and stop-limit orders with brackets; order and position lines on the chart that you drag to modify), and
   user scripts (indicators and strategies) running in a sandboxed Web Worker.
 - **Backtesting:** bar-by-bar engine without look-ahead, commission, slippage and spread, position sizing,
   stop-loss / take-profit, equity and drawdown curves, Sharpe, Sortino, Calmar and more, parameter sweeps and
   walk-forward tests.
-- **Export:** chart PNG and CSV of bars and indicator values.
+- **Export:** chart PNG and SVG, CSV of bars and indicator values, and a data table panel.
 
 ## Run
 

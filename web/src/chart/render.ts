@@ -18,13 +18,18 @@ import { drawCrosshairLines, drawLastPriceLine, drawMarkers } from "./renderers/
 import type { PaneRenderCtx } from "./renderers/types";
 import { drawVolumeOverlay } from "./renderers/volume";
 import { drawBaseline, drawColumns, drawKagi, drawPnf } from "./renderers/chartTypes";
+import { drawHighLow, drawHlcArea, drawLineMarkers, drawStepLine, drawVolumeCandles } from "./renderers/chartTypesExtra";
+import { drawFootprints, drawVolumeBubbles } from "./renderers/footprint";
+import { drawTradeLines } from "./tradeLines";
 import { drawCompareLines, compareValues } from "./renderers/compare";
 import { drawCrosshairTime, drawEventMarkers, drawExtendedHours, drawReplaySelect } from "./renderers/marks";
 import { drawStudies } from "./studies/render";
 import { allAnchors, volumeProfile, type Drawing } from "@qt/core";
+import { PriceScale } from "./PriceScale";
+import type { ComputedIndicator } from "./IndicatorSet";
 import { font } from "./theme";
 
-const CLOSE_ONLY = new Set(["line", "area", "baseline", "columns"]);
+const CLOSE_ONLY = new Set(["line", "area", "baseline", "columns", "line-markers", "step-line"]);
 
 /** Auto-fit each pane's price scale to the visible data. */
 export function fitScales(e: ChartEngine): void {
@@ -43,8 +48,8 @@ export function fitScales(e: ChartEngine): void {
         if (l < lo) lo = l;
         if (h > hi) hi = h;
       }
-      // Percent mode (or compare overlays): labels relative to the first visible bar's close.
-      const pct = e.settings.scales?.percent || e.compare.length > 0;
+      // Percent / indexed mode (or compare overlays): labels relative to the first visible bar's close.
+      const pct = e.settings.scales?.percent || e.settings.scales?.indexed || e.compare.length > 0;
       pane.ps.percentBase = pct ? (e.data.bars[Math.max(0, from)]?.close ?? null) : null;
       for (const s of compareValues(e, from)) {
         for (let i = from; i <= to; i++) {
@@ -60,19 +65,15 @@ export function fitScales(e: ChartEngine): void {
     for (const uid of pane.uids) {
       const c = e.indicators.get(uid);
       if (!c || !e.indicatorShown(c)) continue;
-      if (!pane.main && c.def.range) fixed = c.def.range;
-      for (const out of c.def.outputs) {
-        const s = c.series[out.key];
-        if (!s) continue;
-        if (out.style === "histogram") hasHist = true;
-        for (let i = from; i <= to; i++) {
-          const v = s[i];
-          if (v == null || !isFinite(v)) continue;
-          if (pane.main && pane.ps.log && v <= 0) continue;
-          if (v < lo) lo = v;
-          if (v > hi) hi = v;
-        }
+      if (c.scale === "own") {
+        fitOwnScale(e, c, pane, from, to);
+        continue;
       }
+      if (!pane.main && c.def.range) fixed = c.def.range;
+      const r = indicatorExtent(e, c, from, to, pane.main && pane.ps.log);
+      if (r.hist) hasHist = true;
+      if (r.lo < lo) lo = r.lo;
+      if (r.hi > hi) hi = r.hi;
     }
     if (fixed) {
       lo = Math.min(fixed.min, isFinite(lo) ? lo : fixed.min);
@@ -84,6 +85,53 @@ export function fitScales(e: ChartEngine): void {
     }
     if (isFinite(lo) && isFinite(hi)) pane.ps.fit(lo, hi);
   }
+}
+
+/** Lowest and highest visible value of an indicator (projected outputs count past the last bar). */
+function indicatorExtent(e: ChartEngine, c: ComputedIndicator, from: number, to: number, positiveOnly: boolean): { lo: number; hi: number; hist: boolean } {
+  let lo = Infinity;
+  let hi = -Infinity;
+  let hist = false;
+  const ahead = Math.ceil(e.ts.xToIndex(e.plotWidth));
+  for (const out of c.def.outputs) {
+    const s = c.series[out.key];
+    if (!s) continue;
+    if (out.style === "histogram") hist = true;
+    const end = out.forward ? Math.min(s.length - 1, Math.max(to, ahead)) : to;
+    for (let i = from; i <= end; i++) {
+      const v = s[i];
+      if (v == null || !isFinite(v)) continue;
+      if (positiveOnly && v <= 0) continue;
+      if (v < lo) lo = v;
+      if (v > hi) hi = v;
+    }
+  }
+  return { lo, hi, hist };
+}
+
+/** Fits the hidden scale of an indicator drawn on its own scale (same height and margins as the pane). */
+function fitOwnScale(e: ChartEngine, c: ComputedIndicator, pane: Pane, from: number, to: number): void {
+  let ps = e.ownScales.get(c.uid);
+  if (!ps) e.ownScales.set(c.uid, (ps = new PriceScale()));
+  ps.setHeight(pane.height);
+  ps.marginTop = pane.ps.marginTop;
+  ps.marginBottom = pane.ps.marginBottom;
+  let { lo, hi, hist } = indicatorExtent(e, c, from, to, false);
+  if (c.def.range) {
+    lo = Math.min(c.def.range.min, isFinite(lo) ? lo : c.def.range.min);
+    hi = Math.max(c.def.range.max, isFinite(hi) ? hi : c.def.range.max);
+  }
+  if (hist) {
+    lo = Math.min(lo, 0);
+    hi = Math.max(hi, 0);
+  }
+  if (isFinite(lo) && isFinite(hi)) ps.fit(lo, hi);
+}
+
+/** Render context for one indicator: its own scale when it has one. */
+function indicatorCtx(e: ChartEngine, rc: PaneRenderCtx, uid: string): PaneRenderCtx {
+  const own = e.ownScales.get(uid);
+  return own ? { ...rc, ps: own } : rc;
 }
 
 function paneCtx(e: ChartEngine, ctx: CanvasRenderingContext2D, pane: Pane, from: number, to: number): PaneRenderCtx {
@@ -113,28 +161,31 @@ export function renderScene(e: ChartEngine): void {
   const x0 = axisX(e);
 
   for (const pane of e.panes) {
+    if (pane.height <= 0) continue;
     const rc = paneCtx(e, ctx, pane, from, to);
-    const priceTicks = hasData ? pane.ps.ticks() : [];
+    // A collapsed pane is only a strip for its legend row.
+    const priceTicks = hasData && !pane.collapsed ? pane.ps.ticks() : [];
     ctx.save();
     ctx.beginPath();
     ctx.rect(0, pane.top, e.plotWidth, pane.height);
     ctx.clip();
     ctx.translate(0, pane.top);
-    drawGrid(rc, ap?.gridHorizontal === false ? [] : priceTicks, ap?.gridVertical === false ? [] : timeTicks);
-    if (hasData) {
+    drawGrid(rc, ap?.gridHorizontal === false ? [] : priceTicks, ap?.gridVertical === false || pane.collapsed ? [] : timeTicks);
+    if (hasData && !pane.collapsed) {
       if (pane.main) drawMainPane(e, rc);
       else drawIndicatorPane(e, rc, pane);
     }
     ctx.restore();
     drawPriceAxis(ctx, x0, pane.top, pane.height, hasData ? priceTicks : [], t, dpr, left);
-    if (hasData) drawAxisValueBadges(e, ctx, pane);
+    if (hasData && !pane.collapsed) drawAxisValueBadges(e, ctx, pane);
   }
 
-  // Separators between panes (across plot and axis).
+  // Separators between visible panes (across plot and axis).
   const sepLeft = left ? x0 : 0;
-  e.panes.forEach((p, i) => {
-    if (i === e.panes.length - 1) return;
-    ctx.fillStyle = i === e.hoverSeparator ? t.separatorHover : t.separator;
+  const shown = e.panes.filter((p) => p.height > 0);
+  shown.forEach((p, k) => {
+    if (k === shown.length - 1) return;
+    ctx.fillStyle = e.panes.indexOf(p) === e.hoverSeparator ? t.separatorHover : t.separator;
     ctx.fillRect(sepLeft, p.top + p.height, e.width, t.separatorHeight);
   });
 
@@ -153,7 +204,8 @@ export function renderScene(e: ChartEngine): void {
   ctx.fillStyle = t.axisText;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  const mode = e.mainPane.ps.percentBase ? "% · UTC" : e.mainPane.ps.log ? "LOG · UTC" : "UTC";
+  const mps = e.mainPane.ps;
+  const mode = `${mps.percentBase ? (mps.indexed ? "IDX · " : "% · ") : mps.log ? "LOG · " : ""}${mps.inverted ? "INV · " : ""}UTC`;
   ctx.fillText(mode, x0 + t.priceAxisWidth / 2, e.plotHeight + t.timeAxisHeight / 2);
 
   if (e.message) {
@@ -184,6 +236,21 @@ function drawMainPane(e: ChartEngine, rc: PaneRenderCtx): void {
     case "columns":
       drawColumns(rc, bars);
       break;
+    case "volume-candles":
+      drawVolumeCandles(rc, bars);
+      break;
+    case "hlc-area":
+      drawHlcArea(rc, bars);
+      break;
+    case "high-low":
+      drawHighLow(rc, bars);
+      break;
+    case "line-markers":
+      drawLineMarkers(rc, bars);
+      break;
+    case "step-line":
+      drawStepLine(rc, bars);
+      break;
     case "kagi":
       drawKagi(rc, bars);
       break;
@@ -199,10 +266,15 @@ function drawMainPane(e: ChartEngine, rc: PaneRenderCtx): void {
     default:
       drawCandles(rc, bars, hollowAll ? "hollow" : "candles");
   }
+  const flow = e.settings.orderFlow;
+  if (e.flowFootprints.size) {
+    if (flow?.footprint) drawFootprints(rc, e.flowFootprints, e.flowTick);
+    if (flow?.bubbles) drawVolumeBubbles(rc, e.flowFootprints, e.flowTick);
+  }
   drawStudies(e, rc);
   for (const uid of e.mainPane.uids) {
     const c = e.indicators.get(uid);
-    if (c && e.indicatorShown(c)) drawIndicator(rc, c, e.data.bars);
+    if (c && e.indicatorShown(c)) drawIndicator(indicatorCtx(e, rc, uid), c, e.data.bars);
   }
   drawCompareLines(e, rc);
   const last = e.data.last();
@@ -239,12 +311,14 @@ function drawMainPane(e: ChartEngine, rc: PaneRenderCtx): void {
   const placing = dc.placingDrawing();
   if (placing) drawDrawing(rc, placing, { ...opts, selected: true, hovered: false });
   if (dc.band) drawBand(rc, dc.band);
+  if (e.tradeLines.length) drawTradeLines(rc, e.tradeLines, e.tradeDrag);
 }
 
-function drawIndicatorPane(e: ChartEngine, rc: PaneRenderCtx, pane: Pane): void {
+function drawIndicatorPane(e: ChartEngine, paneRc: PaneRenderCtx, pane: Pane): void {
   for (const uid of pane.uids) {
     const c = e.indicators.get(uid);
     if (!c || !e.indicatorShown(c)) continue;
+    const rc = indicatorCtx(e, paneRc, uid);
     const levelsOn = c.style?.levels !== false;
     if (levelsOn && c.def.levels?.length) {
       const fill = levelFill(c);

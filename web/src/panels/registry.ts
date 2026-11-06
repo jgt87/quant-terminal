@@ -5,7 +5,7 @@ import type { Bar, Interval, Layout, ScriptRunResult } from "@qt/core";
 import type { ChartEngine } from "../chart/ChartEngine";
 import panels from "./panels.json";
 
-export type PanelId = "watchlist" | "alerts" | "screener" | "portfolio" | "paper" | "scripts" | "objects";
+export type PanelId = "watchlist" | "alerts" | "screener" | "portfolio" | "paper" | "scripts" | "objects" | "tape" | "data";
 
 export interface PanelDef {
   id: PanelId;

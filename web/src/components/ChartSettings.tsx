@@ -100,7 +100,9 @@ export function ChartSettings({ value, chartType = "candles", mode, onChange, on
             <>
               <Check label="Last price label" checked={cs.scales?.lastPriceLabel !== false} onChange={(lastPriceLabel) => scales({ lastPriceLabel })} />
               <Check label="Last price line" checked={cs.scales?.priceLine !== false} onChange={(priceLine) => scales({ priceLine })} />
-              <Check label="Percent scale" checked={Boolean(cs.scales?.percent)} onChange={(percent) => scales({ percent })} />
+              <Check label="Percent scale" checked={Boolean(cs.scales?.percent) && !cs.scales?.indexed} onChange={(percent) => scales({ percent, indexed: percent ? false : cs.scales?.indexed })} />
+              <Check label="Indexed to 100" checked={Boolean(cs.scales?.indexed)} onChange={(indexed) => scales({ indexed, percent: indexed ? false : cs.scales?.percent })} />
+              <Check label="Invert scale" checked={Boolean(cs.scales?.inverted)} onChange={(inverted) => scales({ inverted })} />
               <Row label="Price scale position">
                 <select value={cs.scales?.placement ?? "right"} onChange={(e) => scales({ placement: e.target.value as "left" | "right" })}>
                   <option value="right">Right</option>

@@ -12,6 +12,10 @@ export class Pane {
   height = 0;
   /** Indicator instance uids rendered in this pane. */
   uids: string[] = [];
+  /** Collapsed to a thin strip (legend row only). Never applies to the main pane. */
+  collapsed = false;
+  /** Hidden while another pane is maximised. */
+  hidden = false;
 
   constructor(id: string, main: boolean, ratio: number) {
     this.id = id;
@@ -29,19 +33,37 @@ export class Pane {
 }
 
 export const MIN_PANE_PX = 40;
+/** Height of a collapsed pane (one legend row). */
+export const COLLAPSED_PANE_PX = 24;
 
-/** Lay panes out top-to-bottom inside `total` px with `sep` px separators between them. */
+/**
+ * Lay panes out top-to-bottom inside `total` px with `sep` px separators between them. Hidden
+ * panes get no height; collapsed panes get a fixed strip; the rest share the space by ratio.
+ */
 export function layoutPanes(panes: Pane[], total: number, sep: number): void {
-  const avail = Math.max(0, total - sep * Math.max(0, panes.length - 1));
-  const sum = panes.reduce((s, p) => s + p.ratio, 0) || 1;
+  const shown = panes.filter((p) => !p.hidden);
+  const strip = (p: Pane) => p.collapsed && shown.length > 1;
+  const fixed = shown.filter(strip).length * COLLAPSED_PANE_PX;
+  const avail = Math.max(0, total - fixed - sep * Math.max(0, shown.length - 1));
+  const sum = shown.filter((p) => !strip(p)).reduce((s, p) => s + p.ratio, 0) || 1;
+  for (const p of panes) {
+    if (!p.hidden) continue;
+    p.top = total;
+    p.height = 0;
+    p.ps.setHeight(1);
+  }
+  // The last flexible pane takes the rounding remainder.
+  const lastFlex = [...shown].reverse().find((p) => !strip(p));
+  let used = 0;
+  for (const p of shown) used += strip(p) ? COLLAPSED_PANE_PX : p === lastFlex ? 0 : Math.round((avail * p.ratio) / sum);
   let y = 0;
-  panes.forEach((p, i) => {
-    const h = i === panes.length - 1 ? Math.max(0, total - y) : Math.round((avail * p.ratio) / sum);
+  for (const p of shown) {
+    const h = strip(p) ? COLLAPSED_PANE_PX : p === lastFlex ? Math.max(0, total - sep * Math.max(0, shown.length - 1) - used) : Math.round((avail * p.ratio) / sum);
     p.top = y;
     p.height = h;
     p.ps.setHeight(h);
     y += h + sep;
-  });
+  }
 }
 
 /** Move the separator below pane `i` by dy px, trading height with pane i+1. */
@@ -56,9 +78,15 @@ export function dragSeparator(panes: Pane[], i: number, dy: number): void {
   b.ratio = ratioSum - a.ratio;
 }
 
-/** Separator index whose band contains y (within `grab` px), or -1. */
+/**
+ * Separator index whose band contains y (within `grab` px), or -1. Only separators between two
+ * visible, expanded panes can be dragged.
+ */
 export function separatorAt(panes: Pane[], y: number, sep: number, grab = 3): number {
   for (let i = 0; i < panes.length - 1; i++) {
+    const a = panes[i];
+    const b = panes[i + 1];
+    if (a.hidden || b.hidden || a.collapsed || b.collapsed) continue;
     const top = panes[i].top + panes[i].height;
     if (y >= top - grab && y <= top + sep + grab) return i;
   }

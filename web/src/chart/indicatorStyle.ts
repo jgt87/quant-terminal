@@ -47,6 +47,15 @@ export function bandFill(ind: StyledIndicator): string | undefined {
   return DEFAULTS[ind.def.id]?.fill;
 }
 
+/**
+ * Two-color band fill (Ichimoku cloud): `up` where the upper output is above the lower one,
+ * `down` where it is below. Undefined when the indicator has a single fill.
+ */
+export function bandFillPair(ind: StyledIndicator): { up: string; down: string } | undefined {
+  const d = DEFAULTS[ind.def.id];
+  return d?.fillUp && d?.fillDown ? { up: d.fillUp, down: d.fillDown } : undefined;
+}
+
 /** Faint fill between the outer guide levels (RSI 30/70, Stochastic 20/80). */
 export function levelFill(ind: StyledIndicator): string | undefined {
   return DEFAULTS[ind.def.id]?.levelFill;

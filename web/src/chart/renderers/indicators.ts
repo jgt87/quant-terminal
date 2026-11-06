@@ -4,7 +4,7 @@
 import type { Bar, Series } from "@qt/core";
 import { crisp, hairline, snap } from "../canvas";
 import type { ComputedIndicator } from "../IndicatorSet";
-import { bandFill, outputStyle } from "../indicatorStyle";
+import { bandFill, bandFillPair, outputStyle } from "../indicatorStyle";
 import { withAlpha } from "../theme";
 import { traceSeries } from "./line";
 import type { PaneRenderCtx } from "./types";
@@ -16,6 +16,9 @@ export function drawIndicator(rc: PaneRenderCtx, ind: ComputedIndicator, bars: r
   const b = Math.min(bars.length - 1, to + 1);
   if (a > b) return;
   const outs = ind.def.outputs;
+  // Outputs that run past the last bar are drawn up to the right edge of the plot.
+  const ahead = Math.ceil(rc.ts.xToIndex(rc.width)) + 1;
+  const end = (out: { forward?: boolean }, values: Series) => (out.forward ? Math.min(values.length - 1, Math.max(b, ahead)) : b);
 
   // Band fill first so lines sit on top.
   const upper = outs.find((o) => o.style === "band-upper");
@@ -23,7 +26,14 @@ export function drawIndicator(rc: PaneRenderCtx, ind: ComputedIndicator, bars: r
   if (upper && lower && ind.series[upper.key] && ind.series[lower.key]) {
     const uj = outs.indexOf(upper);
     const ust = outputStyle(rc.theme, ind, uj, upper);
-    if (ust.visible) fillBetween(rc, ind.series[upper.key], ind.series[lower.key], a, b, bandFill(ind) ?? withAlpha(ust.color, 0.08));
+    if (ust.visible) {
+      const us = ind.series[upper.key];
+      const ls = ind.series[lower.key];
+      const fb = upper.forward && lower.forward ? Math.min(end(upper, us), end(lower, ls)) : b;
+      const pair = bandFillPair(ind);
+      if (pair) fillBetweenTwoColor(rc, us, ls, a, fb, pair.up, pair.down);
+      else fillBetween(rc, us, ls, a, fb, bandFill(ind) ?? withAlpha(ust.color, 0.08));
+    }
   }
 
   outs.forEach((out, j) => {
@@ -35,9 +45,10 @@ export function drawIndicator(rc: PaneRenderCtx, ind: ComputedIndicator, bars: r
       drawHistogram(rc, values, a, b, ind.def.id === "volume" ? bars : null, ind.style?.outputs?.[out.key]?.color);
       return;
     }
+    const last = end(out, values);
     if (out.style === "dots") {
       ctx.fillStyle = st.color;
-      for (let i = a; i <= b; i++) {
+      for (let i = a; i <= last; i++) {
         const v = values[i];
         if (v == null) continue;
         ctx.fillRect(rc.ts.indexToX(i) - 1, rc.ps.toY(v) - 1, 2, 2);
@@ -45,7 +56,7 @@ export function drawIndicator(rc: PaneRenderCtx, ind: ComputedIndicator, bars: r
       return;
     }
     ctx.beginPath();
-    traceSeries(rc, values, a, b);
+    traceSeries(rc, values, a, last);
     ctx.strokeStyle = st.color;
     ctx.lineWidth = st.width;
     ctx.lineJoin = "round";
@@ -74,6 +85,46 @@ function fillBetween(rc: PaneRenderCtx, up: Series, lo: Series, a: number, b: nu
     }
     for (let k = end; k >= start; k--) ctx.lineTo(ts.indexToX(k), ps.toY(lo[k] as number));
     ctx.closePath();
+    ctx.fill();
+  }
+}
+
+/**
+ * Fill between two series in two colors: `upFill` where `up` is above `lo`, `downFill` below.
+ * Segments that cross are split at the crossing. Each color is filled as one path, so
+ * neighbouring pieces never double up and the fill stays even.
+ */
+function fillBetweenTwoColor(rc: PaneRenderCtx, up: Series, lo: Series, a: number, b: number, upFill: string, downFill: string): void {
+  const { ctx, ts, ps } = rc;
+  const poly = (pts: [number, number][]) => {
+    ctx.moveTo(pts[0][0], pts[0][1]);
+    for (let k = 1; k < pts.length; k++) ctx.lineTo(pts[k][0], pts[k][1]);
+    ctx.closePath();
+  };
+  for (const above of [true, false]) {
+    ctx.beginPath();
+    for (let k = a; k < b; k++) {
+      const u0 = up[k];
+      const l0 = lo[k];
+      const u1 = up[k + 1];
+      const l1 = lo[k + 1];
+      if (u0 == null || l0 == null || u1 == null || l1 == null) continue;
+      const x0 = ts.indexToX(k);
+      const x1 = ts.indexToX(k + 1);
+      const d0 = u0 - l0;
+      const d1 = u1 - l1;
+      if (d0 >= 0 === d1 >= 0) {
+        if (d0 >= 0 === above) poly([[x0, ps.toY(u0)], [x1, ps.toY(u1)], [x1, ps.toY(l1)], [x0, ps.toY(l0)]]);
+        continue;
+      }
+      // Crossing inside the segment: two triangles meeting at the crossing point.
+      const f = d0 / (d0 - d1);
+      const xc = x0 + (x1 - x0) * f;
+      const yc = ps.toY(u0 + (u1 - u0) * f);
+      if (d0 >= 0 === above) poly([[x0, ps.toY(u0)], [xc, yc], [x0, ps.toY(l0)]]);
+      else poly([[xc, yc], [x1, ps.toY(u1)], [x1, ps.toY(l1)]]);
+    }
+    ctx.fillStyle = above ? upFill : downFill;
     ctx.fill();
   }
 }

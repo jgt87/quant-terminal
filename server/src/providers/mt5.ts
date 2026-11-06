@@ -95,6 +95,18 @@ export class Mt5Provider implements MarketProvider {
     return { info, bars: validateBars(body.bars as never), hasMore: Boolean(body.hasMore) };
   }
 
+  /** Recorded ticks in [from, to) (UTC seconds) from the bridge, oldest first. */
+  async ticks(ticker: string, from: number, to: number, limit: number): Promise<{ ticks: { time: number; price: number; qty: number }[]; complete: boolean }> {
+    const info = await this.symbolInfo(ticker);
+    const qs = new URLSearchParams({ symbol: exactName(info), from: String(from), to: String(to), limit: String(limit) });
+    const body = (await this.get(`/ticks?${qs}`)) as { ticks?: unknown[]; complete?: boolean };
+    if (!body || !Array.isArray(body.ticks)) throw providerError("MT5 bridge: unexpected ticks payload");
+    const ticks = (body.ticks as { time: number; price: number; qty?: number }[])
+      .filter((t) => Number.isFinite(t.time) && t.price > 0)
+      .map((t) => ({ time: t.time, price: t.price, qty: Number(t.qty) || 0 }));
+    return { ticks, complete: body.complete !== false };
+  }
+
   async search(q: string): Promise<SymbolInfo[]> {
     if (!(await this.available())) return [];
     const list = (await this.get(`/symbols?q=${encodeURIComponent(q)}`)) as BridgeSymbol[];

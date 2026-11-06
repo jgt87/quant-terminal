@@ -9,6 +9,11 @@ import type { ThemeMode } from "../chart/theme";
 import type { EventMarker } from "../chart/events";
 import { REPLAY_OFF, type ReplayState } from "../chart/replay";
 import { isScriptUid } from "../chart/scriptPlots";
+import { flowPaneOf } from "../chart/orderFlow";
+import { transformOf } from "../chart/transform";
+import { useOrderFlow } from "../hooks/useOrderFlow";
+import { useChartTrading } from "../hooks/useChartTrading";
+import { fetchTicks } from "../api/orderflow";
 import { useChartData } from "../hooks/useChartData";
 import { useCompareSeries, useCorporateEvents, useTimeframeBars } from "../hooks/useChartExtras";
 import { useTickStream } from "../hooks/useTickStream";
@@ -50,6 +55,8 @@ export interface ChartViewProps {
   onTextRequest(id: string, text: string): void;
   onTypeToSearch(ch: string): void;
   onRemoveIndicator(uid: string): void;
+  /** Switch order flow parts on or off (the Delta / CVD legend remove buttons). */
+  onOrderFlow?(patch: NonNullable<ChartSettings["orderFlow"]>): void;
   onEditIndicator(uid: string): void;
   onToggleIndicator(uid: string): void;
   onContextMenu(target: ContextTarget, clientX: number, clientY: number): void;
@@ -122,6 +129,15 @@ export function ChartView(p: ChartViewProps) {
   const timeframes = useMemo(() => p.indicators.map((i) => i.timeframe ?? "").filter(Boolean), [p.indicators]);
   useTimeframeBars(engine, p.symbol, timeframes, barOpts);
   useCorporateEvents(engine, p.symbol);
+  useChartTrading(engine, p.symbol);
+  // Tick replay needs recorded ticks: Binance trades or MT5 ticks.
+  const tickProvider = data.info?.provider === "binance" || data.info?.provider === "mt5";
+  useEffect(() => {
+    if (!engine) return;
+    engine.tickSource = tickProvider ? (from, to) => fetchTicks(p.symbol, from, to).then((r) => r.ticks) : null;
+    if (!tickProvider && engine.replay.ticks) engine.replayDispatch({ type: "ticks", on: false });
+  }, [engine, tickProvider, p.symbol]);
+  useOrderFlow(engine, p.symbol, p.interval, p.chartSettings?.orderFlow, data.info?.provider, data.status === "ready", transformOf(p.chartType) != null);
   const intradayData = (engine?.meta.intervalSec ?? 86400) < 86400;
   const stockLike = data.info?.type === "stock" || data.info?.type === "etf";
   useEffect(() => engine?.setShadeExtended(Boolean(sym?.extendedHours) && intradayData && stockLike), [engine, sym?.extendedHours, intradayData, stockLike]);
@@ -228,8 +244,8 @@ export function ChartView(p: ChartViewProps) {
     >
       <div ref={host} className="chart-host" aria-label="Price chart" />
       <div className="chart-overlay">
-        {panes.map((pane) => (
-          <div key={pane.id} className="pane-legend" style={{ top: pane.top + 6, left: legendLeft }}>
+        {panes.filter((pane) => pane.height > 0).map((pane) => (
+          <div key={pane.id} className={`pane-legend${pane.collapsed ? " collapsed" : ""}`} style={{ top: pane.top + (pane.collapsed ? 3 : 6), left: legendLeft }}>
             {pane.main && (
               <MainLegend
                 symbol={p.symbol}
@@ -251,8 +267,16 @@ export function ChartView(p: ChartViewProps) {
                   key={ind.uid}
                   item={ind}
                   showValues={status?.indicatorValues !== false}
-                  format={(v) => (engine ? engine.panes.find((x) => x.id === pane.id)?.ps.format(v) ?? String(v) : String(v))}
-                  onRemove={() => (isScriptUid(ind.uid) ? engine?.removeScriptPlots() : p.onRemoveIndicator(ind.uid))}
+                  format={(v) => {
+                    const ep = engine?.panes.find((x) => x.id === pane.id);
+                    return engine && ep ? engine.scaleFor(ind.uid, ep).format(v) : String(v);
+                  }}
+                  onRemove={() => {
+                    const flow = flowPaneOf(ind.uid);
+                    if (flow) p.onOrderFlow?.({ [flow]: false });
+                    else if (isScriptUid(ind.uid)) engine?.removeScriptPlots();
+                    else p.onRemoveIndicator(ind.uid);
+                  }}
                   onEdit={() => p.onEditIndicator(ind.uid)}
                   onToggle={() => p.onToggleIndicator(ind.uid)}
                   onContextMenu={(x, y) => p.onContextMenu({ kind: "indicator", uid: ind.uid }, x, y)}

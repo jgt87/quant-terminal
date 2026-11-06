@@ -5,5 +5,7 @@
   { "id": "portfolio", "label": "Portfolio", "icon": "portfolio", "key": "4", "width": 480 },
   { "id": "paper", "label": "Paper trading (simulated)", "icon": "paper", "key": "5", "width": 420 },
   { "id": "scripts", "label": "Scripts", "icon": "scripts", "key": "6", "width": 520 },
-  { "id": "objects", "label": "Object tree", "icon": "objectTree", "key": "7", "width": 320 }
+  { "id": "objects", "label": "Object tree", "icon": "objectTree", "key": "7", "width": 320 },
+  { "id": "tape", "label": "Time and sales", "icon": "tape", "key": "8", "width": 320 },
+  { "id": "data", "label": "Data table", "icon": "dataTable", "key": "9", "width": 560 }
 ]

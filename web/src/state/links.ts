@@ -146,8 +146,16 @@ export function crosshairTargets(cells: readonly LinkCell[], count: number, sour
   return out;
 }
 
-/** Cells that follow the source's visible time range (group with the time toggle on). */
-export function timeTargets(cells: readonly LinkCell[], count: number, groups: readonly LinkGroup[], source: number): number[] {
+/**
+ * Cells that follow the source's visible time range: every other cell of the tab with time sync
+ * on, otherwise the source's link group when its time toggle is on.
+ */
+export function timeTargets(cells: readonly LinkCell[], count: number, groups: readonly LinkGroup[], source: number, syncAll = false): number[] {
+  if (syncAll) {
+    const out: number[] = [];
+    for (let i = 0; i < Math.min(count, cells.length); i++) if (i !== source) out.push(i);
+    return out;
+  }
   const color = cells[source]?.link;
   if (!color || !groupFor(groups, color).time) return [];
   return groupMembers(cells, count, source);

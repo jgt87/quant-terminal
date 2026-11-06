@@ -8,6 +8,7 @@ import { registerMarketRoutes } from "./routes/market";
 import { registerStoreRoutes } from "./routes/store";
 import { registerBacktestRoute } from "./routes/backtest";
 import { registerStreamRoute } from "./routes/stream";
+import { OrderFlowService, registerOrderFlowRoutes } from "./routes/orderflow";
 import { serveStatic } from "./routes/static";
 import { AlertEngine } from "./alerts/engine";
 import { registerAlertRoutes } from "./alerts/routes";
@@ -37,6 +38,7 @@ export function createRouter(deps: AppDeps): Router {
   registerStoreRoutes(router, deps.store);
   registerBacktestRoute(router, deps.market);
   registerStreamRoute(router, deps.market);
+  registerOrderFlowRoutes(router, new OrderFlowService(deps.market));
 
   const alerts = deps.alerts ?? new AlertEngine({ store: deps.store, market: deps.market });
   const paper = deps.paper ?? new PaperEngine({ store: deps.store, market: deps.market });

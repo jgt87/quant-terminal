@@ -1,10 +1,15 @@
-// Chart canvas theme: dark and light color blocks from config/chartTheme.json plus shared
+// Chart canvas theme: dark, light and high-contrast color blocks from config/chartTheme.json plus shared
 // metrics, with optional per-layout overrides from the chart settings.
 
 import type { ChartSettings } from "@qt/core";
 import themeJson from "../config/chartTheme.json";
 
-export type ThemeMode = "dark" | "light";
+export type ThemeMode = "dark" | "light" | "contrast";
+
+/** Theme toggle order: dark → light → high contrast → dark. */
+export const THEME_CYCLE: readonly ThemeMode[] = ["dark", "light", "contrast"];
+export const THEME_LABEL: Record<ThemeMode, string> = { dark: "Dark", light: "Light", contrast: "High contrast" };
+export const nextTheme = (m: ThemeMode): ThemeMode => THEME_CYCLE[(THEME_CYCLE.indexOf(m) + 1) % THEME_CYCLE.length];
 export type ChartTheme = typeof themeJson.common & typeof themeJson.dark & { mode: ThemeMode };
 
 /** Theme for `mode` with the layout's color overrides applied. */

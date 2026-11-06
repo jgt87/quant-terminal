@@ -41,12 +41,16 @@ export function validateOrderBody(body: unknown, now: number): SimOrder {
   if (typeof body.symbol !== "string" || !body.symbol.trim() || body.symbol.length > 64) throw badRequest("symbol is required");
   if (body.side !== "buy" && body.side !== "sell") throw badRequest("side must be buy or sell");
   const type = body.type === undefined ? "market" : body.type;
-  if (type !== "market" && type !== "limit" && type !== "stop") throw badRequest("type must be market, limit or stop");
+  if (type !== "market" && type !== "limit" && type !== "stop" && type !== "stop-limit") throw badRequest("type must be market, limit, stop or stop-limit");
   if (!finite(body.qty) || body.qty <= 0) throw badRequest("qty must be a positive number");
   const order: SimOrder = { id: newId(), symbol: symKey(body.symbol), side: body.side, type, qty: body.qty, status: "working", createdAt: now };
   if (type !== "market") {
     if (!finite(body.price) || body.price <= 0) throw badRequest(`price is required for ${type} orders`);
     order.price = body.price;
+  }
+  if (type === "stop-limit") {
+    if (!finite(body.stopPrice) || body.stopPrice <= 0) throw badRequest("stopPrice is required for stop-limit orders");
+    order.stopPrice = body.stopPrice;
   }
   for (const k of ["stopLoss", "takeProfit"] as const) {
     if (body[k] === undefined || body[k] === null) continue;
@@ -64,6 +68,56 @@ export function validateOrderBody(body: unknown, now: number): SimOrder {
     if (tp !== undefined && (buy ? tp <= order.price : tp >= order.price)) throw badRequest("takeProfit is on the wrong side of the order price");
   }
   return order;
+}
+
+/** Fields of a working order that can be changed (chart line drags, ticket edits). */
+export interface OrderPatch {
+  price?: number;
+  stopPrice?: number;
+  qty?: number;
+  /** null removes the bracket leg. */
+  stopLoss?: number | null;
+  takeProfit?: number | null;
+}
+
+export function validateOrderPatch(body: unknown): OrderPatch {
+  if (!isObj(body)) throw badRequest("Body must be an object");
+  const out: OrderPatch = {};
+  for (const k of ["price", "stopPrice", "qty"] as const) {
+    if (body[k] === undefined) continue;
+    if (!finite(body[k]) || (body[k] as number) <= 0) throw badRequest(`${k} must be a positive number`);
+    out[k] = body[k] as number;
+  }
+  for (const k of ["stopLoss", "takeProfit"] as const) {
+    if (body[k] === undefined) continue;
+    if (body[k] !== null && (!finite(body[k]) || (body[k] as number) <= 0)) throw badRequest(`${k} must be a positive number or null`);
+    out[k] = body[k] as number | null;
+  }
+  if (!Object.keys(out).length) throw badRequest("Nothing to change");
+  return out;
+}
+
+/**
+ * Applies a patch to a working order (mutated). Market orders have no price to move; bracket
+ * children (stop-loss / take-profit) only move their price. The changed order is checked like a
+ * new one.
+ */
+export function applyOrderPatch(o: SimOrder, p: OrderPatch, now: number): void {
+  if (o.status !== "working") throw badRequest(`Order is ${o.status}, not working`);
+  if (o.parentId && (p.qty !== undefined || p.stopLoss !== undefined || p.takeProfit !== undefined || p.stopPrice !== undefined)) {
+    throw badRequest("Only the price of a stop-loss / take-profit order can change");
+  }
+  if (o.type === "market" && (p.price !== undefined || p.stopPrice !== undefined)) throw badRequest("Market orders have no price");
+  if (p.stopPrice !== undefined && o.type !== "stop-limit") throw badRequest("Only stop-limit orders have a stop price");
+  const next: Record<string, unknown> = { ...o, ...p };
+  for (const k of ["stopLoss", "takeProfit"] as const) if (next[k] === null) delete next[k];
+  if (o.parentId) {
+    o.price = p.price ?? o.price;
+    return;
+  }
+  const checked = validateOrderBody(next, now);
+  Object.assign(o, { price: checked.price, stopPrice: checked.stopPrice, qty: checked.qty, stopLoss: checked.stopLoss, takeProfit: checked.takeProfit });
+  if (p.stopPrice !== undefined) o.triggered = false;
 }
 
 export interface PaperEngineOptions {
@@ -169,6 +223,23 @@ export class PaperEngine {
     });
     const placed = acc.orders.find((o) => o.id === order.id) ?? order;
     return { order: placed, account: markAccount(acc, await this.prices(Object.keys(acc.positions))) };
+  }
+
+  /** Change a working order; it is checked against the current quote and may fill at once. */
+  async modifyOrder(id: string, orderId: string, body: unknown) {
+    const patch = validateOrderPatch(body);
+    const acc0 = await this.raw(id);
+    const o0 = acc0.orders.find((x) => x.id === orderId);
+    if (!o0) throw notFound(`Order not found: ${orderId}`);
+    const prices = await this.prices([o0.symbol]);
+    const { acc, result } = await this.mutate(id, (a) => {
+      const o = a.orders.find((x) => x.id === orderId);
+      if (!o) throw notFound(`Order not found: ${orderId}`);
+      applyOrderPatch(o, patch, this.now());
+      processAccount(a, prices, this.now());
+      return o;
+    });
+    return { order: result, account: markAccount(acc, await this.prices(Object.keys(acc.positions))) };
   }
 
   async cancelOrder(id: string, orderId: string) {

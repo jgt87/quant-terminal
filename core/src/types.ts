@@ -92,6 +92,11 @@ export interface IndicatorOutputDef {
   label: string;
   /** How the web layer should draw it. */
   style: "line" | "histogram" | "band-upper" | "band-lower" | "dots";
+  /**
+   * The series may run past the last bar (projected values such as the Ichimoku cloud): it is
+   * then longer than the bars, and index `bars.length + k` is k + 1 bars ahead of the last bar.
+   */
+  forward?: boolean;
 }
 
 /** Values aligned 1:1 with the input bars; null during warm-up. */
@@ -122,6 +127,13 @@ export interface IndicatorInstance {
   visibility?: IntervalVisibility;
   /** Optional pane override: draw a separate-pane indicator on the price pane or vice versa. */
   pane?: "overlay" | "separate";
+  /**
+   * Optional: share the pane of another separate-pane indicator (its uid) instead of getting a
+   * pane of its own. Ignored when that indicator is gone or not in a separate pane.
+   */
+  paneWith?: string;
+  /** Optional: "own" fits the indicator to its own hidden scale instead of the pane's scale. */
+  scale?: "own";
   /**
    * Optional higher timeframe (e.g. "1D"): computed on that interval's bars and aligned to the
    * chart without look-ahead. Missing = the chart's own bars.
@@ -290,6 +302,11 @@ export type ChartType =
   | "heikin-ashi"
   | "baseline"
   | "columns"
+  | "volume-candles"
+  | "hlc-area"
+  | "high-low"
+  | "line-markers"
+  | "step-line"
   /** Price-only transforms (non-time-uniform, drawn on an index axis). */
   | "renko"
   | "kagi"
@@ -350,7 +367,13 @@ export interface ChartSettings {
     placement?: "right" | "left";
     /** Percent mode of the main price scale (relative to the first visible bar). */
     percent?: boolean;
+    /** Indexed to 100: the first visible bar's close is 100 (takes precedence over percent). */
+    indexed?: boolean;
+    /** Inverted main price scale (higher prices lower on the chart). */
+    inverted?: boolean;
   };
+  /** Crypto order flow (Binance symbols): footprint cells, volume bubbles, delta panes. */
+  orderFlow?: { footprint?: boolean; bubbles?: boolean; delta?: boolean; cvd?: boolean };
   appearance?: {
     background?: string;
     gridVertical?: boolean;

@@ -3,7 +3,7 @@
 // act on the active chart cell.
 
 import type { ChartType, GridKind, Interval } from "@qt/core";
-import type { ThemeMode } from "../chart/theme";
+import { nextTheme, THEME_LABEL, type ThemeMode } from "../chart/theme";
 import chartTypes from "../config/chartTypes.json";
 import intervals from "../config/intervals.json";
 import { CustomIntervalMenu } from "./CustomIntervalMenu";
@@ -44,6 +44,8 @@ interface Props {
   onGrid?(kind: GridKind): void;
   crosshairSync?: boolean;
   onCrosshairSync?(on: boolean): void;
+  timeSync?: boolean;
+  onTimeSync?(on: boolean): void;
 }
 
 export function TopToolbar(p: Props) {
@@ -128,14 +130,25 @@ export function TopToolbar(p: Props) {
           <Icon name="crosshairSync" size={15} />
         </button>
       )}
+      {p.onTimeSync && (
+        <button
+          className={`tb-btn icon${p.timeSync ? " active" : ""}`}
+          aria-pressed={!!p.timeSync}
+          aria-label="Time sync"
+          title="Time sync: scrolling or zooming one chart shows the same time range on every chart of this tab"
+          onClick={() => p.onTimeSync?.(!p.timeSync)}
+        >
+          <Icon name="timeSync" size={15} />
+        </button>
+      )}
       <span className="spacer" />
       <button
         className="tb-btn icon"
         onClick={p.onTheme}
-        title={p.theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
-        aria-label={p.theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
+        title={`Theme: ${THEME_LABEL[p.theme]} (switch to ${THEME_LABEL[nextTheme(p.theme)].toLowerCase()})`}
+        aria-label={`Switch to ${THEME_LABEL[nextTheme(p.theme)].toLowerCase()} theme`}
       >
-        <Icon name={p.theme === "dark" ? "sun" : "moon"} size={15} />
+        <Icon name={p.theme === "dark" ? "sun" : p.theme === "light" ? "contrast" : "moon"} size={15} />
       </button>
       <span className="tb-sep" />
       <button className={`tb-btn${p.backtestOpen ? " active" : ""}`} aria-pressed={p.backtestOpen} onClick={p.onToggleBacktest} title="Backtest panel">

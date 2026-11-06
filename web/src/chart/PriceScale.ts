@@ -49,9 +49,18 @@ export function formatPercentLabel(pct: number, decimals = 2): string {
   return `${v > 0 ? "+" : ""}${v.toFixed(decimals)}%`;
 }
 
+/** Indexed mode: price → value where `base` is 100. */
+export function toIndexed(price: number, base: number): number {
+  return base ? (price / base) * 100 : 100;
+}
+
 export class PriceScale {
   /** When set, labels show % change from this price (data stays in price units). */
   percentBase: number | null = null;
+  /** With `percentBase`: label as an index where the base is 100 instead of a % change. */
+  indexed = false;
+  /** Higher values lower on the pane. */
+  inverted = false;
   height = 0;
   log = false;
   auto = true;
@@ -118,13 +127,14 @@ export class PriceScale {
     const a = this.tf(this.min);
     const b = this.tf(this.max);
     const f = b === a ? 0.5 : (this.tf(price) - a) / (b - a);
-    return this.innerTop() + this.innerHeight() * (1 - f);
+    return this.innerTop() + this.innerHeight() * (this.inverted ? f : 1 - f);
   }
 
   fromY(y: number): number {
     const a = this.tf(this.min);
     const b = this.tf(this.max);
-    const f = 1 - (y - this.innerTop()) / this.innerHeight();
+    const g = (y - this.innerTop()) / this.innerHeight();
+    const f = this.inverted ? g : 1 - g;
     return this.inv(a + (b - a) * f);
   }
 
@@ -148,7 +158,7 @@ export class PriceScale {
   panBy(dy: number): void {
     const a = this.tf(this.min);
     const b = this.tf(this.max);
-    const d = (dy / this.innerHeight()) * (b - a);
+    const d = ((this.inverted ? -dy : dy) / this.innerHeight()) * (b - a);
     this.auto = false;
     this.min = this.inv(a + d);
     this.max = this.inv(b + d);
@@ -163,6 +173,7 @@ export class PriceScale {
   }
 
   format(price: number): string {
+    if (this.percentBase && this.indexed) return toIndexed(price, this.percentBase).toFixed(2);
     if (this.percentBase) return formatPercentLabel(toPercent(price, this.percentBase));
     return formatPrice(price, this.formatDecimals(Math.max(Math.abs(this.min), Math.abs(this.max))));
   }
@@ -181,7 +192,9 @@ export class PriceScale {
     const dec = Math.min(Math.max(stepDecimals(step), 0), 6);
     return values.map((pct) => {
       const price = fromPercent(pct, base);
-      return { price, y: this.toY(price), text: formatPercentLabel(pct, dec) };
+      // Indexed: the same nice steps, shown as 100 + % (base = 100).
+      const text = this.indexed ? (100 + pct).toFixed(dec) : formatPercentLabel(pct, dec);
+      return { price, y: this.toY(price), text };
     });
   }
 
@@ -196,21 +209,21 @@ export class PriceScale {
   }
 
   private logTicks(minPx: number): PriceTick[] {
-    const lo = Math.max(this.fromY(this.height), 1e-12);
-    const hi = this.fromY(0);
+    const lo = Math.max(Math.min(this.fromY(this.height), this.fromY(0)), 1e-12);
+    const hi = Math.max(this.fromY(this.height), this.fromY(0));
     const sets = [[1, 2, 3, 4, 5, 6, 7, 8, 9], [1, 2, 5], [1, 2.5, 5], [1]];
     const e0 = Math.floor(Math.log10(lo));
     const e1 = Math.ceil(Math.log10(hi));
     for (const set of sets) {
       const out: PriceTick[] = [];
       let ok = true;
-      let lastY = Infinity;
+      let lastY: number | null = null;
       for (let e = e0; e <= e1 && ok; e++) {
         for (const m of set) {
           const price = Number((m * Math.pow(10, e)).toPrecision(12));
           if (price < lo || price > hi) continue;
           const y = this.toY(price);
-          if (lastY - y < minPx) {
+          if (lastY != null && Math.abs(lastY - y) < minPx) {
             ok = false;
             break;
           }

@@ -148,6 +148,18 @@ const PATHS: Record<string, ReactNode> = {
       <circle cx="9" cy="9" r="2.2" />
     </>
   ),
+  contrast: (
+    <>
+      <circle cx="9" cy="9" r="6.5" />
+      <path d="M9 2.5v13a6.5 6.5 0 0 0 0-13z" fill="currentColor" />
+    </>
+  ),
+  timeSync: (
+    <>
+      <path d="M2.5 6h13M2.5 12h13" />
+      <path d="M5.5 3.5 2.5 6l3 2.5M12.5 9.5l3 2.5-3 2.5" />
+    </>
+  ),
   pause: <path d="M6.5 4v10M11.5 4v10" strokeWidth={2} />,
   stepForward: <path d="M4.5 4.5v9l6.5-4.5zM13.5 4.5v9" />,
   replay: (

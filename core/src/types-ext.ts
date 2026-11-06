@@ -215,7 +215,7 @@ export interface Holding {
   realizedPnl: number;
 }
 
-export type PaperOrderType = "market" | "limit" | "stop";
+export type PaperOrderType = "market" | "limit" | "stop" | "stop-limit";
 
 export interface PaperOrder {
   id: string;
@@ -223,7 +223,12 @@ export interface PaperOrder {
   side: "buy" | "sell";
   type: PaperOrderType;
   qty: number;
+  /** Limit price (limit, stop-limit) or stop price (stop). */
   price?: number;
+  /** Stop-limit: the trigger price; once reached the order works as a limit at `price`. */
+  stopPrice?: number;
+  /** Stop-limit: the stop price was reached. */
+  triggered?: boolean;
   stopLoss?: number;
   takeProfit?: number;
   status: "working" | "filled" | "cancelled" | "rejected";
@@ -273,6 +278,8 @@ export interface Workspace {
   activeTab: string;
   linkGroups: LinkGroup[];
   crosshairSync: boolean;
+  /** Optional: every chart of a tab follows the visible time range of the chart being moved. */
+  timeSync?: boolean;
   updatedAt: number;
   /**
    * Last linked symbol/interval per link color with the time it was set (UTC ms); cells of other

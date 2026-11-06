@@ -66,9 +66,10 @@ export function drawCandles(rc: PaneRenderCtx, bars: readonly Bar[], style: Cand
         const b = bars[i];
         if (b.close >= b.open !== up) continue;
         const x = snap(ts.indexToX(i) - bodyW / 2, dpr);
-        const y1 = snap(ps.toY(Math.max(b.open, b.close)), dpr);
-        const y2 = snap(ps.toY(Math.min(b.open, b.close)), dpr);
-        ctx.fillRect(x, y1, bodyW, Math.max(1 / dpr, y2 - y1));
+        const ya = snap(ps.toY(b.open), dpr);
+        const yb = snap(ps.toY(b.close), dpr);
+        const y1 = Math.min(ya, yb);
+        ctx.fillRect(x, y1, bodyW, Math.max(1 / dpr, Math.max(ya, yb) - y1));
       }
     }
     if (showBorder) {
@@ -77,8 +78,10 @@ export function drawCandles(rc: PaneRenderCtx, bars: readonly Bar[], style: Cand
         const b = bars[i];
         if (b.close >= b.open !== up) continue;
         const x = snap(ts.indexToX(i) - bodyW / 2, dpr) + lw / 2;
-        const y1 = snap(ps.toY(Math.max(b.open, b.close)), dpr) + lw / 2;
-        const y2 = snap(ps.toY(Math.min(b.open, b.close)), dpr) - lw / 2;
+        const ya = snap(ps.toY(b.open), dpr);
+        const yb = snap(ps.toY(b.close), dpr);
+        const y1 = Math.min(ya, yb) + lw / 2;
+        const y2 = Math.max(ya, yb) - lw / 2;
         ctx.rect(x, y1, bodyW - lw, Math.max(0, y2 - y1));
       }
       ctx.stroke();
@@ -122,8 +125,8 @@ function drawCompressed(rc: PaneRenderCtx, bars: readonly Bar[]): void {
   const flush = () => {
     if (!isFinite(hi)) return;
     const x = (col + 0.5) / dpr;
-    const y1 = snap(ps.toY(hi), dpr);
-    const y2 = snap(ps.toY(lo), dpr);
+    const y1 = snap(Math.min(ps.toY(hi), ps.toY(lo)), dpr);
+    const y2 = snap(Math.max(ps.toY(hi), ps.toY(lo)), dpr);
     ctx.moveTo(x, y1);
     ctx.lineTo(x, Math.max(y2, y1 + 1 / dpr));
   };

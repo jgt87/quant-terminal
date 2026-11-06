@@ -1,4 +1,4 @@
-// Paper order ticket: side, type (market/limit/stop), qty, price, optional SL/TP. Enter submits;
+// Paper order ticket: side, type (market/limit/stop/stop-limit), qty, price, optional SL/TP. Enter submits;
 // B / S switch the side when the ticket (not a field) has focus.
 
 import { useEffect, useState } from "react";
@@ -25,6 +25,7 @@ export function OrderTicket({ symbol: activeSymbol, disabled, onPlace }: Props) 
   const [type, setType] = useState<PaperOrderType>("market");
   const [qty, setQty] = useState("1");
   const [price, setPrice] = useState("");
+  const [stop, setStop] = useState("");
   const [sl, setSl] = useState("");
   const [tp, setTp] = useState("");
   const [msg, setMsg] = useState<{ text: string; err: boolean } | null>(null);
@@ -36,12 +37,15 @@ export function OrderTicket({ symbol: activeSymbol, disabled, onPlace }: Props) 
     const p = num(price);
     const s = num(sl);
     const t = num(tp);
+    const st = num(stop);
     if (!symbol.trim()) return setMsg({ text: "Symbol is required", err: true });
     if (!(q !== undefined && q > 0)) return setMsg({ text: "Quantity must be positive", err: true });
     if (type !== "market" && !(p !== undefined && p > 0)) return setMsg({ text: `${type} orders need a price`, err: true });
+    if (type === "stop-limit" && !(st !== undefined && st > 0)) return setMsg({ text: "stop-limit orders need a stop price", err: true });
     if ([s, t].some((v) => v !== undefined && !(v > 0))) return setMsg({ text: "SL/TP must be positive prices", err: true });
     const o: PaperOrderRequest = { symbol: symbol.trim(), side, type, qty: q };
     if (type !== "market") o.price = p;
+    if (type === "stop-limit") o.stopPrice = st;
     if (s !== undefined) o.stopLoss = s;
     if (t !== undefined) o.takeProfit = t;
     setBusy(true);
@@ -91,6 +95,7 @@ export function OrderTicket({ symbol: activeSymbol, disabled, onPlace }: Props) 
             <option value="market">Market</option>
             <option value="limit">Limit</option>
             <option value="stop">Stop</option>
+            <option value="stop-limit">Stop-limit</option>
           </select>
         </label>
         <label>
@@ -98,9 +103,15 @@ export function OrderTicket({ symbol: activeSymbol, disabled, onPlace }: Props) 
           <input type="text" inputMode="decimal" value={qty} onChange={(e) => setQty(e.target.value)} aria-label="Order quantity" />
         </label>
         <label>
-          Price
+          {type === "stop-limit" ? "Limit" : "Price"}
           <input type="text" inputMode="decimal" value={type === "market" ? "" : price} placeholder={type === "market" ? "market" : ""} disabled={type === "market"} onChange={(e) => setPrice(e.target.value)} aria-label="Order price" />
         </label>
+        {type === "stop-limit" && (
+          <label>
+            Stop
+            <input type="text" inputMode="decimal" value={stop} onChange={(e) => setStop(e.target.value)} aria-label="Stop price" />
+          </label>
+        )}
         <label>
           Stop loss
           <input type="text" inputMode="decimal" value={sl} onChange={(e) => setSl(e.target.value)} placeholder="optional" aria-label="Stop loss" />

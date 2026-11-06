@@ -319,7 +319,9 @@ describe("indicator definitions vs naive reference (500 bars)", () => {
       const out = def.compute(BARS, {});
       for (const o of def.outputs) {
         expect(out[o.key], `${def.id}.${o.key}`).toBeDefined();
-        expect(out[o.key]).toHaveLength(BARS.length);
+        // Projected outputs (Ichimoku cloud) run past the last bar; the rest align 1:1.
+        if (o.forward) expect(out[o.key].length).toBeGreaterThan(BARS.length);
+        else expect(out[o.key]).toHaveLength(BARS.length);
         expect(noNaN(out[o.key])).toBe(true);
       }
     }
@@ -400,7 +402,10 @@ describe("warm-up null counts", () => {
     expect([...m.macd, ...m.signal, ...m.hist].every((v) => v === null)).toBe(true);
     for (const def of INDICATORS) {
       const out = def.compute(BARS.slice(0, 3), {});
-      for (const o of def.outputs) expect(out[o.key]).toHaveLength(3);
+      for (const o of def.outputs) {
+        if (o.forward) expect(out[o.key].length).toBeGreaterThanOrEqual(3);
+        else expect(out[o.key]).toHaveLength(3);
+      }
     }
   });
 

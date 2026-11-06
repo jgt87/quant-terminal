@@ -113,6 +113,34 @@ def bars(symbol: str, interval: str, limit: int, to: int | None):
     return {"bars": out, "hasMore": len(out) >= limit}
 
 
+MAX_TICKS = 100_000
+
+
+def ticks(symbol: str, frm: int, to: int, limit: int):
+    """Recorded ticks in [frm, to) (UTC seconds), oldest first: time in UTC ms, last price (bid for
+    symbols without trades) and volume. Market data only (copy_ticks_from)."""
+    call("symbol_select", symbol, True)
+    limit = max(1, min(limit, MAX_TICKS))
+    rows = call("copy_ticks_from", symbol, int(frm) + state["offset"], limit + 1, mt5.COPY_TICKS_ALL)
+    if rows is None:
+        code, msg = call("last_error")
+        raise LookupError(f"no ticks for {symbol} ({code} {msg})")
+    out = []
+    reached_end = False
+    for r in rows:
+        t = int(r["time_msc"]) - state["offset"] * 1000
+        if t >= int(to) * 1000:
+            reached_end = True
+            break
+        price = float(r["last"]) or float(r["bid"])
+        if price <= 0:
+            continue
+        out.append({"time": t, "price": price, "qty": float(r["volume_real"] or r["volume"] or 0)})
+    # Fewer rows than asked means no more ticks yet; otherwise complete only if `to` was reached.
+    complete = len(rows) <= limit or reached_end
+    return {"ticks": out[:limit], "complete": bool(complete)}
+
+
 def current_server_day() -> int | None:
     """Start of the broker's current trading day (server time), from a symbol that is always live."""
     tick = call("symbol_info_tick", "EURUSD")
@@ -216,6 +244,8 @@ class Handler(BaseHTTPRequestHandler):
                     return self.send_json(400, {"error": f"bad interval {interval}"})
                 to = int(qs["to"]) if qs.get("to") else None
                 self.send_json(200, bars(qs["symbol"], interval, int(qs.get("limit", "1000")), to))
+            elif url.path == "/ticks":
+                self.send_json(200, ticks(qs["symbol"], int(qs["from"]), int(qs["to"]), int(qs.get("limit", "20000"))))
             elif url.path == "/quotes":
                 names = [s for s in qs.get("symbols", "").split(",") if s]
                 self.send_json(200, [q for q in (quote(s) for s in names) if q])

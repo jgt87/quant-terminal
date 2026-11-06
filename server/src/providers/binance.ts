@@ -1,5 +1,5 @@
 import path from "node:path";
-import type { Bar, Interval, Quote, SymbolInfo } from "@qt/core";
+import type { Bar, BarFlow, FlowTrade, Interval, Quote, SymbolInfo } from "@qt/core";
 import { validateBars } from "../bars";
 import { readJson, writeJsonAtomic } from "../fsutil";
 import { fetchJson, notFound, nowSec, providerError, type BarsPage, type FetchFn, type MarketProvider } from "./types";
@@ -33,6 +33,26 @@ export function parseKlines(json: unknown): Bar[] {
       volume: Number(k[5]),
     })),
   );
+}
+
+/** aggTrades rows ({a, p, q, T, m}) → trades; `m` (buyer is maker) means the aggressor sold. */
+export function parseAggTrades(json: unknown): FlowTrade[] {
+  if (!Array.isArray(json)) throw providerError("Binance: unexpected aggTrades payload");
+  return json
+    .map((r: Record<string, unknown>) => ({ id: Number(r.a), time: Number(r.T), price: Number(r.p), qty: Number(r.q), buy: r.m === false }))
+    .filter((t) => Number.isFinite(t.id) && Number.isFinite(t.time) && Number.isFinite(t.price) && t.qty > 0);
+}
+
+/** Klines → taker buy / sell volume per bar (field 9 is the taker-buy base volume). */
+export function parseKlineFlow(json: unknown): BarFlow[] {
+  if (!Array.isArray(json)) throw providerError("Binance: unexpected klines payload");
+  return json
+    .map((k: unknown[]) => {
+      const vol = Number(k[5]);
+      const buy = Number(k[9]);
+      return { time: Math.floor(Number(k[0]) / 1000), buy, sell: Math.max(0, vol - buy) };
+    })
+    .filter((f) => Number.isFinite(f.time) && Number.isFinite(f.buy) && Number.isFinite(f.sell));
 }
 
 export function parseExchangeInfo(json: unknown): PairInfo[] {
@@ -160,6 +180,69 @@ export class BinanceProvider implements MarketProvider {
     }
     if (to !== undefined) bars = bars.filter((b) => b.time < to);
     return { info: this.info(ticker), bars: bars.slice(Math.max(0, bars.length - limit)), hasMore: !exhausted };
+  }
+
+  /** Taker buy / sell volume per bar for bars opening in [fromSec, toSec), oldest first (max `limit`). */
+  async barFlow(ticker: string, interval: Interval, fromSec: number, toSec: number, limit = 5000): Promise<BarFlow[]> {
+    const out: BarFlow[] = [];
+    let start = fromSec * 1000;
+    while (out.length < limit && start < toSec * 1000) {
+      const n = Math.min(PAGE, limit - out.length);
+      const url = `${API}/klines?symbol=${encodeURIComponent(ticker)}&interval=${BINANCE_INTERVAL[interval]}&startTime=${start}&endTime=${toSec * 1000 - 1}&limit=${n}`;
+      const { status, body } = await fetchJson(this.fetchFn, url, "Binance");
+      if (status >= 400) binanceError(status, body, `BINANCE:${ticker}`);
+      const page = parseKlineFlow(body);
+      if (!page.length) break;
+      out.push(...page);
+      if (page.length < n) break;
+      start = (page[page.length - 1].time + 1) * 1000;
+    }
+    return out.filter((f) => f.time >= fromSec && f.time < toSec);
+  }
+
+  /**
+   * Trades in [fromMs, toMs), oldest first, at most `maxPages` requests of 1000. The first page is
+   * found by time (Binance allows a one-hour window per request), the rest follow by trade id.
+   * `complete` is false when the page cap stopped the walk before `toMs`.
+   */
+  async aggTrades(ticker: string, fromMs: number, toMs: number, maxPages = 40): Promise<{ trades: FlowTrade[]; complete: boolean }> {
+    const sym = encodeURIComponent(ticker);
+    const get = async (query: string) => {
+      const { status, body } = await fetchJson(this.fetchFn, `${API}/aggTrades?symbol=${sym}&limit=${PAGE}&${query}`, "Binance");
+      if (status >= 400) binanceError(status, body, `BINANCE:${ticker}`);
+      return parseAggTrades(body);
+    };
+    const trades: FlowTrade[] = [];
+    let pages = 0;
+    let page: FlowTrade[] = [];
+    // Find the first trade: one-hour windows forward from `fromMs`.
+    let start = fromMs;
+    for (; start < toMs && pages < maxPages; start += 3_600_000) {
+      page = await get(`startTime=${start}&endTime=${Math.min(start + 3_600_000, toMs) - 1}`);
+      pages++;
+      if (page.length) break;
+    }
+    if (!page.length) return { trades, complete: start >= toMs };
+    // A window page can be short because of its end time; pages by id end at the newest trade.
+    let byId = false;
+    while (page.length) {
+      for (const t of page) if (t.time >= fromMs && t.time < toMs) trades.push(t);
+      const last = page[page.length - 1];
+      if (last.time >= toMs || (byId && page.length < PAGE)) return { trades, complete: true };
+      if (pages >= maxPages) return { trades, complete: false };
+      page = await get(`fromId=${last.id + 1}`);
+      pages++;
+      byId = true;
+    }
+    return { trades, complete: true };
+  }
+
+  /** The most recent trades (newest last), at most 1000. */
+  async recentTrades(ticker: string, limit: number): Promise<FlowTrade[]> {
+    const url = `${API}/aggTrades?symbol=${encodeURIComponent(ticker)}&limit=${Math.max(1, Math.min(PAGE, limit))}`;
+    const { status, body } = await fetchJson(this.fetchFn, url, "Binance");
+    if (status >= 400) binanceError(status, body, `BINANCE:${ticker}`);
+    return parseAggTrades(body);
   }
 
   async search(q: string): Promise<SymbolInfo[]> {

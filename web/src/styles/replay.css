@@ -164,3 +164,17 @@
   color: var(--muted);
   font-weight: 500;
 }
+
+.replay-ticks {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.replay-note {
+  color: var(--muted);
+  font-size: 11px;
+  white-space: nowrap;
+}

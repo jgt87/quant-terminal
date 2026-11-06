@@ -5,7 +5,7 @@
 import { useCallback, useEffect, useState } from "react";
 import type { ChartType, IndicatorInstance, Interval } from "@qt/core";
 import type { Tool } from "./chart/drawings/DrawingController";
-import { chartTheme, type ThemeMode } from "./chart/theme";
+import { chartTheme, nextTheme, type ThemeMode } from "./chart/theme";
 import { BacktestPanel } from "./components/backtest/BacktestPanel";
 import { ChartSettings } from "./components/ChartSettings";
 import { ConfirmDialog } from "./components/ConfirmDialog";
@@ -195,13 +195,19 @@ export function App() {
           onIndicators={() => setIndicatorPicker(true)}
           onResetView={() => engine?.resetView()}
           onChartSettings={() => setChartSettingsOpen(true)}
-          onTheme={() => setTheme(theme === "dark" ? "light" : "dark")}
+          onTheme={() => setTheme(nextTheme(theme))}
           onToggleWatchlist={() => setWatchlistOpen(!watchlistOpen)}
           onToggleBacktest={() => setBacktestOpen(!backtestOpen)}
           grid={tab.grid}
           onGrid={shell.setGrid}
           crosshairSync={ws.crosshairSync}
           onCrosshairSync={(on) => dispatch({ type: "crosshairSync", on })}
+          timeSync={ws.timeSync === true}
+          onTimeSync={(on) => {
+            dispatch({ type: "timeSync", on });
+            // Turning it on lines every chart up with the active one right away.
+            if (on) shell.alignTime();
+          }}
         />
         <TabStrip
           tabs={ws.tabs}

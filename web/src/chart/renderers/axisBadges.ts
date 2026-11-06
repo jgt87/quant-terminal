@@ -57,13 +57,14 @@ export function paneLabels(e: ChartEngine, pane: Pane, paneIndex: number): Price
   const out: PriceAxisLabel[] = [];
   for (const uid of pane.uids) {
     const c = e.indicators.get(uid);
-    if (!c || !e.indicatorShown(c)) continue;
+    if (!c || !e.indicatorShown(c) || c.scale === "own") continue;
     c.def.outputs.forEach((o, j) => {
       const s = c.series[o.key];
       if (!s) return;
       const st = outputStyle(t, c, j, o);
       if (!st.visible) return;
-      const v = s[s.length - 1];
+      // Value at the last bar (projected outputs run past it).
+      const v = s[Math.min(s.length, e.data.length) - 1];
       if (v == null || !isFinite(v)) return;
       out.push({ id: `ind:${uid}:${o.key}`, price: v, bg: st.color, fg: t.lastPriceText, priority: PRIORITY.indicator });
     });

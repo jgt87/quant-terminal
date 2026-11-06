@@ -11,7 +11,8 @@ import {
 import { loadLocal, saveLocal } from "../panels/common/storage";
 
 export const PAPER_POLL_MS = 2000;
-const SELECTED_KEY = "qt.paper.selected";
+export const PAPER_SELECTED_KEY = "qt.paper.selected";
+const SELECTED_KEY = PAPER_SELECTED_KEY;
 
 export function usePaper(visible: boolean) {
   const [accounts, setAccounts] = useState<PaperAccountView[]>([]);

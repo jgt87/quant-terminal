@@ -1,4 +1,5 @@
-/* UI color tokens: the single source of truth for the DOM. Dark is the default; the app shell
+/* UI color tokens: the single source of truth for the DOM. Dark is the default (light and high
+   contrast below); the app shell
    sets data-theme on <html>. Canvas colors live in config/chartTheme.json (same values). */
 :root,
 [data-theme="dark"] {
@@ -93,6 +94,53 @@
   --control-border: #c9ccd4;
   --swatch-border: rgba(19, 23, 34, 0.14);
   color-scheme: light;
+}
+
+/* High contrast: black background, white text, bright up/down colors, yellow focus and accent. */
+[data-theme="contrast"] {
+  --bg: #000000;
+  --panel: #000000;
+  --panel-2: #0a0a0a;
+  --raised: #141414;
+  --hover: #262626;
+  --active: #3a3a3a;
+  --border: #8c8c8c;
+  --border-strong: #ffffff;
+  --text: #ffffff;
+  --text-strong: #ffffff;
+  --muted: #d9d9d9;
+  --dim: #bfbfbf;
+  --accent: #ffd400;
+  --accent-hover: #ffe55c;
+  --accent-fg: #000000;
+  --accent-soft: rgba(255, 212, 0, 0.22);
+  --up: #00e676;
+  --down: #ff3d3d;
+  --pos: var(--up);
+  --neg: var(--down);
+  --focus: #ffd400;
+  --overlay: rgba(0, 0, 0, 0.94);
+  --backdrop: rgba(0, 0, 0, 0.7);
+  --shadow: 0 0 0 1px #ffffff;
+  --link-red: #ff3d3d;
+  --link-orange: #ff9100;
+  --link-yellow: #ffd400;
+  --link-green: #00e676;
+  --link-cyan: #18ffff;
+  --link-blue: #40c4ff;
+  --link-purple: #e040fb;
+  --link-pink: #ff4081;
+  --link-grey: #d9d9d9;
+  --menu-shadow: 0 0 0 1px #ffffff;
+  --menu-border: #ffffff;
+  --menu-hover: #262626;
+  --menu-pressed: #3a3a3a;
+  --menu-hint: #d9d9d9;
+  --menu-separator: #8c8c8c;
+  --field-bg: #000000;
+  --control-border: #ffffff;
+  --swatch-border: rgba(255, 255, 255, 0.5);
+  color-scheme: dark;
 }
 
 /* One visual language for menus, popovers, dialogs, floating toolbars and flyouts (sizes shared

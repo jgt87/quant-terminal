@@ -96,6 +96,13 @@ export function ReplayBar({ engine, state }: Props) {
             </option>
           ))}
         </select>
+        {engine.tickSource && (
+          <label className="replay-ticks" title="Build each bar from its recorded ticks while playing (Binance trades, MT5 ticks)">
+            <input type="checkbox" checked={Boolean(state.ticks)} onChange={(e) => act({ type: "ticks", on: e.target.checked })} />
+            Ticks
+          </label>
+        )}
+        {state.ticks && engine.tickNote && <span className="replay-note">{engine.tickNote}</span>}
         <button className="replay-btn text" onMouseDown={noFocus} onClick={() => act({ type: "realtime", times })} disabled={ended} title="Reveal every bar">
           Jump to real time
         </button>

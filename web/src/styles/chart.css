@@ -43,6 +43,15 @@
   gap: 1px;
 }
 
+/* Collapsed pane: one legend row, the indicators side by side. */
+.pane-legend.collapsed {
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 12px;
+  max-height: 20px;
+  overflow: hidden;
+}
+
 .legend-main {
   display: flex;
   flex-wrap: wrap;

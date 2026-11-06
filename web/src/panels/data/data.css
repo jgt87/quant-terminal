@@ -1,0 +1,56 @@
+/* Data table panel. */
+
+.data-meta {
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.data-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+.data-grid {
+  font-variant-numeric: tabular-nums;
+}
+
+.data-row {
+  display: grid;
+  align-items: center;
+  gap: 8px;
+  padding: 0 10px;
+  white-space: nowrap;
+}
+
+.data-row span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.data-row span:not(:first-child) {
+  text-align: right;
+}
+
+.data-grid > div > .data-row {
+  position: absolute;
+  left: 0;
+  right: 0;
+  cursor: pointer;
+}
+
+.data-grid > div > .data-row:hover {
+  background: var(--hover);
+}
+
+.data-headrow {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  height: 26px;
+  background: var(--panel);
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+}

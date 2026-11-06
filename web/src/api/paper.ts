@@ -39,8 +39,19 @@ export interface PaperOrderRequest {
   type: PaperOrderType;
   qty: number;
   price?: number;
+  /** Stop-limit trigger price. */
+  stopPrice?: number;
   stopLoss?: number;
   takeProfit?: number;
+}
+
+/** Change a working order (null removes a bracket leg). */
+export interface PaperOrderPatch {
+  price?: number;
+  stopPrice?: number;
+  qty?: number;
+  stopLoss?: number | null;
+  takeProfit?: number | null;
 }
 
 const base = (id: string) => `/api/paper/${encodeURIComponent(id)}`;
@@ -53,6 +64,8 @@ export const deletePaper = (id: string) => requestJson<{ ok: true }>(base(id), {
 export const resetPaper = (id: string) => requestJson<PaperAccountView>(`${base(id)}/reset`, { method: "POST" });
 export const placePaperOrder = (id: string, o: PaperOrderRequest) =>
   requestJson<{ order: PaperOrderView; account: PaperAccountView }>(`${base(id)}/orders`, jsonBody("POST", o));
+export const modifyPaperOrder = (id: string, orderId: string, patch: PaperOrderPatch) =>
+  requestJson<{ order: PaperOrderView; account: PaperAccountView }>(`${base(id)}/orders/${encodeURIComponent(orderId)}`, jsonBody("PUT", patch));
 export const cancelPaperOrder = (id: string, orderId: string) =>
   requestJson<PaperOrderView>(`${base(id)}/orders/${encodeURIComponent(orderId)}`, { method: "DELETE" });
 export const closePaperPosition = (id: string, symbol: string) =>

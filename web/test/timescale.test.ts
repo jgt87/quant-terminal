@@ -134,3 +134,21 @@ describe("TimeScale", () => {
     expect(ts2.xToTime(500)).toBe(t);
   });
 });
+
+describe("TimeScale future ticks", () => {
+  it("labels the empty space right of the last bar at projected times", () => {
+    const ts = scale(200, 1000);
+    ts.barSpacing = 6;
+    ts.rightOffset = 80; // ~80 empty bar slots on the right
+    const ticks = ts.ticks();
+    const future = ticks.filter((t) => t.index > ts.lastIndex);
+    expect(future.length).toBeGreaterThan(0);
+    for (const t of future) expect(t.x).toBeLessThanOrEqual(ts.width + ts.barSpacing);
+  });
+
+  it("has no future ticks while scrolled into history", () => {
+    const ts = scale(500, 1000);
+    ts.rightOffset = -200;
+    expect(ts.ticks().every((t) => t.index <= ts.lastIndex)).toBe(true);
+  });
+});

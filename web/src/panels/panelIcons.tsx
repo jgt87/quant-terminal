@@ -22,6 +22,8 @@ const PATHS: Record<string, ReactNode> = {
     </>
   ),
   scripts: <path d="M6.5 4.5L2.5 9l4 4.5M11.5 4.5l4 4.5-4 4.5M10 3l-2 12" />,
+  dataTable: <path d="M2.5 3.5h13v11h-13zM2.5 7h13M2.5 10.5h13M6.5 3.5v11" />,
+  tape: <path d="M2.5 3.5h13M2.5 7h13M2.5 10.5h13M2.5 14h13M7 3.5V14" />,
   sound: <path d="M3 7v4h3l4 3V4L6 7zM12.5 6.5a3.5 3.5 0 0 1 0 5M14.5 4.5a6.5 6.5 0 0 1 0 9" />,
   mute: <path d="M3 7v4h3l4 3V4L6 7zM12.5 7l4 4M16.5 7l-4 4" />,
   bellRing: <path d="M9 2.5a4 4 0 0 0-4 4v3.5L3.5 12.5h11L13 10V6.5a4 4 0 0 0-4-4zM7.5 14.5a1.6 1.6 0 0 0 3 0M1.5 6a6 6 0 0 1 2-3.5M16.5 6a6 6 0 0 0-2-3.5" />,

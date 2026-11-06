@@ -67,8 +67,10 @@ export function validateWorkspace(body: unknown, now: number): Workspace {
   });
   const crosshairSync = body.crosshairSync === undefined ? false : body.crosshairSync;
   if (typeof crosshairSync !== "boolean") throw badRequest("crosshairSync must be a boolean");
+  if (body.timeSync !== undefined && typeof body.timeSync !== "boolean") throw badRequest("timeSync must be a boolean");
+  const timeSync = body.timeSync === true;
   const linkValues = sanitizeLinkValues(body.linkValues);
-  return { id, tabs, activeTab: body.activeTab, linkGroups, crosshairSync, updatedAt: now, ...(linkValues ? { linkValues } : {}) };
+  return { id, tabs, activeTab: body.activeTab, linkGroups, crosshairSync, ...(timeSync ? { timeSync } : {}), updatedAt: now, ...(linkValues ? { linkValues } : {}) };
 }
 
 const INTERVALS = new Set(["1m", "5m", "15m", "30m", "1h", "4h", "1D", "1W", "1M"]);

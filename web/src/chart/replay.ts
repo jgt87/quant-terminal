@@ -13,6 +13,8 @@ export interface ReplayState {
   playing: boolean;
   /** Bars per second while playing. */
   speed: number;
+  /** Tick mode: playing builds each next bar from its recorded ticks (Binance / MT5). */
+  ticks?: boolean;
 }
 
 export const REPLAY_SPEEDS = [1, 2, 3, 5, 10] as const;
@@ -27,6 +29,7 @@ export type ReplayAction =
   | { type: "toggle"; times: readonly number[] }
   | { type: "speed"; value: number }
   | { type: "realtime"; times: readonly number[] }
+  | { type: "ticks"; on: boolean }
   | { type: "exit" };
 
 /** Number of bars with time <= t in sorted `times`. */
@@ -79,9 +82,41 @@ export function replayReducer(s: ReplayState, a: ReplayAction): ReplayState {
     case "realtime":
       if (s.phase !== "on" || a.times.length === 0) return s;
       return { ...s, cursor: a.times[a.times.length - 1], playing: false };
+    case "ticks":
+      return Boolean(s.ticks) === a.on ? s : { ...s, ticks: a.on };
     case "exit":
-      return { ...REPLAY_OFF, speed: s.speed };
+      return { ...REPLAY_OFF, speed: s.speed, ...(s.ticks ? { ticks: true } : {}) };
   }
+}
+
+/** One recorded tick: UTC milliseconds, price, size (0 when unknown). */
+export interface ReplayTick {
+  time: number;
+  price: number;
+  qty: number;
+}
+
+/** The bar opening at `time` as formed by its first `count` ticks (null before the first tick). */
+export function formingBar(ticks: readonly ReplayTick[], count: number, time: number): Bar | null {
+  const n = Math.min(count, ticks.length);
+  if (n <= 0) return null;
+  let high = -Infinity;
+  let low = Infinity;
+  let volume = 0;
+  for (let i = 0; i < n; i++) {
+    const p = ticks[i].price;
+    if (p > high) high = p;
+    if (p < low) low = p;
+    volume += ticks[i].qty;
+  }
+  return { time, open: ticks[0].price, high, low, close: ticks[n - 1].price, volume };
+}
+
+/** Frames per bar in tick mode: two seconds per bar at 1×, shorter at higher speeds. */
+export const TICK_FRAME_MS = 50;
+export function tickStep(tickCount: number, speed: number): number {
+  const frames = Math.max(1, Math.round(2000 / TICK_FRAME_MS / Math.max(1, speed)));
+  return Math.max(1, Math.ceil(tickCount / frames));
 }
 
 /** Bars visible under the replay state: everything when off/selecting, else up to the cursor. */

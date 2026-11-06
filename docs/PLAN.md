@@ -50,3 +50,17 @@ Wave 2 (after wave 1):
 - [x] H3 Tool families (parallel, on the registry): lines, channels, pitchforks, gann, fibonacci, patterns + elliott, cycles, projection/measurement + positions, brushes/arrows/shapes, text/notes/icons.
 - [x] H4 Verification: unit tests per tool, e2e per family, screenshot sheets (conformance 100 %, 0 gaps; e2e 78/78; `docs/verification/drawings-<family>.png`, `drawings-flyouts.png`; see docs/VERIFICATION.md, Phase H).
 - [x] H5 Integration after families: server alert support (`server/src/alerts/evaluate.ts#drawingValue`) + `CHANNEL_TYPES` in `web/src/panels/alerts/alertModel.ts` for new alert-capable tools (infoline, trendangle → line; flatBottom, disjointChannel → band; plus requests from families B/D/E); `tools/index.ts` imports for any new family folders; final conformance run + flyout screenshots.
+
+## Phase I — Feature parity with a public open-source charting library (feature list only)
+Reference: the public README and roadmap of an MIT/Apache-licensed charting library (egui-charts), used as a
+feature checklist. Clean room as always: implement from public definitions, never from its code.
+- [x] I1 Indicator catalog: 42 standard indicators (moving averages, bands, Ichimoku, SuperTrend, PSAR, DMI/ADX, Aroon, Vortex, momentum and volume-flow oscillators) with tests; `ta` helpers for scripts.
+- [x] I2 Ichimoku cloud ahead of the last bar (outputs that extend past the data: a future time axis for indicator series), and a two-color cloud fill.
+- [x] I3 Chart types: volume candles (width by volume), HLC area, high-low bars, line with markers, step line.
+- [x] I4 Scales and panes: move a study or compare series to another pane or to the left/right/own scale, collapse/maximise panes, Ctrl+double-click collapse, percentage / indexed-to-100 / inverted scales.
+- [x] I5 Multi-chart: workspace-wide Time sync toggle (link-group time sync and same-symbol drawing sync already existed).
+- [x] I6 Crypto order flow from Binance aggTrades (buyer-maker flag): footprint bars, delta / cumulative delta, volume bubbles, time and sales panel. Depth heatmap and DOM need the Binance depth stream (later).
+- [x] I7 Paper trading on the chart: order ticket (market/limit/stop/stop-limit, TP/SL brackets), order and position lines with drag-to-modify, account panel.
+- [x] I8 Replay of recorded ticks (MT5 / Binance) in addition to bar replay.
+- [x] I9 Presentation: high-contrast theme, SVG export, data table view of loaded bars and indicator values.
+

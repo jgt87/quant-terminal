@@ -19,6 +19,10 @@ export interface ComputedIndicator {
   visibility?: IntervalVisibility;
   /** Where it is drawn: the definition's pane unless the instance overrides it. */
   pane: "overlay" | "separate";
+  /** Shares the pane of this separate-pane indicator (uid). */
+  paneWith?: string;
+  /** "own": fitted to its own hidden scale instead of the pane's scale. */
+  scale?: "own";
   /** Higher timeframe the values are computed on (aligned without look-ahead). */
   timeframe?: string;
   /** Not removable through the layout (script plots); the legend reports removal separately. */
@@ -84,6 +88,8 @@ export class IndicatorSet {
         style: inst.style,
         visibility: inst.visibility,
         pane: inst.pane ?? def.pane,
+        paneWith: inst.paneWith,
+        scale: inst.scale,
         timeframe,
       });
     });

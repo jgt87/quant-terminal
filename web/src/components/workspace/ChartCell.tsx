@@ -213,6 +213,7 @@ export const ChartCell = memo(function ChartCell(p: Props) {
             onTextRequest={ctx.openText}
             onTypeToSearch={ctx.openSearch}
             onRemoveIndicator={(uid) => setIndicators((list) => list.filter((i) => i.uid !== uid))}
+            onOrderFlow={(patch) => update((l) => ({ ...l, chartSettings: { ...l.chartSettings, orderFlow: { ...l.chartSettings?.orderFlow, ...patch } } }))}
             onEditIndicator={ctx.openIndicatorSettings}
             onToggleIndicator={(uid) => setIndicators((list) => list.map((i) => (i.uid === uid ? { ...i, visible: !i.visible } : i)))}
             onDrawingSettings={ctx.openDrawingSettings}

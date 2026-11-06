@@ -111,7 +111,7 @@ export function useWorkspaceShell(api: WorkspaceApi, dialogs: ShellDialogs) {
       const ws = current();
       if (!ws) return;
       const tab = activeTabOf(ws);
-      for (const i of timeTargets(tab.cells, cellCount(tab.grid), ws.linkGroups, index)) hub.get(i)?.engine()?.setVisibleTimeRange(r.from, r.to);
+      for (const i of timeTargets(tab.cells, cellCount(tab.grid), ws.linkGroups, index, ws.timeSync === true)) hub.get(i)?.engine()?.setVisibleTimeRange(r.from, r.to);
     },
     [current, hub],
   );
@@ -253,5 +253,16 @@ export function useWorkspaceShell(api: WorkspaceApi, dialogs: ShellDialogs) {
     [current, dispatch],
   );
 
-  return { hub, ctx, active, maximized, linkedUpdate, toggleMaximize, newTab, closeTab, duplicateTab, setGrid };
+  /** Time sync was turned on: show the active chart's visible range on every chart of the tab. */
+  const alignTime = useCallback(() => {
+    const ws = current();
+    if (!ws) return;
+    const tab = activeTabOf(ws);
+    const index = activeCellOf(tab);
+    const r = hub.get(index)?.engine()?.visibleTimeRange();
+    if (!r) return;
+    for (const i of timeTargets(tab.cells, cellCount(tab.grid), ws.linkGroups, index, true)) hub.get(i)?.engine()?.setVisibleTimeRange(r.from, r.to);
+  }, [current, hub]);
+
+  return { hub, ctx, active, maximized, linkedUpdate, toggleMaximize, newTab, closeTab, duplicateTab, setGrid, alignTime };
 }

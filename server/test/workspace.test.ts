@@ -74,6 +74,7 @@ describe("workspace", () => {
       { ...ws, tabs: [ws.tabs[0], ws.tabs[0]] },
       { ...ws, linkGroups: [{ color: "red", symbol: true, interval: false }] },
       { ...ws, crosshairSync: "yes" },
+      { ...ws, timeSync: 1 },
       { ...ws, baseUpdatedAt: "x" },
     ]) {
       expect((await call("/api/workspace", "PUT", bad)).status, JSON.stringify(bad).slice(0, 120)).toBe(400);
