@@ -1,0 +1,177 @@
+/* Options panel. */
+
+.opt-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.opt-panel .pn-head {
+  flex-wrap: wrap;
+  row-gap: 4px;
+}
+
+.opt-panel .pn-head select {
+  max-width: 170px;
+}
+
+.opt-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border);
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.opt-summary b {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.opt-charts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 6px;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.opt-chart {
+  margin: 0;
+}
+
+.opt-chart figcaption {
+  color: var(--muted);
+  font-size: 11px;
+  margin-bottom: 2px;
+}
+
+.opt-chart svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.opt-chart .grid {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.opt-chart .tick {
+  fill: var(--muted);
+  font-size: 9px;
+}
+
+.opt-chart .line {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.5;
+}
+
+.opt-chart .dot {
+  fill: var(--accent);
+}
+
+.opt-chart .marker {
+  stroke: var(--muted);
+  stroke-dasharray: 3 3;
+}
+
+.opt-chart-empty {
+  color: var(--muted);
+  padding: 20px 0;
+  text-align: center;
+}
+
+.opt-head,
+.opt-row {
+  display: grid;
+  grid-template-columns: 1.3fr repeat(4, 1fr) 1.1fr repeat(4, 1fr) 1.3fr;
+  align-items: center;
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+}
+
+.opt-head {
+  padding: 3px 6px;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+  text-align: right;
+}
+
+.opt-table {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 6px;
+}
+
+.opt-row {
+  height: 22px;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
+}
+
+.opt-row > span {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 3px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.opt-cell.itm,
+.opt-bar.itm {
+  background: color-mix(in srgb, var(--accent) 9%, transparent);
+}
+
+.opt-strike {
+  justify-content: center !important;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.opt-row.atm .opt-strike {
+  outline: 1px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.opt-bar {
+  position: relative;
+}
+
+.opt-bar i {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  opacity: 0.35;
+}
+
+.opt-bar.call i {
+  right: 0;
+  background: var(--up);
+}
+
+.opt-bar.put {
+  justify-content: flex-start !important;
+}
+
+.opt-bar.put i {
+  left: 0;
+  background: var(--down);
+}
+
+.opt-bar b {
+  position: relative;
+  font-weight: 400;
+}
+
+.opt-foot {
+  padding: 4px 10px;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 11px;
+}

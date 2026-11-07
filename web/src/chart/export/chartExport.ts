@@ -34,7 +34,7 @@ export function exportBars(e: ChartEngine): Bar[] {
 }
 
 export function chartCsvText(e: ChartEngine): string {
-  return chartCsv(exportBars(e), visibleIndicatorOutputs(e));
+  return chartCsv(exportBars(e), visibleIndicatorOutputs(e), e.meta.intraday ? e.timeZone : "UTC");
 }
 
 export function exportChartCsv(e: ChartEngine, symbol: string, interval: string): void {

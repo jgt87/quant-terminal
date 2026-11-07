@@ -1,0 +1,12 @@
+{
+  "levels": 14,
+  "minShare": 0.04,
+  "gamma": 0.6,
+  "ramp": {
+    "dark": ["#0b1d4a", "#1450a8", "#1aa3c8", "#3fd27a", "#f2d335", "#ff8a1f", "#ffffff"],
+    "light": ["#d6e6fb", "#7fb2ee", "#2f7fd6", "#2bb56a", "#e2b400", "#e5650c", "#7a1300"],
+    "contrast": ["#00205a", "#0057ff", "#00d5ff", "#00ff66", "#ffee00", "#ff7a00", "#ffffff"]
+  },
+  "alpha": { "dark": 0.85, "light": 0.8, "contrast": 0.95 },
+  "bidAskLine": { "bid": "#26a69a", "ask": "#ef5350", "width": 1 }
+}

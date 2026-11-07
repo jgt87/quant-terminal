@@ -1,7 +1,7 @@
 // Pure alert-builder model: the editable draft (text fields as typed), conversion to the
 // server's Alert JSON with validation messages, the reverse, chart presets and message templating.
 
-import { ALERT_BAND_TYPES, alertOperatorsFor, defaultAlertOperator, drawingAlertKind, type Alert, type AlertCondition, type AlertOperand, type AlertOperator, type Drawing, type DrawingType, type IndicatorDef, type Interval } from "@qt/core";
+import { ALERT_BAND_TYPES, alertOperatorsFor, defaultAlertOperator, drawingAlertKind, type Alert, type AlertCondition, type AlertOperand, type AlertOperator, type Drawing, type DrawingType, type FlowEventKind, type IndicatorDef, type Interval } from "@qt/core";
 import { formatPrice } from "../../chart/format";
 import options from "./alertOptions.json";
 
@@ -18,6 +18,8 @@ export interface OperandDraft {
   drawingId: string;
   /** Layout of the drawing; empty = the alert's layout. */
   layoutId: string;
+  /** Order flow signal (kind "orderflow"). */
+  event: FlowEventKind;
 }
 
 export interface ConditionDraft {
@@ -52,13 +54,18 @@ export const isMovingPct = (op: AlertOperator) => op === "moving-up-pct" || op =
 export const isChannelOp = (op: AlertOperator) => op === "enters-channel" || op === "exits-channel";
 
 export function emptyOperand(kind: OperandKind = "price"): OperandDraft {
-  return { kind, field: "close", value: "", indicatorId: "", inputs: {}, output: "", drawingId: "", layoutId: "" };
+  return { kind, field: "close", value: "", indicatorId: "", inputs: {}, output: "", drawingId: "", layoutId: "", event: "absorption-bid" };
 }
 
 export function newCondition(price?: number | null): ConditionDraft {
   const right = emptyOperand("value");
   if (price !== undefined && price !== null && Number.isFinite(price)) right.value = String(price);
   return { left: emptyOperand("price"), op: "crosses", right, pct: "", bars: "1" };
+}
+
+/** An order flow signal on the left: "greater than 0" fires on bars with at least one signal. */
+export function orderFlowCondition(c: ConditionDraft, left: OperandDraft): ConditionDraft {
+  return { ...c, left, op: "greater", right: { ...emptyOperand("value"), value: "0" } };
 }
 
 export function newDraft(symbol: string, interval: Interval, price?: number | null, layoutId = ""): AlertDraft {
@@ -107,6 +114,8 @@ function operandJson(d: OperandDraft, where: string, errors: string[]): AlertOpe
     case "drawing":
       if (!d.drawingId) errors.push(`${where}: choose a drawing`);
       return d.layoutId ? { kind: "drawing", drawingId: d.drawingId, layoutId: d.layoutId } : { kind: "drawing", drawingId: d.drawingId };
+    case "orderflow":
+      return { kind: "orderflow", event: d.event };
   }
 }
 
@@ -179,6 +188,7 @@ function operandDraft(o: AlertOperand): OperandDraft {
   if (o.kind === "price") d.field = o.field ?? "close";
   else if (o.kind === "value") d.value = String(o.value);
   else if (o.kind === "indicator") Object.assign(d, { indicatorId: o.indicatorId, inputs: { ...o.inputs }, output: o.output });
+  else if (o.kind === "orderflow") d.event = o.event;
   else Object.assign(d, { drawingId: o.drawingId, layoutId: o.layoutId ?? "" });
   return d;
 }

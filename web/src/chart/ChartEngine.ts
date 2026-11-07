@@ -2,8 +2,9 @@
 // batches redraws with requestAnimationFrame, and reports state through events.
 
 import { distanceToSegment, visibleOnInterval } from "@qt/core";
-import type { Anchor, Bar, BarFlow, ChartSettings, ChartType, CorporateEvent, Drawing, FootprintBar, IndicatorInstance, Interval, ScriptRunResult, Series, TransformKind } from "@qt/core";
+import type { Anchor, Bar, BarFlow, ChartSettings, ChartType, CorporateEvent, DepthFrame, Drawing, FlowEvent, FootprintBar, IndicatorInstance, Interval, ScriptRunResult, Series, TransformKind } from "@qt/core";
 import { flowIndicators, groupDelta, groupFootprints } from "./orderFlow";
+import { resolveZone } from "./timeZone";
 import { tradeLineHit, type TradeLine } from "./tradeLines";
 import { CanvasLayer } from "./canvas";
 import { DrawingController, type Tool } from "./drawings/DrawingController";
@@ -23,7 +24,7 @@ import { TimeScale } from "./TimeScale";
 import { buildLegend, type LegendData } from "./legend";
 import { alignCloses, type CompareSeries } from "./compare";
 import { placeEventMarkers, type EventMarker } from "./events";
-import { countAtOrBefore, formingBar, REPLAY_OFF, replayReducer, revealBars, TICK_FRAME_MS, tickStep, type ReplayAction, type ReplayState, type ReplayTick } from "./replay";
+import { countAtOrBefore, formingBar, REPLAY_OFF, replayClock, replayReducer, revealBars, upToClock, TICK_FRAME_MS, tickStep, type ReplayAction, type ReplayState, type ReplayTick } from "./replay";
 import { scriptIndicators } from "./scriptPlots";
 import { StudyCache } from "./studies/cache";
 import type { StudyResult } from "./studies/compute";
@@ -55,12 +56,23 @@ export function paneRoots(items: readonly { uid: string; paneWith?: string }[]):
 /** History paging stops at this many source bars on price-only chart types. */
 const MAX_TRANSFORM_SOURCE_BARS = 20000;
 
+/**
+ * Which price axes show: the main one on the right (or the left with placement "left"), a second
+ * one on the left with "both" or when an indicator uses a left scale.
+ */
+export function priceAxes(placement: "right" | "left" | "both" | undefined, hasLeftScale: boolean): { left: boolean; right: boolean } {
+  const p = placement ?? "right";
+  return { right: p !== "left", left: p === "left" || p === "both" || hasLeftScale };
+}
+
 export interface SeriesMeta {
   symbol: string;
   interval?: Interval;
   intervalSec: number;
   intraday: boolean;
   fx: boolean;
+  /** The symbol's exchange time zone (IANA), when the provider gives one. */
+  exchangeZone?: string;
 }
 
 export interface PaneInfo {
@@ -116,6 +128,11 @@ export class ChartEngine {
   settings: ChartSettings = {};
   /** Left edge of the plot (the price axis width when the scale sits on the left). */
   plotLeft = 0;
+  /** Price axes shown: the right one (main side unless placement is "left") and the left one. */
+  axisRight = true;
+  axisLeft = false;
+  /** Some indicator uses a left scale (the left axis then shows even with placement "right"). */
+  private hasLeftScale = false;
   readonly events = new Emitter<EngineEvents>();
   readonly ts = new TimeScale();
   readonly data = new SeriesData();
@@ -175,6 +192,10 @@ export class ChartEngine {
   /** Footprints by displayed bar index, and their price bin size. */
   flowFootprints = new Map<number, FootprintBar>();
   flowTick = 0;
+  /** Liquidity heatmap frames (order book samples), oldest first. */
+  depthFrames: readonly DepthFrame[] = [];
+  /** Order flow signals (absorption, stop runs, icebergs). */
+  flowEvents: readonly FlowEvent[] = [];
   /** Paper trading lines on the price pane, and the line being dragged (preview price). */
   tradeLines: TradeLine[] = [];
   tradeDrag: { id: string; price: number } | null = null;
@@ -248,6 +269,7 @@ export class ChartEngine {
   setData(bars: readonly Bar[], meta: SeriesMeta): void {
     const symbolChanged = meta.symbol !== this.meta.symbol || meta.intervalSec !== this.meta.intervalSec;
     this.meta = meta;
+    this.syncZone();
     this.raw.set(bars);
     this.mainPane.ps.fx = meta.fx;
     this.historyRequestedAt = null;
@@ -417,6 +439,17 @@ export class ChartEngine {
    * Order flow data (taker flow per provider bar, footprint bars and their bin size), or null to
    * remove it. What is drawn follows `settings.orderFlow`.
    */
+  /** Liquidity heatmap frames; drawn when `settings.orderFlow.heatmap` is on. */
+  setDepthFrames(frames: readonly DepthFrame[]): void {
+    this.depthFrames = frames;
+    this.invalidate();
+  }
+
+  setFlowEvents(events: readonly FlowEvent[]): void {
+    this.flowEvents = events;
+    this.invalidate();
+  }
+
   setOrderFlow(raw: { flow: readonly BarFlow[]; footprints: readonly FootprintBar[]; tick: number } | null): void {
     this.flowRaw = raw;
     this.alignFlow(true);
@@ -491,6 +524,21 @@ export class ChartEngine {
     this.syncReplayTimer(prev);
     this.events.emit("replay", next);
     this.invalidate();
+  }
+
+  /**
+   * Replay clock (UTC ms): how far replay has revealed the market (the end of the last revealed
+   * bar, or the last tick shown while a bar forms); null when replay is off.
+   */
+  replayClockMs(): number | null {
+    const p = this.tickPlay;
+    const tick = p && p.shown > 0 ? p.ticks[Math.min(p.shown, p.ticks.length) - 1].time : null;
+    return replayClock(this.replay, this.raw.times, this.meta.intervalSec, tick);
+  }
+
+  /** Heatmap frames to draw: all of them, or during replay those up to the replay clock. */
+  visibleDepthFrames(): readonly DepthFrame[] {
+    return upToClock(this.depthFrames, this.replayClockMs());
   }
 
   /** Times of the full source series (replay steps walk these). */
@@ -574,6 +622,14 @@ export class ChartEngine {
 
   // ---------- appearance ----------
 
+  /** IANA zone the chart shows times in (from the setting and the symbol's exchange zone). */
+  timeZone = "UTC";
+
+  private syncZone(): void {
+    this.timeZone = resolveZone(this.settings.timeZone, this.meta.exchangeZone);
+    this.ts.zone = this.timeZone;
+  }
+
   setTheme(mode: ThemeMode): void {
     this.themeMode = mode;
     this.theme = chartTheme(mode, this.settings);
@@ -585,6 +641,7 @@ export class ChartEngine {
     const prevTransform = JSON.stringify(this.settings.symbol?.transform ?? null);
     const prevFlow = JSON.stringify(this.settings.orderFlow ?? null);
     this.settings = cs ?? {};
+    this.syncZone();
     if (JSON.stringify(this.settings.orderFlow ?? null) !== prevFlow) this.alignFlow(true);
     if (this.transform && JSON.stringify(this.settings.symbol?.transform ?? null) !== prevTransform) this.rebuild("reset");
     this.theme = chartTheme(this.themeMode, this.settings);
@@ -674,7 +731,12 @@ export class ChartEngine {
     for (const c of separates) byRoot.get(rootOf.get(c.uid)!)!.uids.push(c.uid);
     // The pane's own indicator comes first (it names the pane and keys its height).
     for (const [root, pane] of byRoot) pane.uids.sort((x, y) => (x === root ? -1 : y === root ? 1 : 0));
-    for (const uid of [...this.ownScales.keys()]) if (this.indicators.get(uid)?.scale !== "own") this.ownScales.delete(uid);
+    for (const uid of [...this.ownScales.keys()]) if (!this.indicators.get(uid)?.scale) this.ownScales.delete(uid);
+    const hasLeft = this.instances.some((i) => i.scale === "left" && i.visible !== false);
+    if (hasLeft !== this.hasLeftScale) {
+      this.hasLeftScale = hasLeft;
+      this.layoutDirty = true;
+    }
     if (this.maximizedPane && !next.some((p) => p.id === this.maximizedPane)) this.maximizedPane = null;
     const changed = next.length !== this.panes.length || next.some((p, i) => p !== this.panes[i]);
     this.panes = next;
@@ -722,6 +784,19 @@ export class ChartEngine {
   }
 
   /** Scale an indicator's values are drawn on: its own hidden scale, else its pane's scale. */
+  /**
+   * Scale shown on a pane's left axis when the main axis is on the right: the first visible
+   * indicator of the pane on a left scale, else the pane's own scale with placement "both", else
+   * none (an empty axis).
+   */
+  leftScaleOf(pane: Pane): PriceScale | null {
+    for (const uid of pane.uids) {
+      const c = this.indicators.get(uid);
+      if (c && c.scale === "left" && this.indicatorShown(c)) return this.ownScales.get(uid) ?? null;
+    }
+    return this.settings.scales?.placement === "both" ? pane.ps : null;
+  }
+
   scaleFor(uid: string, pane: Pane): PriceScale {
     return this.ownScales.get(uid) ?? pane.ps;
   }
@@ -930,8 +1005,12 @@ export class ChartEngine {
     const dpr = window.devicePixelRatio || 1;
     this.width = w;
     this.height = h;
-    this.plotWidth = Math.max(0, w - t.priceAxisWidth);
-    this.plotLeft = this.settings.scales?.placement === "left" ? t.priceAxisWidth : 0;
+    const axes0 = priceAxes(this.settings.scales?.placement, this.hasLeftScale);
+    this.axisRight = axes0.right;
+    this.axisLeft = axes0.left;
+    const axes = (this.axisRight ? 1 : 0) + (this.axisLeft ? 1 : 0);
+    this.plotWidth = Math.max(0, w - t.priceAxisWidth * axes);
+    this.plotLeft = this.axisLeft ? t.priceAxisWidth : 0;
     this.plotHeight = Math.max(0, h - t.timeAxisHeight);
     this.scene.resize(w, h, dpr);
     this.ui.resize(w, h, dpr);

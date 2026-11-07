@@ -13,6 +13,6 @@ export default defineConfig({
   },
   preview: { port: 5180 },
   // panels.html: the right-side panels on their own (verification page; the app mounts them via PanelHost).
-  build: { outDir: "dist", sourcemap: true, target: "es2022", rollupOptions: { input: { main: fileURLToPath(new URL("index.html", import.meta.url)), panels: fileURLToPath(new URL("panels.html", import.meta.url)) } } },
+  build: { outDir: "dist", sourcemap: true, target: "es2022", rolldownOptions: { input: { main: fileURLToPath(new URL("index.html", import.meta.url)), panels: fileURLToPath(new URL("panels.html", import.meta.url)) } } },
   worker: { format: "es" },
 });

@@ -98,7 +98,7 @@ export function useChartData(
           setState((s) => ({ ...s, status: "empty", info: res.info, hasMore }));
           return;
         }
-        engine.setData(res.bars, { symbol, interval, intervalSec, intraday, fx: res.info.type === "fx" });
+        engine.setData(res.bars, { symbol, interval, intervalSec, intraday, fx: res.info.type === "fx", exchangeZone: res.info.timezone });
         markTimes(engine);
         ready = true;
         setState((s) => ({ ...s, status: "ready", info: res.info, hasMore }));
@@ -126,7 +126,7 @@ export function useChartData(
           // Plain series prepend; resampled/formula series are recomposed (the first, partial
           // bucket can complete) and replaced without moving the view.
           if (plain) engine.prependBars(res.bars.slice(0, Math.max(0, added)));
-          else engine.setData(res.bars, { symbol, interval, intervalSec, intraday, fx: engine.meta.fx });
+          else engine.setData(res.bars, { symbol, interval, intervalSec, intraday, fx: engine.meta.fx, exchangeZone: engine.meta.exchangeZone });
           markTimes(engine);
           hasMore = res.hasMore && added > 0;
           if (added <= 0) engine.historyDone();

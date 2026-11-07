@@ -5,6 +5,7 @@ import { useState, type ReactNode } from "react";
 import { Dialog } from "./Dialog";
 import { Tabs } from "./Tabs";
 import "../styles/settings.css";
+import { t } from "../i18n";
 
 interface Props<T extends string> {
   title: string;
@@ -23,7 +24,7 @@ export function SettingsDialog<T extends string>({ title, tabs, initialTab, widt
   const [tab, setTab] = useState<T>(initialTab ?? tabs[0].id);
   return (
     <Dialog
-      title={title}
+      title={t(title)}
       onClose={onCancel}
       width={width}
       footer={
@@ -31,20 +32,20 @@ export function SettingsDialog<T extends string>({ title, tabs, initialTab, widt
           {footerLeft}
           {onDefaults && (
             <button className="btn ghost" onClick={onDefaults}>
-              Defaults
+              {t("Defaults")}
             </button>
           )}
           <span className="spacer" />
           <button className="btn ghost" data-action="cancel" onClick={onCancel}>
-            Cancel
+            {t("Cancel")}
           </button>
           <button className="btn primary" data-action="ok" onClick={onOk}>
-            OK
+            {t("OK")}
           </button>
         </>
       }
     >
-      <Tabs<T> tabs={tabs} value={tab} onChange={(id) => setTab(id)} label={`${title} sections`} />
+      <Tabs<T> tabs={tabs.map((x) => ({ ...x, label: t(x.label) }))} value={tab} onChange={(id) => setTab(id)} label={`${title} sections`} />
       <form
         className="settings-body"
         role="tabpanel"

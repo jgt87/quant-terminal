@@ -10,6 +10,7 @@ import { formatPrice } from "../chart/format";
 import { SEP, type MenuItem } from "../components/menuTypes";
 import { createAlertFromChart } from "../panels/alerts/createFromChart";
 import { openPanelRequests } from "../panels/bus";
+import { isDepthRecording, loadDepthRecordings, setDepthRecording } from "../api/depth";
 import { chartMenu, indicatorMenu, priceAxisMenu, type PaneTarget } from "./menus";
 import { clipboardCount } from "../chart/drawings/clipboard";
 import { drawingActions, drawingMenuState } from "./drawingActions";
@@ -93,6 +94,7 @@ export function chartMenuFor(target: ContextTarget, deps: ChartMenuDeps): MenuIt
           toggleVisible: () => patch((i) => ({ ...i, visible: !i.visible })),
           movePane: (to) => deps.setIndicators((list) => movedIndicators(list, inst.uid, to, (id) => anyIndicator(id)?.pane)),
           setOwnScale: (on) => patch((i) => ({ ...i, scale: on ? "own" : undefined })),
+          setLeftScale: (on) => patch((i) => ({ ...i, scale: on ? "left" : undefined })),
           toggleMaximized: () => engine.togglePaneMaximized(paneIndex),
           toggleCollapsed: () => engine.togglePaneCollapsed(paneIndex),
           remove: () => deps.setIndicators((list) => list.filter((i) => i.uid !== inst.uid)),
@@ -107,6 +109,7 @@ export function chartMenuFor(target: ContextTarget, deps: ChartMenuDeps): MenuIt
               current: p === own,
             })),
           ownScale: inst.scale === "own",
+          leftScale: inst.scale === "left",
           maximized: own != null && engine.maximizedPane === own.id,
           collapsed: own?.collapsed === true,
         },
@@ -127,6 +130,7 @@ export function chartMenuFor(target: ContextTarget, deps: ChartMenuDeps): MenuIt
           lastPriceLabel: scales?.lastPriceLabel !== false,
           maximized: engine.maximizedPane === pane.id,
           collapsed: pane.collapsed,
+          placement: scales?.placement,
         },
         {
           setAuto: (on) => engine.setAutoScale(target.pane, on),
@@ -138,6 +142,7 @@ export function chartMenuFor(target: ContextTarget, deps: ChartMenuDeps): MenuIt
           setLastPriceLabel: (on) => setScales(deps, { lastPriceLabel: on }),
           toggleMaximized: () => engine.togglePaneMaximized(target.pane),
           toggleCollapsed: () => engine.togglePaneCollapsed(target.pane),
+          setPlacement: (placement) => setScales(deps, { placement: placement === "right" ? undefined : placement }),
         },
       );
     }
@@ -160,6 +165,8 @@ export function chartMenuFor(target: ContextTarget, deps: ChartMenuDeps): MenuIt
           syncDrawings: drawingPrefs().syncDrawings,
           orderFlow: layout.chartSettings?.orderFlow,
           orderFlowAvailable: isBinanceSymbol(layout.symbol),
+          depthRecording: (void loadDepthRecordings(), isDepthRecording(layout.symbol)),
+          timeZone: layout.chartSettings?.timeZone,
         },
         {
           convert: engine.indicators.items
@@ -191,6 +198,9 @@ export function chartMenuFor(target: ContextTarget, deps: ChartMenuDeps): MenuIt
           setOrderFlow: (patch) =>
             deps.update((l) => ({ ...l, chartSettings: { ...l.chartSettings, orderFlow: { ...l.chartSettings?.orderFlow, ...patch } } })),
           timeAndSales: () => openPanelRequests.emit("tape"),
+          depthLadder: () => openPanelRequests.emit("dom"),
+          setTimeZone: (zone) => deps.update((l) => ({ ...l, chartSettings: { ...l.chartSettings, timeZone: zone === "UTC" ? undefined : zone } })),
+          setDepthRecording: (on) => void setDepthRecording(layout.symbol, on).catch(() => {}),
         },
       )];
     }

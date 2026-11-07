@@ -131,3 +131,27 @@ export function revealBars<T extends Bar>(bars: readonly T[], s: ReplayState): r
   }
   return lo === bars.length ? bars : bars.slice(0, lo);
 }
+
+/**
+ * Replay clock (UTC ms): the end of the last revealed bar (the next bar's open), or the time of
+ * the last tick shown while a bar forms; null when replay is off. Tick times may be ms or seconds.
+ */
+export function replayClock(s: ReplayState, times: readonly number[], intervalSec: number, lastTickTime?: number | null): number | null {
+  if (s.phase !== "on" || s.cursor == null) return null;
+  if (lastTickTime != null) return lastTickTime > 1e11 ? lastTickTime : lastTickTime * 1000;
+  const k = countAtOrBefore(times, s.cursor);
+  return (times[k] ?? s.cursor + intervalSec) * 1000;
+}
+
+/** The items with `time` (UTC ms) at or before `clock`, oldest first (all when clock is null). */
+export function upToClock<T extends { time: number }>(items: readonly T[], clock: number | null): readonly T[] {
+  if (clock === null) return items;
+  let lo = 0;
+  let hi = items.length;
+  while (lo < hi) {
+    const mid = (lo + hi) >> 1;
+    if (items[mid].time <= clock) lo = mid + 1;
+    else hi = mid;
+  }
+  return lo === items.length ? items : items.slice(0, lo);
+}

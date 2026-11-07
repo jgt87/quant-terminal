@@ -1,4 +1,4 @@
-import type { Alert, AlertCondition, AlertOperand, AlertOperator, IndicatorDef } from "@qt/core";
+import { FLOW_EVENT_KINDS, type Alert, type AlertCondition, type AlertOperand, type AlertOperator, type FlowEventKind, type IndicatorDef } from "@qt/core";
 import { badRequest } from "../errors";
 import { parseInterval } from "../bars";
 import { ID_RE } from "../store";
@@ -61,8 +61,11 @@ function validateOperand(v: unknown, where: string, getIndicator: IndicatorLooku
       if (!layoutId) throw badRequest(`${where}: a drawing operand needs layoutId (on the operand or the alert)`);
       return v.layoutId === undefined ? { kind: "drawing", drawingId: v.drawingId } : { kind: "drawing", drawingId: v.drawingId, layoutId: v.layoutId as string };
     }
+    case "orderflow":
+      if (typeof v.event !== "string" || !(FLOW_EVENT_KINDS as readonly string[]).includes(v.event)) throw badRequest(`${where}.event must be one of: ${FLOW_EVENT_KINDS.join(", ")}`);
+      return { kind: "orderflow", event: v.event as FlowEventKind };
     default:
-      throw badRequest(`${where}.kind must be price, value, indicator or drawing`);
+      throw badRequest(`${where}.kind must be price, value, indicator, drawing or orderflow`);
   }
 }
 

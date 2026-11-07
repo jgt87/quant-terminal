@@ -2,7 +2,7 @@
 
 import type { AlertOperator, Drawing } from "@qt/core";
 import { Icon } from "../../components/icons";
-import { isChannelOp, isMovingPct, operatorsFor, type ConditionDraft } from "./alertModel";
+import { isChannelOp, isMovingPct, operatorsFor, orderFlowCondition, type ConditionDraft } from "./alertModel";
 import { OperandEditor } from "./OperandEditor";
 
 interface Props {
@@ -20,7 +20,7 @@ export function ConditionEditor({ index, value, drawings, canRemove, onChange, o
     <div className="al-cond" data-cond={index}>
       <span className="al-cond-tag">{index === 0 ? "IF" : "AND"}</span>
       <div className="al-cond-body">
-        <OperandEditor label={`Condition ${index + 1} left`} value={value.left} kinds={["price", "indicator"]} drawings={drawings} onChange={(left) => onChange({ ...value, left })} />
+        <OperandEditor label={`Condition ${index + 1} left`} value={value.left} kinds={["price", "indicator", "orderflow"]} drawings={drawings} onChange={(left) => onChange(left.kind === "orderflow" && value.left.kind !== "orderflow" ? orderFlowCondition(value, left) : { ...value, left })} />
         <select
           className="al-op"
           value={value.op}

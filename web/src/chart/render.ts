@@ -6,6 +6,7 @@ import { crisp, hairline } from "./canvas";
 import type { ChartEngine } from "./ChartEngine";
 import { drawBand, drawDrawing } from "./drawings/render";
 import { formatTimeFull } from "./format";
+import { zoneLabel } from "./timeZone";
 import { levelFill } from "./indicatorStyle";
 import type { Pane } from "./Pane";
 import { drawPriceAxis, drawTimeAxis } from "./renderers/axes";
@@ -20,9 +21,11 @@ import { drawVolumeOverlay } from "./renderers/volume";
 import { drawBaseline, drawColumns, drawKagi, drawPnf } from "./renderers/chartTypes";
 import { drawHighLow, drawHlcArea, drawLineMarkers, drawStepLine, drawVolumeCandles } from "./renderers/chartTypesExtra";
 import { drawFootprints, drawVolumeBubbles } from "./renderers/footprint";
+import { drawHeatmap } from "./renderers/heatmap";
+import { drawFlowEvents } from "./renderers/flowEvents";
 import { drawTradeLines } from "./tradeLines";
 import { drawCompareLines, compareValues } from "./renderers/compare";
-import { drawCrosshairTime, drawEventMarkers, drawExtendedHours, drawReplaySelect } from "./renderers/marks";
+import { drawCrosshairTime, drawEventMarkers, drawExtendedHours, drawReplaySelect, drawSessionBreaks } from "./renderers/marks";
 import { drawStudies } from "./studies/render";
 import { allAnchors, volumeProfile, type Drawing } from "@qt/core";
 import { PriceScale } from "./PriceScale";
@@ -65,7 +68,7 @@ export function fitScales(e: ChartEngine): void {
     for (const uid of pane.uids) {
       const c = e.indicators.get(uid);
       if (!c || !e.indicatorShown(c)) continue;
-      if (c.scale === "own") {
+      if (c.scale === "own" || c.scale === "left") {
         fitOwnScale(e, c, pane, from, to);
         continue;
       }
@@ -138,16 +141,16 @@ function paneCtx(e: ChartEngine, ctx: CanvasRenderingContext2D, pane: Pane, from
   return { ctx, ts: e.ts, ps: pane.ps, width: e.plotWidth, height: pane.height, from, to, dpr: e.scene.dpr, theme: e.theme };
 }
 
-/** x of the price axis' left edge in plot coordinates. */
+/** x of the main price axis' left edge in plot coordinates (right unless placement is "left"). */
 function axisX(e: ChartEngine): number {
-  return e.plotLeft > 0 ? -e.theme.priceAxisWidth : e.plotWidth;
+  return e.axisRight ? e.plotWidth : -e.theme.priceAxisWidth;
 }
 
 export function renderScene(e: ChartEngine): void {
   const ctx = e.scene.begin();
   const t = e.theme;
   const dpr = e.scene.dpr;
-  const left = e.plotLeft > 0;
+  const left = !e.axisRight;
   ctx.fillStyle = t.background;
   ctx.fillRect(0, 0, e.width, e.height);
   if (e.width === 0 || e.height === 0) return;
@@ -177,11 +180,16 @@ export function renderScene(e: ChartEngine): void {
     }
     ctx.restore();
     drawPriceAxis(ctx, x0, pane.top, pane.height, hasData ? priceTicks : [], t, dpr, left);
+    // Second axis on the left: a left-scale indicator's scale, or the pane's scale ("both").
+    if (e.axisLeft && e.axisRight) {
+      const ls = hasData && !pane.collapsed ? e.leftScaleOf(pane) : null;
+      drawPriceAxis(ctx, -t.priceAxisWidth, pane.top, pane.height, ls ? ls.ticks() : [], t, dpr, true);
+    }
     if (hasData && !pane.collapsed) drawAxisValueBadges(e, ctx, pane);
   }
 
   // Separators between visible panes (across plot and axis).
-  const sepLeft = left ? x0 : 0;
+  const sepLeft = e.axisLeft ? -t.priceAxisWidth : 0;
   const shown = e.panes.filter((p) => p.height > 0);
   shown.forEach((p, k) => {
     if (k === shown.length - 1) return;
@@ -205,7 +213,9 @@ export function renderScene(e: ChartEngine): void {
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   const mps = e.mainPane.ps;
-  const mode = `${mps.percentBase ? (mps.indexed ? "IDX · " : "% · ") : mps.log ? "LOG · " : ""}${mps.inverted ? "INV · " : ""}UTC`;
+  const lastTime = e.data.times[e.data.times.length - 1] ?? Date.now() / 1000;
+  const zone = e.meta.intraday ? zoneLabel(e.timeZone, lastTime) : "UTC";
+  const mode = `${mps.percentBase ? (mps.indexed ? "IDX · " : "% · ") : mps.log ? "LOG · " : ""}${mps.inverted ? "INV · " : ""}${zone}`;
   ctx.fillText(mode, x0 + t.priceAxisWidth / 2, e.plotHeight + t.timeAxisHeight / 2);
 
   if (e.message) {
@@ -221,6 +231,8 @@ export function renderScene(e: ChartEngine): void {
 function drawMainPane(e: ChartEngine, rc: PaneRenderCtx): void {
   const bars = e.display;
   if (e.shadeExtended && !e.transform) drawExtendedHours(rc, e.data.times);
+  if (e.settings.appearance?.sessionBreaks && e.meta.intraday && !e.transform) drawSessionBreaks(rc, e.data.times, e.timeZone);
+  if (e.settings.orderFlow?.heatmap && e.depthFrames.length && !e.transform) drawHeatmap(rc, e.visibleDepthFrames());
   if (e.showVolume) drawVolumeOverlay(rc, e.data.bars);
   const hollowAll = e.settings.symbol?.hollow === true;
   switch (e.chartType) {
@@ -271,6 +283,7 @@ function drawMainPane(e: ChartEngine, rc: PaneRenderCtx): void {
     if (flow?.footprint) drawFootprints(rc, e.flowFootprints, e.flowTick);
     if (flow?.bubbles) drawVolumeBubbles(rc, e.flowFootprints, e.flowTick);
   }
+  if (flow?.signals && e.flowEvents.length && !e.transform) drawFlowEvents(rc, e.flowEvents);
   drawStudies(e, rc);
   for (const uid of e.mainPane.uids) {
     const c = e.indicators.get(uid);
@@ -358,7 +371,7 @@ function renderExternalCrosshair(e: ChartEngine, ctx: CanvasRenderingContext2D):
     drawCrosshairLines(ctx, x, null, e.plotWidth, e.plotHeight, t.crosshair, dpr, style);
     ctx.restore();
   }
-  drawCrosshairTime(e, ctx, x, formatTimeFull(e.ts.indexToTime(idx), e.meta.intraday), dpr);
+  drawCrosshairTime(e, ctx, x, formatTimeFull(e.ts.indexToTime(idx), e.meta.intraday, e.timeZone), dpr);
   ctx.restore();
   e.markCrosshair(x);
 }
@@ -404,7 +417,7 @@ export function renderUi(e: ChartEngine): void {
   }
   if (showX) {
     const time = e.ts.indexToTime(idx);
-    drawCrosshairTime(e, ctx, x, formatTimeFull(time, e.meta.intraday), dpr);
+    drawCrosshairTime(e, ctx, x, formatTimeFull(time, e.meta.intraday, e.timeZone), dpr);
   }
   ctx.restore();
   e.markCrosshair(showX ? x : null);

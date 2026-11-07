@@ -7,5 +7,7 @@
   { "id": "scripts", "label": "Scripts", "icon": "scripts", "key": "6", "width": 520 },
   { "id": "objects", "label": "Object tree", "icon": "objectTree", "key": "7", "width": 320 },
   { "id": "tape", "label": "Time and sales", "icon": "tape", "key": "8", "width": 320 },
-  { "id": "data", "label": "Data table", "icon": "dataTable", "key": "9", "width": 560 }
+  { "id": "data", "label": "Data table", "icon": "dataTable", "key": "9", "width": 560 },
+  { "id": "dom", "label": "Depth ladder", "icon": "dom", "key": "0", "width": 440 },
+  { "id": "options", "label": "Options", "icon": "options", "key": "", "width": 620 }
 ]

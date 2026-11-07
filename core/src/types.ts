@@ -132,8 +132,11 @@ export interface IndicatorInstance {
    * pane of its own. Ignored when that indicator is gone or not in a separate pane.
    */
   paneWith?: string;
-  /** Optional: "own" fits the indicator to its own hidden scale instead of the pane's scale. */
-  scale?: "own";
+  /**
+   * Optional: "own" fits the indicator to its own scale without an axis (overlay); "left" fits it
+   * to its own scale shown on the pane's left price axis.
+   */
+  scale?: "own" | "left";
   /**
    * Optional higher timeframe (e.g. "1D"): computed on that interval's bars and aligned to the
    * chart without look-ahead. Missing = the chart's own bars.
@@ -343,6 +346,18 @@ export interface Layout {
   updatedAt: number;
 }
 
+/** Order flow parts shown on a chart (Binance symbols). */
+export interface OrderFlowFlags {
+  footprint?: boolean;
+  bubbles?: boolean;
+  delta?: boolean;
+  cvd?: boolean;
+  /** Liquidity heatmap (resting order book size over time) behind the candles. */
+  heatmap?: boolean;
+  /** Absorption, stop run and iceberg markers. */
+  signals?: boolean;
+}
+
 export interface ChartSettings {
   symbol?: {
     upColor?: string;
@@ -364,7 +379,8 @@ export interface ChartSettings {
   scales?: {
     lastPriceLabel?: boolean;
     priceLine?: boolean;
-    placement?: "right" | "left";
+    /** Main price axis side; "both" shows it on the left and the right. */
+    placement?: "right" | "left" | "both";
     /** Percent mode of the main price scale (relative to the first visible bar). */
     percent?: boolean;
     /** Indexed to 100: the first visible bar's close is 100 (takes precedence over percent). */
@@ -372,13 +388,17 @@ export interface ChartSettings {
     /** Inverted main price scale (higher prices lower on the chart). */
     inverted?: boolean;
   };
-  /** Crypto order flow (Binance symbols): footprint cells, volume bubbles, delta panes. */
-  orderFlow?: { footprint?: boolean; bubbles?: boolean; delta?: boolean; cvd?: boolean };
+  /** Crypto order flow (Binance symbols): footprint cells, volume bubbles, delta panes, liquidity heatmap. */
+  orderFlow?: OrderFlowFlags;
+  /** Time zone of the time axis, crosshair and tables: "UTC" (default), "local", "exchange" or an IANA zone. */
+  timeZone?: string;
   appearance?: {
     background?: string;
     gridVertical?: boolean;
     gridHorizontal?: boolean;
     crosshair?: "dashed" | "dotted" | "solid" | "hidden";
+    /** Dashed vertical lines where a new day starts in the chart's time zone (intraday). */
+    sessionBreaks?: boolean;
   };
 }
 

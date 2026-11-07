@@ -1,4 +1,4 @@
-Normal use: double-click Start Terminal.cmd in the Quant Terminal folder. It updates to the latest release (when installed with git clone; set QT_NO_UPDATE=1 to turn this off), installs the dependencies, rebuilds the app, starts the local server and opens http://localhost:4180 in your browser once it is ready. Needs Node.js 20 or newer (https://nodejs.org). Keep the window open while you use the terminal; closing it stops the server.
+Normal use: double-click Start Terminal.cmd in the Quant Terminal folder. It updates to the latest release (when installed with git clone; set QT_NO_UPDATE=1 to turn this off), installs the dependencies, rebuilds the app, starts the local server and opens http://localhost:4180 in your browser once it is ready. Needs Node.js 20.19+ or 22.12+ (the current LTS from https://nodejs.org). Keep the window open while you use the terminal; closing it stops the server.
 
 With live FX from MetaTrader 5: open MT5 and log in first, then double-click Start Terminal (MT5).cmd. The first time, it sets up the bridge's Python environment (bridge\.venv), which needs 64-bit Python 3.12 (https://www.python.org/downloads/, with the py launcher).
 

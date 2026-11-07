@@ -1,5 +1,5 @@
 // Pure alert-condition evaluation. No I/O: bars, drawings and indicator series come in as data.
-import { drawingAlertValue, type Alert, type AlertCondition, type AlertOperand, type Bar, type Drawing, type DrawingAlertValue, type Interval, type Series } from "@qt/core";
+import { drawingAlertValue, eventsPerBar, type FlowEvent, type Alert, type AlertCondition, type AlertOperand, type Bar, type Drawing, type DrawingAlertValue, type Interval, type Series } from "@qt/core";
 import { INTERVAL_SEC } from "../bars";
 
 /**
@@ -40,6 +40,8 @@ export interface EvalInput {
   /** Drawings by id (from the alert's layout). */
   drawings?: ReadonlyMap<string, Drawing>;
   indicator?: IndicatorFn;
+  /** Order flow signals of the newest bars (only loaded when an alert uses them). */
+  flowEvents?: readonly FlowEvent[];
 }
 
 /** Close time (UTC seconds) of a bar: the next bar's nominal open. 1M uses the calendar month. */
@@ -67,6 +69,7 @@ export function drawingValue(d: Drawing, t: number): OperandValue {
 /** Resolves operand values per bar index; indicator series are computed once per operand. */
 export function operandResolver(input: EvalInput): { value(op: AlertOperand, i: number): OperandValue; error?: string } {
   const series = new Map<string, Series>();
+  const flowCounts = new Map<string, Map<number, number>>();
   const self = {
     error: undefined as string | undefined,
     value(op: AlertOperand, i: number): OperandValue {
@@ -90,6 +93,15 @@ export function operandResolver(input: EvalInput): { value(op: AlertOperand, i: 
           }
           const v = s[i];
           return typeof v === "number" && Number.isFinite(v) ? v : null;
+        }
+        case "orderflow": {
+          if (!input.flowEvents) {
+            self.error = "Order flow signals are not available for this symbol";
+            return null;
+          }
+          let counts = flowCounts.get(op.event);
+          if (!counts) flowCounts.set(op.event, (counts = eventsPerBar(input.flowEvents, op.event, input.bars.map((b) => b.time))));
+          return counts.get(bar.time) ?? 0;
         }
         case "drawing": {
           const d = input.drawings?.get(op.drawingId);

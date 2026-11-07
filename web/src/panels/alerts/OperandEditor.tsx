@@ -1,6 +1,6 @@
 // One side of an alert condition: price field, fixed value, indicator (inputs + output) or drawing.
 
-import { INDICATORS, getIndicator, type Drawing } from "@qt/core";
+import { FLOW_EVENT_KINDS, FLOW_EVENT_LABEL, INDICATORS, getIndicator, type Drawing, type FlowEventKind } from "@qt/core";
 import { emptyOperand, indicatorOperand, type OperandDraft, type OperandKind } from "./alertModel";
 import options from "./alertOptions.json";
 
@@ -111,6 +111,15 @@ export function OperandEditor({ value, onChange, kinds, drawings, label }: Props
             );
           })}
         </>
+      )}
+      {value.kind === "orderflow" && (
+        <select value={value.event} onChange={(e) => onChange({ ...value, event: e.target.value as FlowEventKind })} aria-label={`${label} signal`} title="Number of these signals in the bar (Binance symbols)">
+          {FLOW_EVENT_KINDS.map((k) => (
+            <option key={k} value={k}>
+              {FLOW_EVENT_LABEL[k]}
+            </option>
+          ))}
+        </select>
       )}
       {value.kind === "drawing" && (
         <select value={value.drawingId} onChange={(e) => onChange({ ...value, drawingId: e.target.value })} aria-label={`${label} drawing`}>

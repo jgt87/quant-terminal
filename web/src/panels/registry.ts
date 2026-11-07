@@ -5,14 +5,14 @@ import type { Bar, Interval, Layout, ScriptRunResult } from "@qt/core";
 import type { ChartEngine } from "../chart/ChartEngine";
 import panels from "./panels.json";
 
-export type PanelId = "watchlist" | "alerts" | "screener" | "portfolio" | "paper" | "scripts" | "objects" | "tape" | "data";
+export type PanelId = "watchlist" | "alerts" | "screener" | "portfolio" | "paper" | "scripts" | "objects" | "tape" | "data" | "dom" | "options";
 
 export interface PanelDef {
   id: PanelId;
   label: string;
   /** Icon name in panels/panelIcons.tsx. */
   icon: string;
-  /** Alt+<key> opens the panel. */
+  /** Alt+Shift+<key> opens the panel ("" = no shortcut). */
   key: string;
   /** Default content width in px (the user can drag the edge). */
   width: number;

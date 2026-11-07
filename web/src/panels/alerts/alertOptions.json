@@ -20,7 +20,8 @@
     { "id": "price", "label": "Price" },
     { "id": "value", "label": "Value" },
     { "id": "indicator", "label": "Indicator" },
-    { "id": "drawing", "label": "Drawing" }
+    { "id": "drawing", "label": "Drawing" },
+    { "id": "orderflow", "label": "Order flow signal" }
   ],
   "priceFields": ["close", "high", "low"],
   "defaultMessage": "{{symbol}} alert at {{price}} ({{time}})",

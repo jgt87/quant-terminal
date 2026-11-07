@@ -4,6 +4,7 @@
 // last bar means prepending history never moves the visible bars on screen.
 
 import { tickLabel } from "./format";
+import { toZone } from "./timeZone";
 
 export interface TimeScaleOptions {
   minSpacing: number;
@@ -36,6 +37,8 @@ export class TimeScale {
   barSpacing: number;
   rightOffset: number;
   width = 0;
+  /** IANA zone of the time axis labels (intraday charts). */
+  zone = "UTC";
   intervalSec = DAY;
   readonly opts: TimeScaleOptions;
   private times: readonly number[] = [];
@@ -219,16 +222,19 @@ export class TimeScale {
       }
     }
     const out: TimeTick[] = [];
+    // Intraday calendars follow the chart's zone; daily and longer bars are dates already.
+    const tz = this.intervalSec < DAY ? this.zone : "UTC";
+    const key0 = (t: number) => bucketKey(toZone(t, tz), span);
     let prevTime: number | null = from > 0 ? this.times[from - 1] : null;
-    let prevKey: number | null = prevTime == null ? null : bucketKey(prevTime, span);
+    let prevKey: number | null = prevTime == null ? null : key0(prevTime);
     let lastX = -Infinity;
     for (let i = from; i <= to; i++) {
       const t = i <= this.lastIndex ? this.times[i] : this.indexToTime(i);
-      const key = bucketKey(t, span);
+      const key = key0(t);
       if (prevKey !== null && key !== prevKey) {
         const x = this.indexToX(i);
         if (x - lastX >= minLabelPx * 0.7) {
-          const { text, major } = tickLabel(t, prevTime, span);
+          const { text, major } = tickLabel(t, prevTime, span, tz);
           out.push({ index: i, x, text, major });
           lastX = x;
         }

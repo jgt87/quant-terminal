@@ -1,6 +1,9 @@
 // Chart data export: bars plus the visible indicator outputs as CSV columns. Pure.
 
 import { barsToCsv, type Bar, type Series } from "@qt/core";
+import { formatDateTime } from "../format";
+
+const EOL = "\r\n";
 
 export interface ExportIndicator {
   label: string;
@@ -22,14 +25,28 @@ export function indicatorColumns(items: readonly ExportIndicator[]): Record<stri
   return out;
 }
 
-/** CSV of `bars` with indicator columns aligned 1:1 (missing values are empty fields). */
-export function chartCsv(bars: readonly Bar[], items: readonly ExportIndicator[]): string {
+/**
+ * CSV of `bars` with indicator columns aligned 1:1 (missing values are empty fields). The `time`
+ * column is ISO UTC; with a chart zone other than UTC (intraday) a `time (<zone>)` column with the
+ * wall-clock time there follows it.
+ */
+export function chartCsv(bars: readonly Bar[], items: readonly ExportIndicator[], zone = "UTC"): string {
   const cols = indicatorColumns(items);
   for (const k of Object.keys(cols)) {
     const s = cols[k];
     if (s.length !== bars.length) cols[k] = bars.map((_, i) => s[i] ?? null);
   }
-  return barsToCsv(bars as Bar[], cols);
+  const csv = barsToCsv(bars as Bar[], cols);
+  if (zone === "UTC") return csv;
+  const lines = csv.split(EOL);
+  return lines
+    .map((line, i) => {
+      if (!line) return line;
+      const cut = line.indexOf(",");
+      const extra = i === 0 ? `time (${zone})` : formatDateTime(bars[i - 1].time, true, zone);
+      return `${line.slice(0, cut)},${extra}${line.slice(cut)}`;
+    })
+    .join(EOL);
 }
 
 /** File name like "AAPL_1D_2026-10-13.csv"; characters outside [A-Za-z0-9._-] become "_". */

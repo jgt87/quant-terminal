@@ -7,6 +7,7 @@ import { Icon } from "./icons";
 import { placeMenu, placeSubmenu, type Rect } from "./menuPosition";
 import { isAction, isHeader, type MenuAction, type MenuItem } from "./menuTypes";
 import "../styles/contextmenu.css";
+import { t } from "../i18n";
 
 interface Props {
   x: number;
@@ -160,7 +161,7 @@ function MenuList({ items, anchor, label, autoFocus, onClose, onBack }: ListProp
         {items.map((m, i) =>
           isHeader(m) ? (
             <div key={i} className="ctx-header" role="presentation">
-              {m.label}
+              {t(m.label)}
             </div>
           ) : !isAction(m) ? (
             <div key={i} className="ctx-sep" role="separator" />
@@ -184,7 +185,7 @@ function MenuList({ items, anchor, label, autoFocus, onClose, onBack }: ListProp
               onClick={() => choose(m, i)}
             >
               <span className={`ctx-check${m.checked ? " on" : ""}`}>{m.checked ? <Icon name="check" size={14} /> : m.icon ? <Icon name={m.icon} size={16} /> : null}</span>
-              <span className="ctx-label">{m.label}</span>
+              <span className="ctx-label">{t(m.label)}</span>
               <span className="ctx-shortcut">{m.shortcut ?? ""}</span>
               <span className="ctx-arrow">{m.submenu ? <Icon name="chevronRight" size={12} /> : null}</span>
             </div>

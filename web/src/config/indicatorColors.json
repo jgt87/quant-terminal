@@ -22,5 +22,17 @@
   "vortex": { "plus": "#26a69a", "minus": "#ef5350" },
   "vwap": { "vwap": "#ff9800" },
   "obv": { "obv": "#2962ff" },
-  "atr": { "atr": "#ef5350" }
+  "atr": { "atr": "#ef5350" },
+  "crsi": { "crsi": "#2962ff", "levelFill": "rgba(41,98,255,0.08)" },
+  "fisher": { "fisher": "#2962ff", "trigger": "#ff9800" },
+  "stc": { "stc": "#9c27b0", "levelFill": "rgba(156,39,176,0.08)" },
+  "kst": { "kst": "#26a69a", "signal": "#ef5350" },
+  "kvo": { "kvo": "#2962ff", "signal": "#ff9800" },
+  "elderray": { "bull": "#26a69a", "bear": "#ef5350" },
+  "lrc": { "basis": "#ff9800", "upper": "#2962ff", "lower": "#2962ff", "fill": "rgba(41,98,255,0.06)" },
+  "seb": { "basis": "#ff9800", "upper": "#7e57c2", "lower": "#7e57c2", "fill": "rgba(126,87,194,0.06)" },
+  "pricechannel": { "upper": "#26a69a", "lower": "#ef5350", "fill": "rgba(41,98,255,0.05)" },
+  "rvgi": { "rvgi": "#26a69a", "signal": "#ef5350" },
+  "rci": { "rci": "#2962ff", "levelFill": "rgba(41,98,255,0.06)" },
+  "cks": { "stopShort": "#ef5350", "stopLong": "#26a69a" }
 }

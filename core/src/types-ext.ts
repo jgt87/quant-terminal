@@ -1,5 +1,6 @@
 // Shared contracts for the roadmap features (phase G). Dependency-free; re-exported from index.ts.
 import type { Bar, Interval, Quote, Series } from "./types";
+import type { FlowEventKind } from "./orderflow/detect";
 
 // ---------- Chart transforms ----------
 
@@ -89,7 +90,9 @@ export type AlertOperand =
   | { kind: "value"; value: number }
   | { kind: "indicator"; indicatorId: string; inputs: Record<string, number | string | boolean>; output: string }
   /** A drawing of a saved layout; `layoutId` falls back to `Alert.layoutId`. */
-  | { kind: "drawing"; drawingId: string; layoutId?: string };
+  | { kind: "drawing"; drawingId: string; layoutId?: string }
+  /** Number of order flow signals of this kind in the bar (Binance symbols; 0 when none). */
+  | { kind: "orderflow"; event: FlowEventKind };
 
 export type AlertOperator =
   | "crosses"

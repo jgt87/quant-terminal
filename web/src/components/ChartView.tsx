@@ -12,6 +12,8 @@ import { isScriptUid } from "../chart/scriptPlots";
 import { flowPaneOf } from "../chart/orderFlow";
 import { transformOf } from "../chart/transform";
 import { useOrderFlow } from "../hooks/useOrderFlow";
+import { useDepthHeatmap } from "../hooks/useDepthHeatmap";
+import { useFlowSignals } from "../hooks/useFlowSignals";
 import { useChartTrading } from "../hooks/useChartTrading";
 import { fetchTicks } from "../api/orderflow";
 import { useChartData } from "../hooks/useChartData";
@@ -138,6 +140,8 @@ export function ChartView(p: ChartViewProps) {
     if (!tickProvider && engine.replay.ticks) engine.replayDispatch({ type: "ticks", on: false });
   }, [engine, tickProvider, p.symbol]);
   useOrderFlow(engine, p.symbol, p.interval, p.chartSettings?.orderFlow, data.info?.provider, data.status === "ready", transformOf(p.chartType) != null);
+  useDepthHeatmap(engine, p.symbol, Boolean(p.chartSettings?.orderFlow?.heatmap) && transformOf(p.chartType) == null, data.info?.provider, data.status === "ready");
+  useFlowSignals(engine, p.symbol, p.interval, Boolean(p.chartSettings?.orderFlow?.signals) && transformOf(p.chartType) == null, data.info?.provider, data.status === "ready");
   const intradayData = (engine?.meta.intervalSec ?? 86400) < 86400;
   const stockLike = data.info?.type === "stock" || data.info?.type === "etf";
   useEffect(() => engine?.setShadeExtended(Boolean(sym?.extendedHours) && intradayData && stockLike), [engine, sym?.extendedHours, intradayData, stockLike]);

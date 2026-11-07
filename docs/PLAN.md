@@ -64,3 +64,15 @@ feature checklist. Clean room as always: implement from public definitions, neve
 - [x] I8 Replay of recorded ticks (MT5 / Binance) in addition to bar replay.
 - [x] I9 Presentation: high-contrast theme, SVG export, data table view of loaded bars and indicator values.
 
+## Phase J — Remaining parity gaps (order book, time zones, scales, options)
+Same reference and clean-room rule as Phase I. TPO / Market Profile, volume profile and candlestick patterns already exist as studies.
+- [x] J1 Binance order book: server keeps a local book per subscribed symbol (REST depth snapshot + diff stream, sequence-checked, resync on gaps); `/api/depth` snapshot and a streaming endpoint; core `orderbook` module (apply diffs, bin by price) with tests.
+- [x] J2 Liquidity heatmap: resting size per price level over time behind the candles (depth history sampled per bar or per few seconds, kept in memory with a size cap, optional recording to disk).
+- [x] J3 Depth ladder (DOM) panel: bid/ask size per price, own paper orders in the ladder, click to place / drag to move paper orders (paper account only, no broker calls).
+- [x] J4 Order-flow detectors from trades + book: absorption, iceberg refills, stop runs; markers on the chart and usable as alert conditions.
+- [x] J5 Depth replay: recorded book snapshots play back with Bar Replay (heatmap and ladder follow the replay cursor).
+- [x] J6 Time zones: chart time zone setting (UTC, exchange, local, any named IANA zone) for the time axis, crosshair, data table and exports; session breaks follow the zone.
+- [x] J7 Price scale placement: left / right / both price axes; indicators and compare series on the left scale or as overlay without a visible axis.
+- [x] J8 Indicator catalog, round 2: remaining standard indicators from public definitions (e.g. Connors RSI, Fisher Transform, Schaff Trend Cycle, KST, Klinger, Mass Index, Elder Ray, Know Sure Thing, Linear Regression Channel, Standard Error Bands, Price Channel, McGinley Dynamic, Zero-lag EMA, VIDYA, Relative Vigor, Balance of Power, Volume Oscillator, Net Volume, Rank Correlation).
+- [x] J9 Translations: string catalog for UI text, language setting, one additional language to prove it end to end.
+- [x] J10 Options (needs a source; first check the public Yahoo options endpoint): option chain panel by expiry and strike, open interest / volume by strike, strike and maturity axes.

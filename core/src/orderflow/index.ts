@@ -140,3 +140,4 @@ export function cumulativeDelta(delta: readonly (number | null)[]): (number | nu
     return acc;
   });
 }
+export * from "./detect";

@@ -25,6 +25,8 @@ export {
 export * from "./transforms";
 export * from "./analysis";
 export * from "./orderflow";
+export * from "./orderbook";
+export * from "./options";
 export { walkForward, trainTestSplit, type WalkForwardOptions, type WalkForwardFold, type WalkForwardResult } from "./backtest/walkforward";
 export { barsToCsv, tradesToCsv, metricsToCsv, csvField, csvRow } from "./export/csv";
 export * from "./drawings/lines";

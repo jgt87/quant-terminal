@@ -3,6 +3,7 @@ import { DiskCache } from "../cache";
 import { HttpError, badRequest, providerError } from "../errors";
 import { INTERVAL_SEC, isIntraday } from "../bars";
 import { BinanceProvider } from "./binance";
+import { BinanceOptions } from "./binanceOptions";
 import { MT5_PREFIX, Mt5Provider } from "./mt5";
 import { YahooProvider } from "./yahoo";
 import { nowSec, type BarOptions, type BarsPage, type FetchFn } from "./types";
@@ -109,6 +110,8 @@ export class MarketData {
   readonly yahoo: YahooProvider;
   readonly binance: BinanceProvider;
   readonly mt5: Mt5Provider;
+  /** Binance options (public market data). */
+  readonly options: BinanceOptions;
   readonly fxProvider: "yahoo" | "mt5";
   private readonly barsCache: DiskCache<BarsPage>;
   private readonly quoteCache: DiskCache<Quote[]>;
@@ -121,6 +124,7 @@ export class MarketData {
     this.yahoo = new YahooProvider(fetchFn, this.now);
     this.binance = new BinanceProvider(fetchFn, opts.cacheDir);
     this.mt5 = new Mt5Provider(fetchFn, opts.mt5BridgeUrl);
+    this.options = new BinanceOptions(fetchFn);
     this.fxProvider = opts.fxProvider ?? "yahoo";
     this.barsCache = new DiskCache<BarsPage>(opts.cacheDir, 300);
     this.quoteCache = new DiskCache<Quote[]>(undefined, 500);

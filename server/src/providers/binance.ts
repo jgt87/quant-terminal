@@ -1,5 +1,5 @@
 import path from "node:path";
-import type { Bar, BarFlow, FlowTrade, Interval, Quote, SymbolInfo } from "@qt/core";
+import { parseLevels, type Bar, type BarFlow, type DepthSnapshot, type FlowTrade, type Interval, type Quote, type SymbolInfo } from "@qt/core";
 import { validateBars } from "../bars";
 import { readJson, writeJsonAtomic } from "../fsutil";
 import { fetchJson, notFound, nowSec, providerError, type BarsPage, type FetchFn, type MarketProvider } from "./types";
@@ -235,6 +235,16 @@ export class BinanceProvider implements MarketProvider {
       byId = true;
     }
     return { trades, complete: true };
+  }
+
+  /** Order book snapshot (REST), at most `limit` levels per side (5 to 5000). */
+  async depthSnapshot(ticker: string, limit = 1000): Promise<DepthSnapshot> {
+    const n = Math.max(5, Math.min(5000, Math.floor(limit)));
+    const { status, body } = await fetchJson(this.fetchFn, `${API}/depth?symbol=${encodeURIComponent(ticker)}&limit=${n}`, "Binance");
+    if (status >= 400) binanceError(status, body, `BINANCE:${ticker}`);
+    const b = body as { lastUpdateId?: unknown; bids?: unknown; asks?: unknown } | null;
+    if (!b || typeof b.lastUpdateId !== "number") throw providerError("Binance: unexpected depth payload");
+    return { lastUpdateId: b.lastUpdateId, bids: parseLevels(b.bids), asks: parseLevels(b.asks) };
   }
 
   /** The most recent trades (newest last), at most 1000. */

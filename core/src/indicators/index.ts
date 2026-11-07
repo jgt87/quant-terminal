@@ -12,3 +12,28 @@ export { dmi, aroon, vortex, psar, supertrend, ichimoku } from "./directional";
 export { cci, williamsR, roc, momentum, awesome, trix, ultimate, stochRsi, cmo, dpo, tsi, coppock } from "./momentum";
 export { keltner, envelope, bbPercentB, bbWidth, historicalVolatility, choppiness, chandelier } from "./bands";
 export { mfi, cmf, adl, chaikinOsc, forceIndex, easeOfMovement, pvt } from "./volumeFlow";
+export {
+  connorsRsi,
+  streak,
+  percentRank,
+  fisher,
+  schaff,
+  kst,
+  klinger,
+  massIndex,
+  elderRay,
+  lrChannel,
+  stdErrorBands,
+  priceChannel,
+  mcginley,
+  zlema,
+  vidya,
+  relativeVigor,
+  balanceOfPower,
+  volumeOscillator,
+  netVolume,
+  rankCorrelation,
+  ulcerIndex,
+  chandeKroll,
+  accelerator,
+} from "./extra";

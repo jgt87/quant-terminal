@@ -1,7 +1,9 @@
 /* Panel host (rail + open panel) and shared dense panel styles. Colors: theme tokens only. */
 
 /* The host takes the app grid's right column; the rail stays visible when panels are closed. */
-.app:has(> .panel-host) {
+/* Also wins over `.app.with-watchlist` (fixed 288 px) so panels get their own width. */
+.app:has(> .panel-host),
+.app.with-watchlist:has(> .panel-host) {
   grid-template-columns: var(--toolbar-btn-w) minmax(0, 1fr) auto;
 }
 

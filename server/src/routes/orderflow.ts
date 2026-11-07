@@ -2,7 +2,8 @@
 // built from aggregated trades, and the latest trades for the time-and-sales tape. Closed
 // footprint bars are cached in memory; the open bar is always rebuilt.
 
-import { buildFootprint, type FootprintBar, type Interval } from "@qt/core";
+import { buildFootprint, detectFlowEvents, footprintTick, type Bar, type FlowEvent, type FootprintBar, type Interval } from "@qt/core";
+import type { DepthService } from "../depth/service";
 import type { Router } from "../http";
 import type { MarketData } from "../providers";
 import { badRequest } from "../errors";
@@ -19,6 +20,8 @@ const CACHE_MAX = 20000;
 /** Tick replay: most ticks and longest range per request. */
 export const MAX_REPLAY_TICKS = 20000;
 export const MAX_REPLAY_SPAN = 86400;
+/** Most bars order flow signals are computed for per request. */
+export const MAX_SIGNAL_BARS = 60;
 
 /** Footprints only for intervals up to one day (bar time = trade time floored to the interval). */
 const FOOTPRINT_INTERVALS = new Set<Interval>(["1m", "5m", "15m", "30m", "1h", "4h", "1D"]);
@@ -27,9 +30,37 @@ export class OrderFlowService {
   private readonly cache = new Map<string, FootprintBar | null>();
 
   constructor(
-    private readonly market: MarketData,
+    readonly market: MarketData,
     private readonly now: () => number = () => Date.now(),
+    /** Live order books (iceberg signals); without it only bar signals are produced. */
+    private readonly depth?: DepthService,
   ) {}
+
+  /**
+   * Order flow signals of the newest `count` bars of `bars` (oldest first): absorption and stop
+   * runs from their footprints, icebergs from the live order book (the book starts on the first
+   * request, so icebergs cover the time since then).
+   */
+  async signals(raw: string, interval: Interval, bars: readonly Bar[], count = MAX_SIGNAL_BARS): Promise<{ tick: number; complete: boolean; events: FlowEvent[] }> {
+    await this.ticker(raw);
+    const recent = bars.slice(-Math.min(count, MAX_SIGNAL_BARS));
+    if (!recent.length) return { tick: 0, complete: true, events: [] };
+    const sec = INTERVAL_SEC[interval];
+    const tick = footprintTick(bars.slice(-100).map((b) => b.high - b.low));
+    const from = recent[0].time;
+    const to = recent[recent.length - 1].time + sec;
+    const fp = await this.footprint(raw, interval, from, to, tick);
+    const events = detectFlowEvents(fp.bars, bars, tick);
+    if (this.depth) {
+      try {
+        events.push(...(await this.depth.feed(raw)).flowEvents(from, to));
+      } catch {
+        /* too many books open: bar signals only */
+      }
+    }
+    events.sort((a, b) => a.time - b.time);
+    return { tick, complete: fp.complete, events };
+  }
 
   /** Binance pair for an app symbol; other providers have no trade data. */
   async ticker(raw: string): Promise<string> {
@@ -138,6 +169,19 @@ export function registerOrderFlowRoutes(router: Router, service: OrderFlowServic
     const tick = Number(url.searchParams.get("tick"));
     if (!(tick > 0) || !Number.isFinite(tick)) throw badRequest("tick must be a positive number");
     return service.footprint(p.symbol, p.interval, p.from, p.to, tick);
+  });
+
+  router.get("/api/orderflow/events", async ({ url }) => {
+    const symbol = (url.searchParams.get("symbol") ?? "").trim();
+    if (!symbol) throw badRequest("symbol is required");
+    const rawInterval = url.searchParams.get("interval") ?? "1m";
+    const interval = parseInterval(rawInterval);
+    if (!interval) throw badRequest(`Unknown interval: ${rawInterval}`);
+    const count = intParam(url, "count") ?? MAX_SIGNAL_BARS;
+    if (count < 1 || count > MAX_SIGNAL_BARS) throw badRequest(`count must be between 1 and ${MAX_SIGNAL_BARS}`);
+    const page = await service.market.bars(symbol, interval, undefined, count + 25);
+    const r = await service.signals(symbol, interval, page.bars, count);
+    return { symbol: page.symbol.symbol, interval, ...r };
   });
 
   router.get("/api/ticks", async ({ url }) => {

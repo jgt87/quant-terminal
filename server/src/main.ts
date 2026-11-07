@@ -3,7 +3,8 @@ import { createServer } from "node:http";
 import { createApp } from "./app";
 import { MarketData } from "./providers";
 import { Store } from "./store";
-import { CACHE_DIR, STORE_DIR, WEB_DIST_DIR } from "./paths";
+import path from "node:path";
+import { CACHE_DIR, DATA_DIR, STORE_DIR, WEB_DIST_DIR } from "./paths";
 
 const port = Number(process.env.PORT) || 4180;
 // Loopback only by default (IPv4 and IPv6, so "localhost" works either way). HOST=0.0.0.0 exposes it.
@@ -30,6 +31,7 @@ const app = createApp({
   }),
   store: new Store(STORE_DIR),
   webDist: WEB_DIST_DIR,
+  depthDir: path.join(DATA_DIR, "depth"),
   background: process.env.QT_BACKGROUND !== "0",
 });
 

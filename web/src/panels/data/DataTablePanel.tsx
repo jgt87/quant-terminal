@@ -5,6 +5,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { chartCsvText, exportBars, exportChartCsv, visibleIndicatorOutputs } from "../../chart/export/chartExport";
 import { formatPrice, formatTimeFull } from "../../chart/format";
+import { zoneLabel } from "../../chart/timeZone";
 import { shortVolume } from "../../chart/renderers/footprint";
 import { copyText } from "../../state/chartMenuFor";
 import { panelIcon } from "../panelIcons";
@@ -94,7 +95,7 @@ export function DataTablePanel({ chart }: { chart: ActiveChartHandles | null }) 
       <div className="data-scroll" ref={body} onScroll={(e) => setScroll({ top: e.currentTarget.scrollTop, height: e.currentTarget.clientHeight })}>
         <div className="data-grid" style={{ minWidth: 150 + cols.length * 76 }}>
           <div className="data-row data-headrow" style={{ gridTemplateColumns: template }} role="row">
-            <span role="columnheader">Time (UTC)</span>
+            <span role="columnheader">Time ({intraday ? zoneLabel(engine.timeZone, bars[n - 1]?.time ?? 0) : "UTC"})</span>
             {cols.map((c) => (
               <span key={c.key} role="columnheader" title={c.label}>
                 {c.label}
@@ -115,7 +116,7 @@ export function DataTablePanel({ chart }: { chart: ActiveChartHandles | null }) 
                   onClick={() => engine.scrollToTime(engine.data.times[i] ?? b.time)}
                   title="Show this bar on the chart"
                 >
-                  <span>{formatTimeFull(b.time, intraday)}</span>
+                  <span>{formatTimeFull(b.time, intraday, engine.timeZone)}</span>
                   {cols.map((c) => (
                     <span key={c.key} className={c.key === "close" ? (up ? "pos" : "neg") : ""}>
                       {fmt(c.kind, c.value(i))}

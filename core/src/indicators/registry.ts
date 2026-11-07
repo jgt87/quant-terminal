@@ -23,6 +23,29 @@ import { MACD_DEF, RSI_DEF, STOCH_DEF } from "./oscillators";
 import { DONCHIAN_DEF, EMA_DEF, SMA_DEF, WMA_DEF } from "./trend";
 import { ATR_DEF, BB_DEF } from "./volatility";
 import { OBV_DEF, VOLUME_DEF, VWAP_DEF } from "./volume";
+import {
+  ACCELERATOR_DEF,
+  BOP_DEF,
+  CHANDE_KROLL_DEF,
+  CONNORS_RSI_DEF,
+  ELDER_RAY_DEF,
+  FISHER_DEF,
+  KLINGER_DEF,
+  KST_DEF,
+  LR_CHANNEL_DEF,
+  MASS_INDEX_DEF,
+  MCGINLEY_DEF,
+  NET_VOLUME_DEF,
+  PRICE_CHANNEL_DEF,
+  RCI_DEF,
+  RVGI_DEF,
+  SCHAFF_DEF,
+  STD_ERROR_BANDS_DEF,
+  ULCER_DEF,
+  VIDYA_DEF,
+  VOLUME_OSC_DEF,
+  ZLEMA_DEF,
+} from "./extra";
 import { ADL_DEF, CHAIKIN_OSC_DEF, CMF_DEF, EOM_DEF, FORCE_INDEX_DEF, MFI_DEF, PVT_DEF } from "./volumeFlow";
 
 export const INDICATORS: IndicatorDef[] = [
@@ -38,6 +61,9 @@ export const INDICATORS: IndicatorDef[] = [
   LSMA_DEF,
   SMMA_DEF,
   VWMA_DEF,
+  MCGINLEY_DEF,
+  ZLEMA_DEF,
+  VIDYA_DEF,
   // Trend overlays and bands
   BB_DEF,
   KELTNER_DEF,
@@ -47,6 +73,10 @@ export const INDICATORS: IndicatorDef[] = [
   SUPERTREND_DEF,
   PSAR_DEF,
   CHANDELIER_DEF,
+  CHANDE_KROLL_DEF,
+  PRICE_CHANNEL_DEF,
+  LR_CHANNEL_DEF,
+  STD_ERROR_BANDS_DEF,
   VWAP_DEF,
   // Momentum
   RSI_DEF,
@@ -64,6 +94,15 @@ export const INDICATORS: IndicatorDef[] = [
   DPO_DEF,
   TSI_DEF,
   COPPOCK_DEF,
+  CONNORS_RSI_DEF,
+  FISHER_DEF,
+  SCHAFF_DEF,
+  KST_DEF,
+  RVGI_DEF,
+  RCI_DEF,
+  ACCELERATOR_DEF,
+  ELDER_RAY_DEF,
+  BOP_DEF,
   // Trend strength
   DMI_DEF,
   ADX_DEF,
@@ -76,6 +115,8 @@ export const INDICATORS: IndicatorDef[] = [
   HV_DEF,
   BB_PERCENT_B_DEF,
   BB_WIDTH_DEF,
+  MASS_INDEX_DEF,
+  ULCER_DEF,
   // Volume
   VOLUME_DEF,
   OBV_DEF,
@@ -86,6 +127,9 @@ export const INDICATORS: IndicatorDef[] = [
   FORCE_INDEX_DEF,
   EOM_DEF,
   PVT_DEF,
+  KLINGER_DEF,
+  VOLUME_OSC_DEF,
+  NET_VOLUME_DEF,
 ];
 
 const BY_ID = new Map(INDICATORS.map((d) => [d.id, d]));

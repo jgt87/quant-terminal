@@ -7,7 +7,8 @@ cd /d "%~dp0"
 title Quant Terminal (MT5)
 
 where node >nul 2>nul || goto :nonode
-node -e "process.exit(+process.versions.node.split('.')[0] >= 20 ? 0 : 1)" || goto :oldnode
+rem Vite 8 needs Node.js 20.19+ or 22.12+ (not 21 or 22.0-22.11).
+node -e "const [a,b]=process.versions.node.split('.').map(Number);process.exit((a===20&&b>=19)||(a===22&&b>=12)||a>=23?0:1)" || goto :oldnode
 
 rem Update to the latest release (git checkouts; QT_NO_UPDATE=1 turns it off). cmd parses a ( ) block
 rem as a whole before running it, so the update may replace this file safely; after an update the
@@ -39,10 +40,10 @@ call npm start --silent || goto :serverfailed
 goto :eof
 
 :nonode
-echo Node.js was not found. Install Node.js 20 or newer from https://nodejs.org and run this again.
+echo Node.js was not found. Install the current LTS of Node.js (20.19+ or 22.12+) from https://nodejs.org and run this again.
 goto :fail
 :oldnode
-for /f "delims=" %%v in ('node -v') do echo Node.js %%v is too old. Install Node.js 20 or newer from https://nodejs.org and run this again.
+for /f "delims=" %%v in ('node -v') do echo Node.js %%v is not supported. Install the current LTS of Node.js (20.19+ or 22.12+) from https://nodejs.org and run this again.
 goto :fail
 :bridgefailed
 echo The MT5 bridge setup failed - see the messages above.

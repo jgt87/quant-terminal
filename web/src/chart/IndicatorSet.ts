@@ -21,8 +21,8 @@ export interface ComputedIndicator {
   pane: "overlay" | "separate";
   /** Shares the pane of this separate-pane indicator (uid). */
   paneWith?: string;
-  /** "own": fitted to its own hidden scale instead of the pane's scale. */
-  scale?: "own";
+  /** "own": fitted to its own hidden scale; "left": its own scale on the left price axis. */
+  scale?: "own" | "left";
   /** Higher timeframe the values are computed on (aligned without look-ahead). */
   timeframe?: string;
   /** Not removable through the layout (script plots); the legend reports removal separately. */

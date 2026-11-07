@@ -16,17 +16,24 @@ a screener, portfolios, paper trading, user scripts and a backtesting engine wit
 
 - **Charts:** candles, hollow candles, bars, line, area, baseline, columns, volume candles, HLC area, high-low,
   line with markers, step line, Heikin-Ashi, Renko, Kagi, Line Break, Point & Figure and Range; log, percent,
-  indexed-to-100 and inverted scales; indicators can share panes or use their own scale; panes maximise and collapse;
-  symbol compare, custom intervals, bar replay (also tick by tick for Binance and MT5), dark, light and high-contrast
-  themes.
-- **Indicators and studies:** 54 built-in indicators: moving averages (SMA, EMA, WMA, DEMA, TEMA, Hull, ALMA, KAMA,
-  LSMA, SMMA, VWMA), bands and trend overlays (Bollinger, Keltner, Donchian, Envelope, Ichimoku, SuperTrend,
-  Parabolic SAR, Chandelier Exit, VWAP), momentum (RSI, MACD, Stochastic, Stochastic RSI, CCI, Williams %R, ROC,
-  Awesome, TRIX, Ultimate, TSI, Coppock, …), trend strength (DMI/ADX, Aroon, Vortex, Choppiness), volatility and
-  volume (ATR, Historical Volatility, OBV, MFI, CMF, A/D, Chaikin, Force Index, …), plus volume profile, pivots,
-  auto Fibonacci and candlestick / chart pattern detection. The Ichimoku cloud is drawn ahead of the last bar.
-- **Crypto order flow (Binance):** footprint bars, volume bubbles, delta and cumulative delta panes, and a time and
-  sales panel.
+  indexed-to-100 and inverted scales; price axis on the left, right or both sides; indicators can share panes or use
+  their own (left or hidden) scale; panes maximise and collapse; symbol compare, custom intervals, bar replay (also
+  tick by tick for Binance and MT5), chart time zones (UTC, local, exchange or a named zone) with session breaks,
+  dark, light and high-contrast themes, English and Dutch interface.
+- **Indicators and studies:** 75 built-in indicators: moving averages (SMA, EMA, WMA, DEMA, TEMA, Hull, ALMA, KAMA,
+  LSMA, SMMA, VWMA, McGinley, ZLEMA, VIDYA), bands and trend overlays (Bollinger, Keltner, Donchian, Envelope,
+  Ichimoku, SuperTrend, Parabolic SAR, Chandelier Exit, Chande Kroll Stop, Price Channel, Linear Regression Channel,
+  Standard Error Bands, VWAP), momentum (RSI, MACD, Stochastic, Stochastic RSI, CCI, Williams %R, ROC, Awesome,
+  Accelerator, TRIX, Ultimate, TSI, Coppock, Connors RSI, Fisher, Schaff, KST, Relative Vigor, Rank Correlation, …),
+  trend strength (DMI/ADX, Aroon, Vortex, Choppiness), volatility and volume (ATR, Historical Volatility, Mass Index,
+  Ulcer Index, OBV, MFI, CMF, A/D, Chaikin, Klinger, Force Index, Volume Oscillator, Net Volume, …), plus volume
+  profile, TPO, pivots, auto Fibonacci and candlestick / chart pattern detection. The Ichimoku cloud is drawn ahead
+  of the last bar.
+- **Crypto order flow (Binance):** footprint bars, volume bubbles, delta and cumulative delta panes, a live order
+  book with a liquidity heatmap (recordable and replayable with bar replay), a depth ladder for paper orders,
+  absorption / stop-run / iceberg signals (also as alert conditions) and a time and sales panel.
+- **Options (Binance):** option chains with IV and greeks, open interest and volume by strike, volatility smile and
+  term structure.
 - **Drawing tools:** lines, channels, pitchforks, Fibonacci and Gann tools, Elliott waves, harmonic patterns,
   cycles, shapes, brushes, text and notes, icons, long/short position and measuring tools; anchors are stored in
   price/time so drawings survive zoom, timeframe changes and reloads; templates, visibility per interval, object tree.
@@ -76,7 +83,7 @@ npm start          # http://localhost:4180
 Development with hot reload: `npm run dev`, then open http://localhost:5180.
 
 ### Requirements
-- Node.js 20+
+- Node.js 20.19+ or 22.12+ (running the tests needs 22.12+)
 - Git, for automatic updates (optional)
 - Optional, for the MT5 feed: Windows, MetaTrader 5 installed, running and logged in, and 64-bit Python 3.12
   (`bridge\setup.cmd` once)
@@ -89,6 +96,8 @@ The server picks a source per symbol. Everything is cached on disk in `data/cach
 |---|---|---|---|
 | Yahoo Finance (public chart endpoint) | stocks, ETFs, indices (`AAPL`, `^NDX`), FX (`EURUSD=X`), anything else | no | **no**: delayed or indicative, polled |
 | Binance (public REST API) | crypto pairs (`BTCUSDT`, `BINANCE:ETHUSDT`) | no | prices are live at the source, but the app polls |
+| Binance (public WebSocket streams) | order book and trades of the pairs whose heatmap, depth ladder or signals are open | no | **yes**: 100 ms depth updates |
+| Binance options (public REST API) | option chains of BTC, ETH, BNB, SOL, XRP, DOGE, gold, silver | no | quotes cached for 15 s |
 | MetaTrader 5 (local bridge) | `MT5:<broker symbol>`, optionally all FX pairs | no (your own logged-in terminal) | **yes**: tick stream |
 
 ### No datafeed API included

@@ -1,6 +1,7 @@
 // Background and axis marks: extended-hours shading, corporate event markers on the time axis,
 // and the replay start-point picker.
 
+import { toZone } from "../timeZone";
 import { crisp, hairline, snap } from "../canvas";
 import type { ChartEngine } from "../ChartEngine";
 import { isExtendedHours, type EventMarker } from "../events";
@@ -29,6 +30,33 @@ export function drawExtendedHours(rc: PaneRenderCtx, times: readonly number[]): 
     } else flush(i - 1);
   }
   flush(to);
+}
+
+/** Bar indexes in [from, to] where a new day starts in `zone` (the first bar of each day). */
+export function sessionBreakIndexes(times: readonly number[], from: number, to: number, zone: string): number[] {
+  const out: number[] = [];
+  const day = (t: number) => Math.floor(toZone(t, zone) / 86400);
+  for (let i = Math.max(1, from); i <= to && i < times.length; i++) if (day(times[i]) !== day(times[i - 1])) out.push(i);
+  return out;
+}
+
+/** Dashed vertical lines before the first bar of each day (intraday charts). */
+export function drawSessionBreaks(rc: PaneRenderCtx, times: readonly number[], zone: string): void {
+  const { ctx, ts, from, to, height, dpr, theme } = rc;
+  if (from > to) return;
+  ctx.save();
+  ctx.strokeStyle = theme.axisText;
+  ctx.globalAlpha = 0.45;
+  ctx.lineWidth = 1;
+  ctx.setLineDash([4, 4]);
+  ctx.beginPath();
+  for (const i of sessionBreakIndexes(times, from, to, zone)) {
+    const x = snap(ts.indexToX(i) - ts.barSpacing / 2, dpr) + 0.5 / dpr;
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, height);
+  }
+  ctx.stroke();
+  ctx.restore();
 }
 
 export const EVENT_RADIUS = 7;

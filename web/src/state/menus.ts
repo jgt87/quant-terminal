@@ -1,8 +1,10 @@
 // Context menu contents per right-click target. Pure builders: the caller supplies the state
 // and the actions; the menu component only renders what comes back.
 
-import type { ChartType, IndicatorInstance } from "@qt/core";
+import type { ChartType, IndicatorInstance, OrderFlowFlags } from "@qt/core";
 import chartTypes from "../config/chartTypes.json";
+import { ZONE_CHOICES } from "../chart/timeZone";
+import { t } from "../i18n";
 import { SEP, type MenuItem } from "../components/menuTypes";
 
 export interface ChartMenuState {
@@ -19,8 +21,12 @@ export interface ChartMenuState {
   syncDrawings?: boolean;
   symbol?: string;
   /** Order flow parts switched on; `orderFlowAvailable` is false for non-Binance symbols. */
-  orderFlow?: { footprint?: boolean; bubbles?: boolean; delta?: boolean; cvd?: boolean };
+  orderFlow?: OrderFlowFlags;
   orderFlowAvailable?: boolean;
+  /** The symbol's order book is being recorded to disk. */
+  depthRecording?: boolean;
+  /** Chart time zone setting ("UTC", "local", "exchange" or an IANA zone). */
+  timeZone?: string;
 }
 
 export interface ChartMenuActions {
@@ -46,9 +52,14 @@ export interface ChartMenuActions {
   /** "Add alert on {symbol} at {price}…" (Alt+A). */
   addAlert?(): void;
   objectTree?(): void;
-  setOrderFlow?(patch: { footprint?: boolean; bubbles?: boolean; delta?: boolean; cvd?: boolean }): void;
+  setOrderFlow?(patch: OrderFlowFlags): void;
+  /** Turns disk recording of the symbol's order book on / off. */
+  setDepthRecording?(on: boolean): void;
   /** Opens the time and sales panel. */
   timeAndSales?(): void;
+  /** Opens the depth ladder panel. */
+  depthLadder?(): void;
+  setTimeZone?(zone: string): void;
 }
 
 /** "Order flow ▸": footprint, bubbles, delta panes and the time and sales panel (Binance symbols). */
@@ -56,7 +67,7 @@ function orderFlowMenu(s: ChartMenuState, a: ChartMenuActions): MenuItem[] {
   if (!a.setOrderFlow) return [];
   const f = s.orderFlow ?? {};
   const off = s.orderFlowAvailable === false;
-  const item = (label: string, key: "footprint" | "bubbles" | "delta" | "cvd") => ({
+  const item = (label: string, key: keyof OrderFlowFlags) => ({
     label,
     checked: Boolean(f[key]),
     disabled: off && !f[key],
@@ -71,10 +82,28 @@ function orderFlowMenu(s: ChartMenuState, a: ChartMenuActions): MenuItem[] {
         item("Volume bubbles", "bubbles"),
         item("Delta", "delta"),
         item("Cumulative delta", "cvd"),
-        ...(a.timeAndSales ? [SEP, { label: "Time and sales", onSelect: a.timeAndSales }] : []),
+        SEP,
+        item("Liquidity heatmap", "heatmap"),
+        item("Signals (absorption, stop runs, icebergs)", "signals"),
+        ...(a.setDepthRecording
+          ? [{ label: "Record order book", checked: Boolean(s.depthRecording), disabled: off && !s.depthRecording, onSelect: () => a.setDepthRecording?.(!s.depthRecording) }]
+          : []),
+        ...(a.timeAndSales || a.depthLadder ? [SEP] : []),
+        ...(a.timeAndSales ? [{ label: "Time and sales", onSelect: a.timeAndSales }] : []),
+        ...(a.depthLadder ? [{ label: "Depth ladder", onSelect: a.depthLadder }] : []),
       ],
     },
   ];
+}
+
+/** "Time zone ▸": UTC, local, exchange and named zones. */
+function timeZoneMenu(s: ChartMenuState, a: ChartMenuActions): MenuItem[] {
+  if (!a.setTimeZone) return [];
+  const cur = s.timeZone ?? "UTC";
+  const pick = (z: { id: string; label: string }) => ({ label: z.label, checked: z.id === cur, onSelect: () => a.setTimeZone?.(z.id) });
+  const fixed = ZONE_CHOICES.filter((z) => !z.id.includes("/"));
+  const named = ZONE_CHOICES.filter((z) => z.id.includes("/"));
+  return [{ label: "Time zone", submenu: [...fixed.map(pick), SEP, ...named.map(pick)] }];
 }
 
 export function chartMenu(s: ChartMenuState, a: ChartMenuActions): MenuItem[] {
@@ -82,28 +111,29 @@ export function chartMenu(s: ChartMenuState, a: ChartMenuActions): MenuItem[] {
   return [
     { label: "Reset chart view", onSelect: a.resetView },
     SEP,
-    { label: `Copy price ${s.priceText}`, onSelect: () => a.copy(s.priceText) },
+    { label: t("Copy price {price}", { price: s.priceText }), onSelect: () => a.copy(s.priceText) },
     ...(a.paste && s.clipboard ? [{ label: "Paste", icon: "paste", shortcut: "Ctrl+V", onSelect: a.paste }] : []),
     SEP,
-    ...(a.addAlert ? [{ label: `Add alert on ${s.symbol ?? ""} at ${s.priceText}…`, icon: "alertBell", shortcut: "Alt+A", onSelect: a.addAlert }, SEP] : []),
+    ...(a.addAlert ? [{ label: t("Add alert on {symbol} at {price}…", { symbol: s.symbol ?? "", price: s.priceText }), icon: "alertBell", shortcut: "Alt+A", onSelect: a.addAlert }, SEP] : []),
     {
       label: "Chart type",
       submenu: chartTypes.map((t) => ({ label: t.label, checked: t.id === s.chartType, onSelect: () => a.setChartType(t.id as ChartType) })),
     },
     { label: "Log scale", checked: s.logScale, onSelect: () => a.setLog(!s.logScale) },
+    ...timeZoneMenu(s, a),
     ...orderFlowMenu(s, a),
     SEP,
     ...(a.convert ?? []).map((c) => ({ label: c.label, onSelect: c.run })),
     ...(a.convert?.length ? [SEP] : []),
     ...(a.objectTree ? [{ label: "Object tree", icon: "objectTree", onSelect: a.objectTree }, SEP] : []),
-    { label: n ? `Remove ${n} drawing${n === 1 ? "" : "s"}` : "Remove drawings", disabled: n === 0, onSelect: a.removeDrawings },
-    ...(s.hiddenDrawings ? [{ label: `Show hidden drawings (${s.hiddenDrawings})`, onSelect: a.showHiddenDrawings }] : []),
+    { label: n ? t(n === 1 ? "Remove 1 drawing" : "Remove {n} drawings", { n }) : t("Remove drawings"), disabled: n === 0, onSelect: a.removeDrawings },
+    ...(s.hiddenDrawings ? [{ label: t("Show hidden drawings ({n})", { n: s.hiddenDrawings }), onSelect: a.showHiddenDrawings }] : []),
     ...(a.setHideAllDrawings ? [{ label: "Hide all drawings", shortcut: "Ctrl+Alt+H", checked: Boolean(s.hideAllDrawings), onSelect: () => a.setHideAllDrawings?.(!s.hideAllDrawings) }] : []),
     ...(a.setLockAllDrawings ? [{ label: "Lock all drawings", checked: Boolean(s.lockAllDrawings), onSelect: () => a.setLockAllDrawings?.(!s.lockAllDrawings) }] : []),
     ...(a.setSyncDrawings
       ? [{ label: "Sync drawings across charts", checked: Boolean(s.syncDrawings), onSelect: () => a.setSyncDrawings?.(!s.syncDrawings) }]
       : []),
-    { label: `Remove indicators${s.indicatorCount ? ` (${s.indicatorCount})` : ""}`, disabled: s.indicatorCount === 0, onSelect: a.removeIndicators },
+    { label: s.indicatorCount ? t("Remove indicators ({n})", { n: s.indicatorCount }) : t("Remove indicators"), disabled: s.indicatorCount === 0, onSelect: a.removeIndicators },
     SEP,
     ...(a.exportCsv ? [{ label: "Export data (CSV)", onSelect: a.exportCsv }] : []),
     ...(a.exportPng ? [{ label: "Save image (PNG)", onSelect: a.exportPng }] : []),
@@ -131,6 +161,8 @@ export interface IndicatorPaneState {
   /** Other indicator panes (the price pane and "new pane" are added by the menu). */
   panes: PaneChoice[];
   ownScale: boolean;
+  /** On its own scale shown on the left price axis. */
+  leftScale?: boolean;
   /** The indicator's pane is maximised / collapsed. */
   maximized: boolean;
   collapsed: boolean;
@@ -143,6 +175,7 @@ export interface IndicatorMenuActions {
   toggleVisible(): void;
   movePane(to: PaneTarget): void;
   setOwnScale(on: boolean): void;
+  setLeftScale?(on: boolean): void;
   toggleMaximized(): void;
   toggleCollapsed(): void;
   remove(): void;
@@ -164,7 +197,8 @@ export function indicatorMenu(inst: IndicatorInstance, pane: "overlay" | "separa
     {
       label: "Scale",
       submenu: [
-        { label: "Pane scale", checked: !s?.ownScale, onSelect: () => a.setOwnScale(false) },
+        { label: "Pane scale", checked: !s?.ownScale && !s?.leftScale, onSelect: () => a.setOwnScale(false) },
+        ...(a.setLeftScale ? [{ label: "Left scale", checked: Boolean(s?.leftScale), onSelect: () => a.setLeftScale?.(true) }] : []),
         { label: "Own scale (no axis)", checked: Boolean(s?.ownScale), onSelect: () => a.setOwnScale(true) },
       ],
     },
@@ -185,6 +219,8 @@ export interface PriceAxisState {
   lastPriceLabel: boolean;
   maximized: boolean;
   collapsed: boolean;
+  /** Main price axis side. */
+  placement?: "right" | "left" | "both";
 }
 
 export interface PriceAxisActions {
@@ -197,6 +233,7 @@ export interface PriceAxisActions {
   setLastPriceLabel(on: boolean): void;
   toggleMaximized(): void;
   toggleCollapsed(): void;
+  setPlacement?(p: "right" | "left" | "both"): void;
 }
 
 export function priceAxisMenu(s: PriceAxisState, a: PriceAxisActions): MenuItem[] {
@@ -211,6 +248,18 @@ export function priceAxisMenu(s: PriceAxisState, a: PriceAxisActions): MenuItem[
     ...(s.main ? [] : [{ label: s.collapsed ? "Expand pane" : "Collapse pane", onSelect: a.toggleCollapsed }]),
     SEP,
     { label: "Reset price scale", onSelect: a.reset },
+    ...(a.setPlacement
+      ? [
+          {
+            label: "Scale position",
+            submenu: (["right", "left", "both"] as const).map((p) => ({
+              label: p === "right" ? "Right" : p === "left" ? "Left" : "Left and right",
+              checked: (s.placement ?? "right") === p,
+              onSelect: () => a.setPlacement?.(p),
+            })),
+          },
+        ]
+      : []),
     SEP,
     { label: "Show last price label", checked: s.lastPriceLabel, disabled: !s.main, onSelect: () => a.setLastPriceLabel(!s.lastPriceLabel) },
   ];

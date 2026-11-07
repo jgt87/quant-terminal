@@ -1,5 +1,5 @@
 import { EventEmitter } from "node:events";
-import type { Alert, AlertEvent, Bar, Drawing, IndicatorDef, Interval, Layout } from "@qt/core";
+import type { Alert, AlertEvent, Bar, Drawing, FlowEvent, IndicatorDef, Interval, Layout } from "@qt/core";
 import type { MarketData } from "../providers";
 import type { Store } from "../store";
 import { newId } from "../store";
@@ -25,7 +25,12 @@ export interface AlertEngineOptions {
   now?: () => number;
   webhook?: (url: string, payload: unknown) => Promise<WebhookResult>;
   loadCore?: () => Promise<CoreLike>;
+  /** Order flow signals of the newest bars (Binance symbols); without it order flow operands fail. */
+  flowEvents?: (symbol: string, interval: Interval, bars: Bar[]) => Promise<FlowEvent[]>;
 }
+
+/** The alert uses an order flow operand. */
+export const usesOrderFlow = (a: Alert): boolean => a.conditions.some((c) => c.left.kind === "orderflow" || c.right.kind === "orderflow");
 
 export interface FiredPayload {
   alert: Alert;
@@ -70,6 +75,7 @@ export class AlertEngine extends EventEmitter {
   private readonly now: () => number;
   private readonly webhook: (url: string, payload: unknown) => Promise<WebhookResult>;
   private readonly loadCore: () => Promise<CoreLike>;
+  private readonly flowSource?: AlertEngineOptions["flowEvents"];
   private states = new Map<string, AlertState>();
   private errors = new Map<string, string>();
   private timer: NodeJS.Timeout | null = null;
@@ -85,6 +91,7 @@ export class AlertEngine extends EventEmitter {
     this.now = opts.now ?? Date.now;
     this.webhook = opts.webhook ?? ((url, payload) => sendWebhook(url, payload));
     this.loadCore = opts.loadCore ?? (async () => (await import("@qt/core")) as CoreLike);
+    this.flowSource = opts.flowEvents;
   }
 
   start(everyMs = 5000): void {
@@ -243,7 +250,24 @@ export class AlertEngine extends EventEmitter {
         for (const a of group) this.errors.set(a.id, `Market data: ${(err as Error).message}`);
         return;
       }
+      // Order flow signals, once per symbol / interval group, only when an alert needs them.
+      let flowEvents: FlowEvent[] | undefined;
+      let flowError: string | undefined;
+      if (group.some(usesOrderFlow)) {
+        if (!this.flowSource) flowError = "Order flow signals are not available";
+        else {
+          try {
+            flowEvents = await this.flowSource(symbol, interval, bars);
+          } catch (err) {
+            flowError = `Order flow: ${(err as Error).message}`;
+          }
+        }
+      }
       for (const a of group) {
+        if (flowError && usesOrderFlow(a)) {
+          this.errors.set(a.id, flowError);
+          continue;
+        }
         const drawings = new Map<string, Drawing>();
         for (const ref of drawingRefs(a)) {
           const d = findDrawings(await layout(ref.layoutId)).get(ref.drawingId);
@@ -251,7 +275,7 @@ export class AlertEngine extends EventEmitter {
         }
         let r;
         try {
-          r = evaluateAlert(a, { bars, interval, now, drawings, indicator }, this.states.get(a.id));
+          r = evaluateAlert(a, { bars, interval, now, drawings, indicator, flowEvents }, this.states.get(a.id));
         } catch (err) {
           this.errors.set(a.id, (err as Error).message);
           continue;

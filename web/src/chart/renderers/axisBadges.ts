@@ -57,7 +57,7 @@ export function paneLabels(e: ChartEngine, pane: Pane, paneIndex: number): Price
   const out: PriceAxisLabel[] = [];
   for (const uid of pane.uids) {
     const c = e.indicators.get(uid);
-    if (!c || !e.indicatorShown(c) || c.scale === "own") continue;
+    if (!c || !e.indicatorShown(c) || c.scale === "own" || c.scale === "left") continue;
     c.def.outputs.forEach((o, j) => {
       const s = c.series[o.key];
       if (!s) return;
@@ -174,7 +174,7 @@ export function drawBadgeBoxes(e: ChartEngine, ctx: CanvasRenderingContext2D, x0
  */
 export function drawPaneAxisWithCrosshair(e: ChartEngine, ctx: CanvasRenderingContext2D, x0: number, pane: Pane, paneIndex: number, crosshair: { y: number; text: string }, dpr: number): void {
   const t = e.theme;
-  const left = e.plotLeft > 0;
+  const left = !e.axisRight;
   ctx.fillStyle = t.background;
   ctx.fillRect(x0, pane.top, t.priceAxisWidth, pane.height);
   drawPriceAxis(ctx, x0, pane.top, pane.height, pane.ps.ticks(), t, dpr, left);

@@ -10,6 +10,10 @@ import { registerBacktestRoute } from "./routes/backtest";
 import { registerStreamRoute } from "./routes/stream";
 import { OrderFlowService, registerOrderFlowRoutes } from "./routes/orderflow";
 import { serveStatic } from "./routes/static";
+import { registerOptionsRoutes } from "./routes/options";
+import { DepthService } from "./depth/service";
+import { registerDepthRoutes } from "./depth/routes";
+import { DepthRecorder } from "./depth/recorder";
 import { AlertEngine } from "./alerts/engine";
 import { registerAlertRoutes } from "./alerts/routes";
 import { Screener } from "./screener/screener";
@@ -28,6 +32,9 @@ export interface AppDeps {
   alerts?: AlertEngine;
   paper?: PaperEngine;
   screener?: Screener;
+  depth?: DepthService;
+  /** Directory for order book recordings; omit to disable recording. */
+  depthDir?: string;
   /** Start the alert (5 s) and paper-trading (2 s fills, 1 min equity) loops. */
   background?: boolean;
 }
@@ -38,9 +45,19 @@ export function createRouter(deps: AppDeps): Router {
   registerStoreRoutes(router, deps.store);
   registerBacktestRoute(router, deps.market);
   registerStreamRoute(router, deps.market);
-  registerOrderFlowRoutes(router, new OrderFlowService(deps.market));
+  const depth = deps.depth ?? new DepthService(deps.market, { store: deps.store, recorder: deps.depthDir ? new DepthRecorder(deps.depthDir) : undefined });
+  const orderFlow = new OrderFlowService(deps.market, undefined, depth);
+  registerOrderFlowRoutes(router, orderFlow);
+  registerDepthRoutes(router, depth);
+  registerOptionsRoutes(router, deps.market);
 
-  const alerts = deps.alerts ?? new AlertEngine({ store: deps.store, market: deps.market });
+  const alerts =
+    deps.alerts ??
+    new AlertEngine({
+      store: deps.store,
+      market: deps.market,
+      flowEvents: async (symbol, interval, bars) => (await orderFlow.signals(symbol, interval, bars)).events,
+    });
   const paper = deps.paper ?? new PaperEngine({ store: deps.store, market: deps.market });
   registerAlertRoutes(router, alerts);
   registerScreenerRoutes(router, deps.screener ?? new Screener(deps.market, deps.store));
@@ -50,6 +67,7 @@ export function createRouter(deps: AppDeps): Router {
   if (deps.background) {
     alerts.start();
     paper.start();
+    void depth.restoreRecordings().catch(() => {});
   }
   return router;
 }

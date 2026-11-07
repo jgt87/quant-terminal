@@ -1,5 +1,7 @@
 // Number and time formatting for axes, legends and panels. Pure functions (no DOM).
 
+import { toZone } from "./timeZone";
+
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 export const MINUS = "−";
@@ -66,9 +68,12 @@ export function formatNumber(v: number | null | undefined, decimals = 2): string
 
 const pad = (n: number) => (n < 10 ? "0" + n : String(n));
 
-/** Full timestamp for crosshair labels. Times are shown in UTC. */
-export function formatTimeFull(t: number, intraday: boolean): string {
-  const d = new Date(t * 1000);
+/**
+ * Full timestamp for crosshair labels, in `zone` (intraday only: daily and longer bars are
+ * calendar dates and stay as they are).
+ */
+export function formatTimeFull(t: number, intraday: boolean, zone = "UTC"): string {
+  const d = new Date((intraday ? toZone(t, zone) : t) * 1000);
   const date = `${DAYS[d.getUTCDay()]} ${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} ’${pad(d.getUTCFullYear() % 100)}`;
   return intraday ? `${date}  ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}` : date;
 }
@@ -78,10 +83,11 @@ export function formatDate(t: number): string {
   return `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}`;
 }
 
-export function formatDateTime(t: number, intraday = true): string {
+export function formatDateTime(t: number, intraday = true, zone = "UTC"): string {
   if (!intraday) return formatDate(t);
-  const d = new Date(t * 1000);
-  return `${formatDate(t)} ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}`;
+  const z = toZone(t, zone);
+  const d = new Date(z * 1000);
+  return `${formatDate(z)} ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}`;
 }
 
 interface TimeParts {
@@ -97,10 +103,13 @@ function timeParts(t: number): TimeParts {
   return { year: d.getUTCFullYear(), month: d.getUTCMonth(), day: d.getUTCDate(), hour: d.getUTCHours(), minute: d.getUTCMinutes() };
 }
 
-/** Axis label for a tick, naming the coarsest calendar unit that changed vs. the previous bar. */
-export function tickLabel(t: number, prev: number | null, spanSec: number): { text: string; major: boolean } {
-  const p = timeParts(t);
-  const q = prev == null ? null : timeParts(prev);
+/**
+ * Axis label for a tick, naming the coarsest calendar unit that changed vs. the previous bar,
+ * with calendar parts read in `zone`.
+ */
+export function tickLabel(t: number, prev: number | null, spanSec: number, zone = "UTC"): { text: string; major: boolean } {
+  const p = timeParts(toZone(t, zone));
+  const q = prev == null ? null : timeParts(toZone(prev, zone));
   if (spanSec >= 365 * 86400 || (q && q.year !== p.year)) return { text: String(p.year), major: true };
   if (spanSec >= 28 * 86400 || (q && q.month !== p.month)) return { text: MONTHS[p.month], major: spanSec < 28 * 86400 };
   if (spanSec >= 86400 || (q && q.day !== p.day)) return { text: String(p.day), major: spanSec < 86400 };

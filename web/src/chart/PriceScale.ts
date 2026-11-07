@@ -1,7 +1,10 @@
 // Vertical scale of one pane: auto-fit to the visible data with margins, manual scaling by
 // dragging the axis, linear or logarithmic mode, and "nice" ticks (1/2/2.5/5 x 10^n).
 
-import { formatPrice, priceDecimals, stepDecimals } from "./format";
+import { formatPrice, priceDecimals, stepDecimals, formatCompact } from "./format";
+
+/** Scales whose values reach this size label ticks compactly (3.38B). */
+const COMPACT_FROM = 1e6;
 
 export interface PriceTick {
   price: number;
@@ -175,7 +178,10 @@ export class PriceScale {
   format(price: number): string {
     if (this.percentBase && this.indexed) return toIndexed(price, this.percentBase).toFixed(2);
     if (this.percentBase) return formatPercentLabel(toPercent(price, this.percentBase));
-    return formatPrice(price, this.formatDecimals(Math.max(Math.abs(this.min), Math.abs(this.max))));
+    const mag = Math.max(Math.abs(this.min), Math.abs(this.max));
+    // Large values (volume-like indicators) are abbreviated: 3.38B.
+    if (this.decimals == null && mag >= COMPACT_FROM) return formatCompact(price);
+    return formatPrice(price, this.formatDecimals(mag));
   }
 
   ticks(minPx = 34): PriceTick[] {
@@ -205,7 +211,8 @@ export class PriceScale {
     const d = Math.max(stepDecimals(step), 0);
     const base = this.formatDecimals(Math.max(Math.abs(this.min), Math.abs(this.max)));
     const dec = Math.min(Math.max(d, Math.min(base, 2)), 10);
-    return values.map((price) => ({ price, y: this.toY(price), text: formatPrice(price, this.decimals ?? dec) }));
+    const compact = this.decimals == null && Math.max(Math.abs(lo), Math.abs(hi)) >= COMPACT_FROM;
+    return values.map((price) => ({ price, y: this.toY(price), text: compact ? formatCompact(price) : formatPrice(price, this.decimals ?? dec) }));
   }
 
   private logTicks(minPx: number): PriceTick[] {
