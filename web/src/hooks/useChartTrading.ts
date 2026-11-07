@@ -3,8 +3,9 @@
 // cancels and position closes. Simulated only; nothing reaches a broker.
 
 import { useEffect } from "react";
-import { cancelPaperOrder, closePaperPosition, getPaper, listPaper, modifyPaperOrder, type PaperAccountView } from "../api/paper";
+import { cancelPaperOrder, closePaperPosition, getPaper, listPaper, modifyPaperOrder, placePaperOrder, type PaperAccountView } from "../api/paper";
 import { errorText } from "../api/http";
+import { formatPrice } from "../chart/format";
 import type { ChartEngine } from "../chart/ChartEngine";
 import { tradeLinesFor, type TradeLine } from "../chart/tradeLines";
 import { loadLocal } from "../panels/common/storage";
@@ -12,7 +13,7 @@ import { pushToast } from "../panels/common/toasts";
 import { PAPER_POLL_MS, PAPER_SELECTED_KEY } from "./paper";
 
 /** Selected paper account id (the panel's choice, else the first account), null when there is none. */
-async function selectedAccount(): Promise<string | null> {
+export async function selectedAccount(): Promise<string | null> {
   const list = await listPaper();
   const want = loadLocal<string | null>(PAPER_SELECTED_KEY, null);
   return (list.find((a) => a.id === want) ?? list[0])?.id ?? null;
@@ -29,6 +30,19 @@ export function tradeRequest(line: TradeLine, action: { kind: "move"; price: num
   if (!line.orderId) return null;
   if (line.action === "remove-leg" && (line.field === "stopLoss" || line.field === "takeProfit")) return { op: "modify", orderId: line.orderId, patch: { [line.field]: null } };
   return { op: "cancel", orderId: line.orderId };
+}
+
+/**
+ * One-click paper order from the chart's buy / sell buttons: a market order of `qty` on the selected
+ * paper account. Resolves with the filled or working order's text, or throws a readable error.
+ */
+export async function quickOrder(symbol: string, side: "buy" | "sell", qty: number): Promise<string> {
+  if (!(qty > 0) || !Number.isFinite(qty)) throw new Error("Enter a quantity above 0");
+  const id = await selectedAccount();
+  if (!id) throw new Error("There is no paper account yet: create one in the Paper trading panel");
+  const { order } = await placePaperOrder(id, { symbol, side, type: "market", qty });
+  const at = order.fillPrice !== undefined ? ` at ${formatPrice(order.fillPrice)}` : "";
+  return `${side === "buy" ? "Bought" : "Sold"} ${qty} ${symbol}${at} (paper, ${order.status})`;
 }
 
 export function useChartTrading(engine: ChartEngine | null, symbol: string): void {

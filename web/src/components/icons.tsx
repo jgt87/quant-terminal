@@ -91,6 +91,10 @@ const PATHS: Record<string, ReactNode> = {
     </>
   ),
   close: <path d="M4.5 4.5l9 9M13.5 4.5l-9 9" />,
+  fullscreen: <path d="M3 7V3h4M11 3h4v4M15 11v4h-4M7 15H3v-4" />,
+  fullscreenExit: <path d="M7 3v4H3M15 7h-4V3M11 15v-4h4M3 11h4v4" />,
+  /** Ticker tape: a strip with an up and a down tick. */
+  tickerTape: <path d="M2 6h14v6H2zM4.5 10.5l1.5-2 1.5 2M10.5 7.5l1.5 2 1.5-2" />,
   plus: <path d="M9 3.5v11M3.5 9h11" />,
   search: (
     <>

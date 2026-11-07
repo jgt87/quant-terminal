@@ -1,7 +1,7 @@
 // Framework-agnostic chart engine: owns the canvases, scales, panes, data and drawing tools,
 // batches redraws with requestAnimationFrame, and reports state through events.
 
-import { distanceToSegment, visibleOnInterval } from "@qt/core";
+import { distanceToSegment, smoothedHeikinAshi, visibleOnInterval } from "@qt/core";
 import type { Anchor, Bar, BarFlow, ChartSettings, ChartType, CorporateEvent, DepthFrame, Drawing, FlowEvent, FootprintBar, IndicatorInstance, Interval, ScriptRunResult, Series, TransformKind } from "@qt/core";
 import { flowIndicators, groupDelta, groupFootprints } from "./orderFlow";
 import { resolveZone } from "./timeZone";
@@ -112,6 +112,8 @@ export interface EngineEvents extends Record<string, unknown> {
   scriptPlotsRemoved: null;
   /** Pointer over a corporate event badge (client-relative chart px), null when it leaves. */
   eventHover: { marker: EventMarker; x: number; y: number } | null;
+  /** Go to date was asked for (Alt+G or the chart menu): the host opens its dialog. */
+  goToDate: null;
 }
 
 /** What a right click hit (decided by the engine's hit-testing). */
@@ -120,6 +122,13 @@ export type ContextTarget =
   | { kind: "indicator"; uid: string }
   | { kind: "priceAxis"; pane: number }
   | { kind: "chart"; pane: number; price: number; time: number };
+
+/** Bars drawn for a time-axis chart type: Heikin-Ashi variants transform the source bars. */
+function displayBars(t: ChartType, bars: readonly Bar[]): Bar[] {
+  if (t === "heikin-ashi") return heikinAshi(bars);
+  if (t === "smoothed-heikin-ashi") return smoothedHeikinAshi(bars);
+  return bars as Bar[];
+}
 
 export class ChartEngine {
   readonly root: HTMLElement;
@@ -153,7 +162,7 @@ export class ChartEngine {
   /** Fills of the replay paper account (drawn like trade markers). */
   replayMarkers: TradeMarker[] = [];
   message: string | null = null;
-  /** Bars as displayed (Heikin-Ashi transformed when that chart type is active). */
+  /** Bars as displayed (Heikin-Ashi or smoothed Heikin-Ashi when that chart type is active). */
   display: Bar[] = [];
   /**
    * Full source series as loaded (all history, live updates). `data` is what the chart shows and
@@ -200,6 +209,8 @@ export class ChartEngine {
   tradeLines: TradeLine[] = [];
   tradeDrag: { id: string; price: number } | null = null;
   private replayTimer = 0;
+  /** Repaints once a second while the bar-close countdown is shown. */
+  private countdownTimer = 0;
 
   width = 0;
   height = 0;
@@ -221,6 +232,8 @@ export class ChartEngine {
   private layoutDirty = true;
   private lastHoverIndex: number | null | undefined = undefined;
   private historyRequestedAt: number | null = null;
+  /** Go to date target older than the loaded history, and the history pages left to reach it. */
+  private goToPending: { time: number; pages: number } | null = null;
   private destroyed = false;
   private storedRatios: Record<string, number> = {};
 
@@ -273,6 +286,7 @@ export class ChartEngine {
     this.raw.set(bars);
     this.mainPane.ps.fx = meta.fx;
     this.historyRequestedAt = null;
+    this.goToPending = null;
     this.message = null;
     this.rebuild(symbolChanged ? "reset" : "set");
   }
@@ -290,6 +304,7 @@ export class ChartEngine {
     if (n > 0) {
       this.historyRequestedAt = null;
       this.rebuild("set");
+      this.continueGoTo();
     }
     return n;
   }
@@ -297,6 +312,8 @@ export class ChartEngine {
   /** Allow another history request (e.g. after a failed or empty fetch). */
   historyDone(): void {
     this.historyRequestedAt = null;
+    // History ran out or failed: go to date stays at the oldest bar.
+    this.goToPending = null;
   }
 
   clearData(message: string | null): void {
@@ -347,7 +364,7 @@ export class ChartEngine {
   }
 
   private recompute(): void {
-    this.display = this.chartType === "heikin-ashi" ? heikinAshi(this.data.bars) : (this.data.bars as Bar[]);
+    this.display = displayBars(this.chartType, this.data.bars);
     this.studies.invalidate();
     this.indicators.computeAll(this.data.bars as Bar[], false, this.htfProvider, this.meta.intervalSec);
     this.alignCompare();
@@ -650,7 +667,18 @@ export class ChartEngine {
     this.mainPane.ps.indexed = sc?.indexed === true;
     this.mainPane.ps.inverted = sc?.inverted === true;
     if (prevPlacement !== this.settings.scales?.placement) this.layoutDirty = true;
+    this.syncCountdown();
     this.invalidate();
+  }
+
+  /** Starts or stops the once-a-second repaint of the bar-close countdown. */
+  private syncCountdown(): void {
+    const on = this.settings.scales?.countdown === true && !this.destroyed;
+    if (on && !this.countdownTimer) this.countdownTimer = window.setInterval(() => this.invalidate(), 1000);
+    else if (!on && this.countdownTimer) {
+      window.clearInterval(this.countdownTimer);
+      this.countdownTimer = 0;
+    }
   }
 
   /** Auto-fit on/off for one pane's price scale (off keeps the current range). */
@@ -687,7 +715,7 @@ export class ChartEngine {
       this.rebuild("reset");
       return;
     }
-    this.display = t === "heikin-ashi" ? heikinAshi(this.data.bars) : (this.data.bars as Bar[]);
+    this.display = displayBars(t, this.data.bars);
     this.invalidate();
   }
 
@@ -927,6 +955,35 @@ export class ChartEngine {
     this.userViewChanged();
   }
 
+  /** Asks the host to open the go to date dialog. */
+  requestGoToDate(): void {
+    this.events.emit("goToDate", null);
+  }
+
+  /**
+   * Go to date: centers the bar at `time`. Before the first loaded bar, the chart scrolls to the
+   * oldest bar so history loads, and keeps going after each page until the date is loaded (at
+   * most 40 pages; then, or when history runs out, it stays at the oldest bar).
+   */
+  goToTime(time: number): void {
+    this.goToPending = null;
+    if (this.data.length === 0) return;
+    const first = this.data.bars[0].time;
+    if (time >= first) return this.scrollToTime(time);
+    this.goToPending = { time, pages: 40 };
+    this.scrollToTime(first);
+  }
+
+  private continueGoTo(): void {
+    const p = this.goToPending;
+    if (!p || this.data.length === 0) return;
+    const first = this.data.bars[0].time;
+    if (p.time >= first || --p.pages <= 0) {
+      this.goToPending = null;
+      this.scrollToTime(Math.max(p.time, first));
+    } else this.scrollToTime(first);
+  }
+
   /** The time axis was moved by the user: report the visible range after the next frame. */
   userViewChanged(): void {
     this.viewNotify = true;
@@ -1064,6 +1121,7 @@ export class ChartEngine {
   destroy(): void {
     this.destroyed = true;
     window.clearInterval(this.replayTimer);
+    window.clearInterval(this.countdownTimer);
     if (this.raf) cancelAnimationFrame(this.raf);
     this.ro.disconnect();
     this.interaction.destroy();

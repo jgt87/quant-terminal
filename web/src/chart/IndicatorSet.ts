@@ -45,7 +45,10 @@ export function resolvedInputs(def: IndicatorDef, inputs: Record<string, InputVa
 export function indicatorLabel(def: IndicatorDef, inputs: Record<string, InputValue>): string {
   const vals = def.inputs
     .filter((i) => i.type !== "bool")
-    .map((i) => inputs[i.key] ?? i.default)
+    .map((i) => {
+      const v = inputs[i.key] ?? i.default;
+      return i.options?.find((o) => o.value === v)?.label ?? v;
+    })
     .filter((v) => v !== "close");
   return vals.length ? `${def.shortName} ${vals.join(" ")}` : def.shortName;
 }

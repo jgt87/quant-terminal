@@ -41,6 +41,9 @@ export interface PaperOrderRequest {
   price?: number;
   /** Stop-limit trigger price. */
   stopPrice?: number;
+  /** Trailing stop: the trail as a price distance or as a percent (one of the two). */
+  trailAmount?: number;
+  trailPercent?: number;
   stopLoss?: number;
   takeProfit?: number;
 }
@@ -50,6 +53,8 @@ export interface PaperOrderPatch {
   price?: number;
   stopPrice?: number;
   qty?: number;
+  trailAmount?: number;
+  trailPercent?: number;
   stopLoss?: number | null;
   takeProfit?: number | null;
 }

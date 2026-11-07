@@ -9,6 +9,7 @@ import { studyToDrawings } from "../chart/studies/render";
 import { formatPrice } from "../chart/format";
 import { SEP, type MenuItem } from "../components/menuTypes";
 import { createAlertFromChart } from "../panels/alerts/createFromChart";
+import { indicatorAlertCapable } from "../panels/alerts/alertModel";
 import { openPanelRequests } from "../panels/bus";
 import { isDepthRecording, loadDepthRecordings, setDepthRecording } from "../api/depth";
 import { chartMenu, indicatorMenu, priceAxisMenu, type PaneTarget } from "./menus";
@@ -41,6 +42,16 @@ export function copyText(text: string): void {
 
 function setScales(deps: ChartMenuDeps, patch: NonNullable<ChartSettings["scales"]>): void {
   deps.update((l) => ({ ...l, chartSettings: { ...l.chartSettings, scales: { ...l.chartSettings?.scales, ...patch } } }));
+}
+
+/** Last finite value of a series (the newest bar first), or null. */
+function lastValue(s: ArrayLike<number | null> | undefined): number | null {
+  if (!s) return null;
+  for (let i = s.length - 1; i >= 0; i--) {
+    const v = s[i];
+    if (v != null && Number.isFinite(v)) return v;
+  }
+  return null;
 }
 
 /**
@@ -90,6 +101,14 @@ export function chartMenuFor(target: ContextTarget, deps: ChartMenuDeps): MenuIt
         pane,
         {
           convert: c && CONVERTIBLE.has(inst.indicatorId) ? () => engine.addDrawings(studyToDrawings(engine, c, newDrawingId)) : undefined,
+          // Alerts run on the chart's own interval, so an indicator from another timeframe is left out.
+          addAlert:
+            indicatorAlertCapable(inst.indicatorId) && !inst.timeframe
+              ? () =>
+                  createAlertFromChart(layout.symbol, layout.interval, {
+                    indicator: { indicatorId: inst.indicatorId, inputs: inst.inputs, overlay: pane === "overlay", value: lastValue(c?.series[def.outputs[0]?.key ?? ""]) },
+                  })
+              : undefined,
           settings: () => deps.openIndicatorSettings(inst.uid),
           toggleVisible: () => patch((i) => ({ ...i, visible: !i.visible })),
           movePane: (to) => deps.setIndicators((list) => movedIndicators(list, inst.uid, to, (id) => anyIndicator(id)?.pane)),
@@ -167,6 +186,7 @@ export function chartMenuFor(target: ContextTarget, deps: ChartMenuDeps): MenuIt
           orderFlowAvailable: isBinanceSymbol(layout.symbol),
           depthRecording: (void loadDepthRecordings(), isDepthRecording(layout.symbol)),
           timeZone: layout.chartSettings?.timeZone,
+          buySellButtons: Boolean(layout.chartSettings?.trading?.buySellButtons),
         },
         {
           convert: engine.indicators.items
@@ -180,6 +200,7 @@ export function chartMenuFor(target: ContextTarget, deps: ChartMenuDeps): MenuIt
           exportSvg: () => exportChartSvg(engine, layout.symbol, layout.customInterval || layout.interval),
           dataTable: () => openPanelRequests.emit("data"),
           resetView: () => engine.resetView(),
+          goToDate: () => engine.requestGoToDate(),
           copy: copyText,
           setChartType: (t) => deps.update((l) => ({ ...l, chartType: t })),
           setLog: (on) => deps.update((l) => ({ ...l, logScale: on })),
@@ -201,6 +222,8 @@ export function chartMenuFor(target: ContextTarget, deps: ChartMenuDeps): MenuIt
           depthLadder: () => openPanelRequests.emit("dom"),
           setTimeZone: (zone) => deps.update((l) => ({ ...l, chartSettings: { ...l.chartSettings, timeZone: zone === "UTC" ? undefined : zone } })),
           setDepthRecording: (on) => void setDepthRecording(layout.symbol, on).catch(() => {}),
+          setBuySellButtons: (on) =>
+            deps.update((l) => ({ ...l, chartSettings: { ...l.chartSettings, trading: { ...l.chartSettings?.trading, buySellButtons: on || undefined } } })),
         },
       )];
     }

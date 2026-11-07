@@ -77,8 +77,10 @@ export function triggerPrice(o: Pick<PaperOrder, "type" | "side" | "price" | "tr
       if (buy) return last <= p ? Math.min(last, p) : null;
       return last >= p ? Math.max(last, p) : null;
     }
+    case "trailing-stop":
     case "stop": {
-      const p = o.price!;
+      if (o.price === undefined) return null; // a trailing stop without a level yet waits for trailStop()
+      const p = o.price;
       if (buy) return last >= p ? Math.max(last, p) * (1 + slip) : null;
       return last <= p ? Math.min(last, p) * (1 - slip) : null;
     }
@@ -173,7 +175,10 @@ export function processAccount(acc: SimAccount, prices: PriceMap, now: number): 
       changed = true;
     }
     const price = triggerPrice(o, last, acc.slippageBps);
-    if (price === null) continue;
+    if (price === null) {
+      if (o.type === "trailing-stop" && trailStop(o, last)) changed = true;
+      continue;
+    }
     fillOrder(acc, o, price, now);
     changed = true;
   }
@@ -186,6 +191,22 @@ export function stopReached(o: Pick<PaperOrder, "side" | "stopPrice">, last: num
   const s = o.stopPrice;
   if (s === undefined || !Number.isFinite(last)) return false;
   return o.side === "buy" ? last >= s : last <= s;
+}
+
+/**
+ * Trailing stop: move the stop level (`price`) to `last` minus the trail for a sell (plus for a
+ * buy), but only in the favourable direction, so the stop never loosens. Sets the first level
+ * when there is none. Returns true when the level changed.
+ */
+export function trailStop(o: Pick<PaperOrder, "side" | "price" | "trailAmount" | "trailPercent">, last: number): boolean {
+  if (!Number.isFinite(last) || last <= 0) return false;
+  const dist = o.trailAmount ?? (last * (o.trailPercent ?? 0)) / 100;
+  if (!(dist > 0)) return false;
+  const level = o.side === "sell" ? last - dist : last + dist;
+  if (level <= 0) return false;
+  const better = o.price === undefined || (o.side === "sell" ? level > o.price + EPS : level < o.price - EPS);
+  if (better) o.price = level;
+  return better;
 }
 
 /** Keep all working orders and the newest MAX_CLOSED_ORDERS finished ones. */

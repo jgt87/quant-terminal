@@ -18,6 +18,8 @@ import { drawLineSeries } from "./renderers/line";
 import { drawCrosshairLines, drawLastPriceLine, drawMarkers } from "./renderers/overlays";
 import type { PaneRenderCtx } from "./renderers/types";
 import { drawVolumeOverlay } from "./renderers/volume";
+import { drawHighLowLabels } from "./renderers/highLow";
+import { drawWatermark, watermarkText } from "./renderers/watermark";
 import { drawBaseline, drawColumns, drawKagi, drawPnf } from "./renderers/chartTypes";
 import { drawHighLow, drawHlcArea, drawLineMarkers, drawStepLine, drawVolumeCandles } from "./renderers/chartTypesExtra";
 import { drawFootprints, drawVolumeBubbles } from "./renderers/footprint";
@@ -230,6 +232,7 @@ export function renderScene(e: ChartEngine): void {
 
 function drawMainPane(e: ChartEngine, rc: PaneRenderCtx): void {
   const bars = e.display;
+  if (e.settings.appearance?.watermark) drawWatermark(rc, watermarkText(e.meta.symbol, e.meta.intervalSec, e.meta.interval === "1M"));
   if (e.shadeExtended && !e.transform) drawExtendedHours(rc, e.data.times);
   if (e.settings.appearance?.sessionBreaks && e.meta.intraday && !e.transform) drawSessionBreaks(rc, e.data.times, e.timeZone);
   if (e.settings.orderFlow?.heatmap && e.depthFrames.length && !e.transform) drawHeatmap(rc, e.visibleDepthFrames());
@@ -292,6 +295,7 @@ function drawMainPane(e: ChartEngine, rc: PaneRenderCtx): void {
   drawCompareLines(e, rc);
   const last = e.data.last();
   if (last && e.settings.scales?.priceLine !== false) drawLastPriceLine(rc, last.close, lastColor(e));
+  if (e.settings.scales?.highLow && e.chartType !== "kagi" && e.chartType !== "pnf") drawHighLowLabels(rc, bars, (v) => e.mainPane.ps.format(v));
   const allMarkers = e.replayMarkers.length ? [...e.markers, ...e.replayMarkers] : e.markers;
   if (allMarkers.length) {
     drawMarkers(

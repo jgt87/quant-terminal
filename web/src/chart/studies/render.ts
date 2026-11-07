@@ -1,6 +1,6 @@
 // Draws the built-in studies on the price pane and hit-tests their geometry (context menu).
 
-import { distanceToSegment, fibLevels, volumeProfile, type Anchor, type CandlePattern, type ChartPattern, type Drawing } from "@qt/core";
+import { distanceToSegment, fibLevels, volumeProfile, type Anchor, type CandlePattern, type ChartPattern, type Drawing, type PriceGap, type SrLevel } from "@qt/core";
 import candleNames from "../../config/candlePatterns.json";
 import { crisp, hairline } from "../canvas";
 import type { ChartEngine } from "../ChartEngine";
@@ -66,6 +66,12 @@ export function drawStudies(e: ChartEngine, rc: PaneRenderCtx): void {
       case "zigzag":
         drawPolyline(rc, (r.pivots ?? []).map((p) => e.toPx(p)), e.theme.zigzag, 1.5);
         break;
+      case "gaps":
+        drawGaps(e, rc, r.gaps ?? []);
+        break;
+      case "support-resistance":
+        drawLevels(e, rc, r.levels ?? []);
+        break;
       case "autofib": {
         const d = autoFibDrawing(e, r);
         if (d) drawDrawing(rc, d, { toPx: (a) => e.toPx(a), selected: false, hovered: false, intervalSec: e.meta.intervalSec, formatPrice: (v) => e.mainPane.ps.format(v), priceDecimals: 2 });
@@ -87,6 +93,59 @@ function drawVisibleProfile(e: ChartEngine, rc: PaneRenderCtx, c: ComputedIndica
   const p = volumeProfile(e.data.bars as never, rc.from, rc.to, rows, Number(c.inputs.valueArea) || 70);
   const w = (rc.width * Math.max(5, Math.min(80, Number(c.inputs.width) || 25))) / 100;
   drawVolumeProfile(rc, p, rc.width, w, -1, [0, rc.width]);
+}
+
+/**
+ * Gap zones: from the bar that opened the gap to the bar that filled it (or the right edge while
+ * open). An open gap shows the part still unfilled; a filled one (when shown) its original zone.
+ */
+function drawGaps(e: ChartEngine, rc: PaneRenderCtx, gaps: PriceGap[]): void {
+  const { ctx, dpr, theme } = rc;
+  const half = e.ts.barSpacing / 2;
+  ctx.lineWidth = hairline(dpr);
+  for (const g of gaps) {
+    const end = g.filledIndex ?? Infinity;
+    if (end < rc.from - 1 || g.index > rc.to + 1) continue;
+    const x0 = e.ts.indexToX(g.index) - half;
+    const x1 = g.filledIndex === null ? rc.width : e.ts.indexToX(g.filledIndex) + half;
+    const top = g.openTop ?? g.top;
+    const bottom = g.openBottom ?? g.bottom;
+    const y0 = rc.ps.toY(top);
+    const y1 = rc.ps.toY(bottom);
+    const y = Math.min(y0, y1);
+    const h = Math.max(1, Math.abs(y1 - y0));
+    ctx.fillStyle = g.up ? theme.gapUp : theme.gapDown;
+    ctx.globalAlpha = g.filledIndex === null ? 1 : 0.5;
+    ctx.fillRect(x0, y, x1 - x0, h);
+    ctx.strokeStyle = theme.gapBorder;
+    ctx.strokeRect(crisp(x0, dpr), crisp(y, dpr), x1 - x0, h);
+    ctx.globalAlpha = 1;
+  }
+}
+
+/**
+ * Support and resistance levels: a line from the first swing point of the level to the right
+ * edge, thicker the more often it was touched, with its touch count at the right.
+ */
+function drawLevels(e: ChartEngine, rc: PaneRenderCtx, levels: SrLevel[]): void {
+  const { ctx, dpr, theme } = rc;
+  for (const l of levels) {
+    if (l.firstIndex > rc.to + 1) continue;
+    const y = crisp(rc.ps.toY(l.price), dpr);
+    if (y < -2 || y > rc.height + 2) continue;
+    const x0 = Math.max(0, e.ts.indexToX(l.firstIndex));
+    const color = l.kind === "support" ? theme.srSupport : theme.srResistance;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = Math.min(4, 1 + (l.touches - 2) * 0.5);
+    ctx.globalAlpha = 0.85;
+    ctx.beginPath();
+    ctx.moveTo(x0, y);
+    ctx.lineTo(rc.width, y);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+    const label = `${l.kind === "support" ? "S" : "R"} ${l.touches}`;
+    pill(rc, label, rc.width - 22, y - 9, color, 9);
+  }
 }
 
 function drawPolyline(rc: PaneRenderCtx, pts: { x: number; y: number }[], color: string, width: number, dash: number[] = []): void {

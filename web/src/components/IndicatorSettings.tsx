@@ -102,6 +102,14 @@ export function IndicatorSettings({ instance, ordinal, theme, onChange, onClose,
                         </option>
                       ))}
                     </select>
+                  ) : inp.options ? (
+                    <select value={String(inst.inputs[inp.key])} onChange={(e) => setInput(inp.key, Number(e.target.value))}>
+                      {inp.options.map((o) => (
+                        <option key={o.value} value={o.value}>
+                          {o.label}
+                        </option>
+                      ))}
+                    </select>
                   ) : inp.type === "bool" ? (
                     <input type="checkbox" checked={Boolean(inst.inputs[inp.key])} onChange={(e) => setInput(inp.key, e.target.checked)} />
                   ) : (

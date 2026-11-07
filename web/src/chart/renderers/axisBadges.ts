@@ -4,6 +4,7 @@
 // layer repaints that pane's axis with the crosshair label pinned and the others moved aside.
 
 import type { ChartEngine } from "../ChartEngine";
+import { barCountdown } from "../countdown";
 import { outputStyle } from "../indicatorStyle";
 import type { Pane } from "../Pane";
 import { font } from "../theme";
@@ -165,7 +166,23 @@ function clearCoveredTicks(e: ChartEngine, ctx: CanvasRenderingContext2D, x0: nu
 
 export function drawBadgeBoxes(e: ChartEngine, ctx: CanvasRenderingContext2D, x0: number, boxes: readonly BadgeBox[], dpr: number): void {
   const t = e.theme;
-  for (const b of boxes) drawPriceBadge(ctx, x0, t.priceAxisWidth, b.y, b.text, b.bg, b.fg, t, dpr);
+  for (const b of boxes) {
+    drawPriceBadge(ctx, x0, t.priceAxisWidth, b.y, b.text, b.bg, b.fg, t, dpr);
+    if (b.id !== "last") continue;
+    const left = lastBarCountdown(e);
+    if (left) drawPriceBadge(ctx, x0, t.priceAxisWidth, b.y + BADGE_H, left, b.bg, b.fg, t, dpr);
+  }
+}
+
+/**
+ * The countdown under the last price label, when it is switched on and the last bar is still
+ * forming. Intraday charts only: daily and longer bars are stamped at UTC midnight, which is not
+ * when most markets close, so a countdown there would show the wrong time.
+ */
+export function lastBarCountdown(e: ChartEngine): string | null {
+  if (!e.settings.scales?.countdown || !e.meta.intraday || e.replay.phase !== "off" || e.transform) return null;
+  const times = e.data.times;
+  return barCountdown(times[times.length - 1], e.meta.intervalSec, Date.now() / 1000, e.meta.interval === "1M");
 }
 
 /**

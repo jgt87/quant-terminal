@@ -11,6 +11,8 @@ import { CellHub } from "../state/cellHub";
 import { cellCount } from "../state/grid";
 import { uid } from "../state/layoutDefaults";
 import { seedLayout } from "../state/layoutSeeds";
+import { parseTabFile, tabFileName, tabToFile } from "../state/tabFile";
+import { downloadText, pickTextFile } from "../panels/common/files";
 import { changeOf, crosshairTargets, groupFor, isEmptyChange, joinPatch, linkTargets, mountPatch, timeTargets } from "../state/links";
 import { activeCellOf, activeTabOf, makeTab, missingCells, nextTabName } from "../state/workspace";
 import type { WorkspaceApi } from "./useWorkspace";
@@ -219,6 +221,22 @@ export function useWorkspaceShell(api: WorkspaceApi, dialogs: ShellDialogs) {
     [current, dispatch],
   );
 
+  /** The layout of every cell of a tab: the mounted chart's current one, else the saved one. */
+  const tabLayouts = useCallback(
+    (tabId: string): Promise<(Layout | null)[]> => {
+      const ws = current();
+      const src = ws?.tabs.find((t) => t.id === tabId);
+      if (!ws || !src) return Promise.resolve([]);
+      return Promise.all(
+        src.cells.map(async (c, i) => {
+          const mounted = tabId === ws.activeTab ? hub.get(i)?.layout() : null;
+          return mounted && mounted.id === c.layoutId ? mounted : await getLayout(c.layoutId).catch(() => null);
+        }),
+      );
+    },
+    [current, hub],
+  );
+
   /** Duplicate copies the layout of every cell into a new layout id first. */
   const duplicateTab = useCallback(
     async (tabId: string) => {
@@ -226,10 +244,9 @@ export function useWorkspaceShell(api: WorkspaceApi, dialogs: ShellDialogs) {
       const src = ws?.tabs.find((t) => t.id === tabId);
       if (!ws || !src) return;
       const ids = src.cells.map(() => uid("c"));
+      const layouts = await tabLayouts(tabId);
       await Promise.all(
-        src.cells.map(async (c, i) => {
-          const mounted = tabId === ws.activeTab ? hub.get(i)?.layout() : null;
-          const l = mounted && mounted.id === c.layoutId ? mounted : await getLayout(c.layoutId).catch(() => null);
+        layouts.map(async (l, i) => {
           if (!l) return;
           const copy: Layout = { ...l, id: ids[i], updatedAt: Date.now() };
           seedLayout(ids[i], copy);
@@ -238,8 +255,39 @@ export function useWorkspaceShell(api: WorkspaceApi, dialogs: ShellDialogs) {
       );
       dispatch({ type: "duplicate", tabId, newTabId: uid("t"), layoutIds: ids });
     },
-    [current, dispatch, hub],
+    [current, dispatch, tabLayouts],
   );
+
+  /** Save a tab with all its charts as a .tab.json file. */
+  const exportTab = useCallback(
+    async (tabId: string) => {
+      const tab = current()?.tabs.find((t) => t.id === tabId);
+      if (!tab) return;
+      const file = tabToFile(tab, await tabLayouts(tabId));
+      downloadText(tabFileName(tab.name), JSON.stringify(file, null, 2), "application/json");
+    },
+    [current, tabLayouts],
+  );
+
+  /**
+   * Add a tab from a .tab.json file. Every chart is saved under a new id first, so nothing that
+   * exists is overwritten; a chart the server refuses stops the import. Resolves with an error text.
+   */
+  const importTab = useCallback(async (): Promise<string | null> => {
+    const f = await pickTextFile(".json,application/json");
+    if (!f) return null;
+    try {
+      const { tab, layouts } = parseTabFile(f.text, uid("t"), () => uid("c"));
+      for (const l of layouts) {
+        await putLayout(l);
+        seedLayout(l.id, l);
+      }
+      dispatch({ type: "new", tab });
+      return null;
+    } catch (e) {
+      return e instanceof Error ? e.message : String(e);
+    }
+  }, [dispatch]);
 
   const setGrid = useCallback(
     (grid: GridKind) => {
@@ -264,5 +312,5 @@ export function useWorkspaceShell(api: WorkspaceApi, dialogs: ShellDialogs) {
     for (const i of timeTargets(tab.cells, cellCount(tab.grid), ws.linkGroups, index, true)) hub.get(i)?.engine()?.setVisibleTimeRange(r.from, r.to);
   }, [current, hub]);
 
-  return { hub, ctx, active, maximized, linkedUpdate, toggleMaximize, newTab, closeTab, duplicateTab, setGrid, alignTime };
+  return { hub, ctx, active, maximized, linkedUpdate, toggleMaximize, newTab, closeTab, duplicateTab, exportTab, importTab, setGrid, alignTime };
 }

@@ -46,6 +46,8 @@ import {
   VOLUME_OSC_DEF,
   ZLEMA_DEF,
 } from "./extra";
+import { ALLIGATOR_DEF, FRACTALS_DEF, SMI_ERGODIC_DEF, SQUEEZE_DEF, WOODIES_CCI_DEF } from "./composite";
+import { PIVOTS_DEF, PREV_HL_DEF } from "./levels";
 import { ADL_DEF, CHAIKIN_OSC_DEF, CMF_DEF, EOM_DEF, FORCE_INDEX_DEF, MFI_DEF, PVT_DEF } from "./volumeFlow";
 
 export const INDICATORS: IndicatorDef[] = [
@@ -78,6 +80,10 @@ export const INDICATORS: IndicatorDef[] = [
   LR_CHANNEL_DEF,
   STD_ERROR_BANDS_DEF,
   VWAP_DEF,
+  PIVOTS_DEF,
+  PREV_HL_DEF,
+  ALLIGATOR_DEF,
+  FRACTALS_DEF,
   // Momentum
   RSI_DEF,
   MACD_DEF,
@@ -103,6 +109,9 @@ export const INDICATORS: IndicatorDef[] = [
   ACCELERATOR_DEF,
   ELDER_RAY_DEF,
   BOP_DEF,
+  SQUEEZE_DEF,
+  SMI_ERGODIC_DEF,
+  WOODIES_CCI_DEF,
   // Trend strength
   DMI_DEF,
   ADX_DEF,

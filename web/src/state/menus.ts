@@ -4,7 +4,6 @@
 import type { ChartType, IndicatorInstance, OrderFlowFlags } from "@qt/core";
 import chartTypes from "../config/chartTypes.json";
 import { ZONE_CHOICES } from "../chart/timeZone";
-import { t } from "../i18n";
 import { SEP, type MenuItem } from "../components/menuTypes";
 
 export interface ChartMenuState {
@@ -27,6 +26,8 @@ export interface ChartMenuState {
   depthRecording?: boolean;
   /** Chart time zone setting ("UTC", "local", "exchange" or an IANA zone). */
   timeZone?: string;
+  /** One-click paper buy / sell buttons are shown. */
+  buySellButtons?: boolean;
 }
 
 export interface ChartMenuActions {
@@ -38,6 +39,8 @@ export interface ChartMenuActions {
   /** Opens the data table panel (bars and indicator values). */
   dataTable?(): void;
   resetView(): void;
+  /** Opens the go to date dialog (Alt+G). */
+  goToDate?(): void;
   copy(text: string): void;
   setChartType(t: ChartType): void;
   setLog(on: boolean): void;
@@ -60,6 +63,8 @@ export interface ChartMenuActions {
   /** Opens the depth ladder panel. */
   depthLadder?(): void;
   setTimeZone?(zone: string): void;
+  /** Shows or hides the one-click paper buy / sell buttons. */
+  setBuySellButtons?(on: boolean): void;
 }
 
 /** "Order flow ▸": footprint, bubbles, delta panes and the time and sales panel (Binance symbols). */
@@ -110,11 +115,12 @@ export function chartMenu(s: ChartMenuState, a: ChartMenuActions): MenuItem[] {
   const n = s.drawingCount;
   return [
     { label: "Reset chart view", onSelect: a.resetView },
+    ...(a.goToDate ? [{ label: "Go to date…", shortcut: "Alt+G", onSelect: a.goToDate }] : []),
     SEP,
-    { label: t("Copy price {price}", { price: s.priceText }), onSelect: () => a.copy(s.priceText) },
+    { label: `Copy price ${s.priceText}`, onSelect: () => a.copy(s.priceText) },
     ...(a.paste && s.clipboard ? [{ label: "Paste", icon: "paste", shortcut: "Ctrl+V", onSelect: a.paste }] : []),
     SEP,
-    ...(a.addAlert ? [{ label: t("Add alert on {symbol} at {price}…", { symbol: s.symbol ?? "", price: s.priceText }), icon: "alertBell", shortcut: "Alt+A", onSelect: a.addAlert }, SEP] : []),
+    ...(a.addAlert ? [{ label: `Add alert on ${s.symbol ?? ""} at ${s.priceText}…`, icon: "alertBell", shortcut: "Alt+A", onSelect: a.addAlert }, SEP] : []),
     {
       label: "Chart type",
       submenu: chartTypes.map((t) => ({ label: t.label, checked: t.id === s.chartType, onSelect: () => a.setChartType(t.id as ChartType) })),
@@ -122,18 +128,19 @@ export function chartMenu(s: ChartMenuState, a: ChartMenuActions): MenuItem[] {
     { label: "Log scale", checked: s.logScale, onSelect: () => a.setLog(!s.logScale) },
     ...timeZoneMenu(s, a),
     ...orderFlowMenu(s, a),
+    ...(a.setBuySellButtons ? [{ label: "Buy / sell buttons (paper)", checked: Boolean(s.buySellButtons), onSelect: () => a.setBuySellButtons?.(!s.buySellButtons) }] : []),
     SEP,
     ...(a.convert ?? []).map((c) => ({ label: c.label, onSelect: c.run })),
     ...(a.convert?.length ? [SEP] : []),
     ...(a.objectTree ? [{ label: "Object tree", icon: "objectTree", onSelect: a.objectTree }, SEP] : []),
-    { label: n ? t(n === 1 ? "Remove 1 drawing" : "Remove {n} drawings", { n }) : t("Remove drawings"), disabled: n === 0, onSelect: a.removeDrawings },
-    ...(s.hiddenDrawings ? [{ label: t("Show hidden drawings ({n})", { n: s.hiddenDrawings }), onSelect: a.showHiddenDrawings }] : []),
+    { label: n ? (n === 1 ? "Remove 1 drawing" : `Remove ${n} drawings`) : "Remove drawings", disabled: n === 0, onSelect: a.removeDrawings },
+    ...(s.hiddenDrawings ? [{ label: `Show hidden drawings (${s.hiddenDrawings})`, onSelect: a.showHiddenDrawings }] : []),
     ...(a.setHideAllDrawings ? [{ label: "Hide all drawings", shortcut: "Ctrl+Alt+H", checked: Boolean(s.hideAllDrawings), onSelect: () => a.setHideAllDrawings?.(!s.hideAllDrawings) }] : []),
     ...(a.setLockAllDrawings ? [{ label: "Lock all drawings", checked: Boolean(s.lockAllDrawings), onSelect: () => a.setLockAllDrawings?.(!s.lockAllDrawings) }] : []),
     ...(a.setSyncDrawings
       ? [{ label: "Sync drawings across charts", checked: Boolean(s.syncDrawings), onSelect: () => a.setSyncDrawings?.(!s.syncDrawings) }]
       : []),
-    { label: s.indicatorCount ? t("Remove indicators ({n})", { n: s.indicatorCount }) : t("Remove indicators"), disabled: s.indicatorCount === 0, onSelect: a.removeIndicators },
+    { label: s.indicatorCount ? `Remove indicators (${s.indicatorCount})` : "Remove indicators", disabled: s.indicatorCount === 0, onSelect: a.removeIndicators },
     SEP,
     ...(a.exportCsv ? [{ label: "Export data (CSV)", onSelect: a.exportCsv }] : []),
     ...(a.exportPng ? [{ label: "Save image (PNG)", onSelect: a.exportPng }] : []),
@@ -171,6 +178,8 @@ export interface IndicatorPaneState {
 export interface IndicatorMenuActions {
   /** Built-in studies with geometry (auto fib, chart patterns, zig zag): make editable drawings. */
   convert?(): void;
+  /** "Add alert on <indicator>…": only for indicators the alert engine can evaluate. */
+  addAlert?(): void;
   settings(): void;
   toggleVisible(): void;
   movePane(to: PaneTarget): void;
@@ -192,6 +201,7 @@ export function indicatorMenu(inst: IndicatorInstance, pane: "overlay" | "separa
     { label: "Settings…", onSelect: a.settings },
     { label: inst.visible ? "Hide" : "Show", onSelect: a.toggleVisible },
     ...(a.convert ? [{ label: "Convert to drawing", onSelect: a.convert }] : []),
+    ...(a.addAlert ? [{ label: "Add alert on this indicator…", icon: "alertBell", onSelect: a.addAlert }] : []),
     SEP,
     { label: "Move to", submenu: moveTo },
     {

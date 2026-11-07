@@ -3,7 +3,9 @@
 Self-hosted charting + quant research terminal. Spec: `docs/SPEC.md`. Plan/status: `docs/PLAN.md`.
 
 ## Rules
-- **Clean room.** Implement from `docs/SPEC.md` and public formula definitions only. Never read, copy or paraphrase code from any decompiled/third-party charting product.
+- **Clean room.** Implement from `docs/SPEC.md` and public formula definitions. Never read, copy or paraphrase code from any decompiled or proprietary charting product.
+- **Open-source projects** are compared through the parity loop (`docs/parity/PROCESS.md`, `npm run parity`). Code from a project marked `reuse: "port"` (MIT, Apache-2.0, BSD) may be adapted; record it with `parity adopt … --ported <id>`, which stores its license in `third_party/licenses/`. Projects marked `features` (GPL, BUSL, no license) are indexed for what they offer only: never adapt their code.
+- **No project or product names** of the compared projects, the reference platform or its products in code, Markdown, comments, UI text or commits. Their list lives only in the git-ignored `data/parity/repos.json`; `npm run parity check-names` must pass before a commit.
 - No assistant/vendor-AI names anywhere (code, UI, docs, metadata, commits).
 - Full color theme (user choice 2026-10-13): blue accent in the UI, green/red for up/down, multi-color indicators, dark + light themes. All colors come from theme tokens; no "connected" status pills.
 - Web code is split: CSS files, JSON data, and TS/TSX components joined by imports — never one big file.

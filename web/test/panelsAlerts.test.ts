@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { Alert } from "@qt/core";
 import { getIndicator } from "@qt/core";
 import {
-  buildAlert, cloneDraft, describeCondition, draftFromAlert, draftFromChart, emptyOperand, formatAlertTime, indicatorOperand, newCondition, newDraft, renderMessage,
+  buildAlert, cloneDraft, describeCondition, draftFromAlert, draftFromChart, emptyOperand, formatAlertTime, indicatorAlertCapable, indicatorOperand, newCondition, newDraft, renderMessage,
 } from "../src/panels/alerts/alertModel";
 import { soundAllowed, STARTUP_MUTE_MS } from "../src/panels/alerts/sounds";
 
@@ -106,6 +106,17 @@ describe("alert condition builder -> Alert JSON", () => {
     expect(ch.conditions[0]).toEqual({ left: { kind: "price" }, op: "enters-channel", right: { kind: "drawing", drawingId: "dr7" } });
     const tl = buildAlert(draftFromChart("AAPL", "15m", { drawingId: "dr8", layoutId: "lay1", type: "trendline" }), NOW).alert!;
     expect(tl.conditions[0].op).toBe("crosses");
+  });
+
+  it("builds chart presets for an indicator on the price pane and in its own pane", () => {
+    const ma = buildAlert(draftFromChart("AAPL", "1h", { indicator: { indicatorId: "sma", inputs: { length: 50, junk: 1 }, overlay: true, value: 180 } }), NOW).alert!;
+    expect(ma.conditions[0]).toMatchObject({ left: { kind: "price" }, op: "crosses", right: { kind: "indicator", indicatorId: "sma", inputs: { length: 50 } } });
+    expect(ma.conditions[0].right).not.toHaveProperty("inputs.junk");
+    expect(ma.name).toContain("crossing SMA(50");
+    const rsi = buildAlert(draftFromChart("AAPL", "1h", { indicator: { indicatorId: "rsi", inputs: {}, overlay: false, value: 63.456789 } }), NOW).alert!;
+    expect(rsi.conditions[0]).toMatchObject({ left: { kind: "indicator", indicatorId: "rsi" }, op: "crosses", right: { kind: "value", value: 63.4568 } });
+    expect(indicatorAlertCapable("rsi")).toBe(true);
+    expect(indicatorAlertCapable("support-resistance")).toBe(false);
   });
 
   it("describes conditions for the list", () => {

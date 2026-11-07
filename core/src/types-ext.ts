@@ -218,7 +218,7 @@ export interface Holding {
   realizedPnl: number;
 }
 
-export type PaperOrderType = "market" | "limit" | "stop" | "stop-limit";
+export type PaperOrderType = "market" | "limit" | "stop" | "stop-limit" | "trailing-stop";
 
 export interface PaperOrder {
   id: string;
@@ -226,12 +226,16 @@ export interface PaperOrder {
   side: "buy" | "sell";
   type: PaperOrderType;
   qty: number;
-  /** Limit price (limit, stop-limit) or stop price (stop). */
+  /** Limit price (limit, stop-limit) or stop price (stop, trailing-stop: moves with the price). */
   price?: number;
   /** Stop-limit: the trigger price; once reached the order works as a limit at `price`. */
   stopPrice?: number;
   /** Stop-limit: the stop price was reached. */
   triggered?: boolean;
+  /** Trailing stop: distance from the best price, in price units (or use trailPercent). */
+  trailAmount?: number;
+  /** Trailing stop: distance from the best price, in percent of that price. */
+  trailPercent?: number;
   stopLoss?: number;
   takeProfit?: number;
   status: "working" | "filled" | "cancelled" | "rejected";

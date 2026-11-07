@@ -27,7 +27,7 @@ export interface LadderRow {
   position: boolean;
 }
 
-const TYPE_TEXT: Record<string, string> = { limit: "LMT", stop: "STP", "stop-limit": "STP LMT", market: "MKT" };
+const TYPE_TEXT: Record<string, string> = { limit: "LMT", stop: "STP", "stop-limit": "STP LMT", "trailing-stop": "TRAIL", market: "MKT" };
 const key = (s: string) => s.trim().toUpperCase();
 const round = (v: number) => Number(v.toPrecision(12));
 

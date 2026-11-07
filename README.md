@@ -15,19 +15,21 @@ a screener, portfolios, paper trading, user scripts and a backtesting engine wit
 ## Features
 
 - **Charts:** candles, hollow candles, bars, line, area, baseline, columns, volume candles, HLC area, high-low,
-  line with markers, step line, Heikin-Ashi, Renko, Kagi, Line Break, Point & Figure and Range; log, percent,
+  line with markers, step line, Heikin-Ashi, smoothed Heikin-Ashi, Renko, Kagi, Line Break, Point & Figure and Range; log, percent,
   indexed-to-100 and inverted scales; price axis on the left, right or both sides; indicators can share panes or use
   their own (left or hidden) scale; panes maximise and collapse; symbol compare, custom intervals, bar replay (also
   tick by tick for Binance and MT5), live ticks for MT5 and Deriv symbols, chart time zones (UTC, local, exchange or a named zone) with session breaks,
-  dark, light and high-contrast themes, English and Dutch interface.
-- **Indicators and studies:** 75 built-in indicators: moving averages (SMA, EMA, WMA, DEMA, TEMA, Hull, ALMA, KAMA,
+  countdown to bar close, high and low labels, go to date, symbol watermark, full screen, dark, light and high-contrast themes.
+- **Indicators and studies:** 82 built-in indicators: moving averages (SMA, EMA, WMA, DEMA, TEMA, Hull, ALMA, KAMA,
   LSMA, SMMA, VWMA, McGinley, ZLEMA, VIDYA), bands and trend overlays (Bollinger, Keltner, Donchian, Envelope,
   Ichimoku, SuperTrend, Parabolic SAR, Chandelier Exit, Chande Kroll Stop, Price Channel, Linear Regression Channel,
   Standard Error Bands, VWAP), momentum (RSI, MACD, Stochastic, Stochastic RSI, CCI, Williams %R, ROC, Awesome,
   Accelerator, TRIX, Ultimate, TSI, Coppock, Connors RSI, Fisher, Schaff, KST, Relative Vigor, Rank Correlation, …),
   trend strength (DMI/ADX, Aroon, Vortex, Choppiness), volatility and volume (ATR, Historical Volatility, Mass Index,
-  Ulcer Index, OBV, MFI, CMF, A/D, Chaikin, Klinger, Force Index, Volume Oscillator, Net Volume, …), plus volume
-  profile, TPO, pivots, auto Fibonacci and candlestick / chart pattern detection. The Ichimoku cloud is drawn ahead
+  Ulcer Index, OBV, MFI, CMF, A/D, Chaikin, Klinger, Force Index, Volume Oscillator, Net Volume, …), period levels
+  (Pivot Points Standard in six formulas, previous day/week/month high-low-close), Williams Alligator and Fractals,
+  Squeeze Momentum, SMI Ergodic and Woodies CCI, plus volume profile, TPO, pivots, auto Fibonacci, gaps, auto support and resistance and candlestick / chart pattern detection; indicator sets save
+  as templates. The Ichimoku cloud is drawn ahead
   of the last bar.
 - **Crypto order flow (Binance):** footprint bars, volume bubbles, delta and cumulative delta panes, a live order
   book with a liquidity heatmap (recordable and replayable with bar replay), a depth ladder for paper orders,
@@ -38,10 +40,13 @@ a screener, portfolios, paper trading, user scripts and a backtesting engine wit
   cycles, shapes, brushes, text and notes, icons, long/short position and measuring tools; anchors are stored in
   price/time so drawings survive zoom, timeframe changes and reloads; templates, visibility per interval, object tree.
 - **Workspace:** tabs and multi-chart grids with linked symbol, interval, crosshair and time range (link groups or a
-  tab-wide time sync); layouts and watchlists are autosaved to a local JSON store.
-- **Alerts:** price, indicator and drawing conditions, browser notifications, sounds and webhooks.
+  tab-wide time sync), a ticker tape of the first watchlist; layouts and watchlists are autosaved to a local JSON store; a tab with all its charts can be
+  exported to a file and imported again.
+- **Alerts:** price, indicator and drawing conditions (also straight from an indicator's chart menu), browser
+  notifications, sounds and webhooks.
 - **Research:** screener over built-in universes, portfolios with transactions, simulated paper trading (market,
-  limit, stop and stop-limit orders with brackets; order and position lines on the chart that you drag to modify), and
+  limit, stop, stop-limit and trailing stop orders, brackets, one-click buy / sell buttons on the chart and a trade
+  journal with notes, tags and statistics; order and position lines on the chart that you drag to modify), and
   user scripts (indicators and strategies) running in a sandboxed Web Worker.
 - **Backtesting:** bar-by-bar engine without look-ahead, commission, slippage and spread, position sizing,
   stop-loss / take-profit, equity and drawdown curves, Sharpe, Sortino, Calmar and more, parameter sweeps and

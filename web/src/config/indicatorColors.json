@@ -34,5 +34,12 @@
   "pricechannel": { "upper": "#26a69a", "lower": "#ef5350", "fill": "rgba(41,98,255,0.05)" },
   "rvgi": { "rvgi": "#26a69a", "signal": "#ef5350" },
   "rci": { "rci": "#2962ff", "levelFill": "rgba(41,98,255,0.06)" },
-  "cks": { "stopShort": "#ef5350", "stopLong": "#26a69a" }
+  "cks": { "stopShort": "#ef5350", "stopLong": "#26a69a" },
+  "pivots": { "p": "#ff9800", "r1": "#ef5350", "r2": "#ef5350", "r3": "#ef5350", "r4": "#ef5350", "r5": "#ef5350", "s1": "#26a69a", "s2": "#26a69a", "s3": "#26a69a", "s4": "#26a69a", "s5": "#26a69a" },
+  "prevhl": { "high": "#26a69a", "low": "#ef5350", "close": "#ff9800" },
+  "alligator": { "jaw": "#2962ff", "teeth": "#ef5350", "lips": "#43a047" },
+  "fractals": { "up": "#26a69a", "down": "#ef5350" },
+  "squeeze": { "squeeze": "#ef5350" },
+  "smiergodic": { "smi": "#2962ff", "signal": "#ef5350" },
+  "woodiescci": { "turbo": "#ff9800" }
 }

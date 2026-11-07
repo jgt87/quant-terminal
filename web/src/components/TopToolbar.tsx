@@ -11,7 +11,6 @@ import { Dropdown } from "./Dropdown";
 import { Icon } from "./icons";
 import { GridPicker } from "./workspace/GridPicker";
 import "../styles/toolbar.css";
-import { t } from "../i18n";
 
 interface Props {
   symbol: string;
@@ -39,6 +38,9 @@ interface Props {
   onChartSettings(): void;
   onTheme(): void;
   onToggleWatchlist(): void;
+  /** Ticker tape of the first watchlist under the toolbar. */
+  tickerTapeOpen?: boolean;
+  onToggleTickerTape?(): void;
   onToggleBacktest(): void;
   /** Workspace: grid of the active tab and crosshair sync (optional for single-chart use). */
   grid?: GridKind;
@@ -47,18 +49,21 @@ interface Props {
   onCrosshairSync?(on: boolean): void;
   timeSync?: boolean;
   onTimeSync?(on: boolean): void;
+  /** Full screen (the whole workspace, toolbars included). */
+  fullscreen?: boolean;
+  onFullscreen?(): void;
 }
 
 export function TopToolbar(p: Props) {
   return (
     <header className="top-toolbar">
       <span className="brand">Quant Terminal</span>
-      <button className="tb-btn symbol-btn" title={t("Symbol search (or just start typing on the chart)")} onClick={p.onSymbolClick}>
+      <button className="tb-btn symbol-btn" title="Symbol search (or just start typing on the chart)" onClick={p.onSymbolClick}>
         <Icon name="search" size={14} />
         <span>{p.symbol}</span>
       </button>
       <span className="tb-sep" />
-      <div className="tb-group" role="group" aria-label={t("Interval")}>
+      <div className="tb-group" role="group" aria-label="Interval">
         {intervals.map((i) => (
           <button
             key={i.id}
@@ -78,16 +83,16 @@ export function TopToolbar(p: Props) {
         options={chartTypes}
         onChange={(id) => p.onChartType(id as ChartType)}
         icon={<Icon name="candles" size={14} />}
-        title={t("Chart type")}
+        title="Chart type"
       />
-      <button className="tb-btn" onClick={p.onIndicators} title={t("Add indicator")}>
+      <button className="tb-btn" onClick={p.onIndicators} title="Add indicator" aria-label="Indicators">
         <Icon name="indicators" size={14} />
-        <span>{t("Indicators")}</span>
+        <span className="tb-label">Indicators</span>
       </button>
       {p.onCompare && (
-        <button className="tb-btn" onClick={p.onCompare} title={t("Compare symbols (percent overlays)")}>
+        <button className="tb-btn" onClick={p.onCompare} title="Compare symbols (percent overlays)" aria-label="Compare">
           <Icon name="compare" size={14} />
-          <span>{t("Compare")}</span>
+          <span className="tb-label">Compare</span>
         </button>
       )}
       {p.onReplay && (
@@ -95,23 +100,24 @@ export function TopToolbar(p: Props) {
           className={`tb-btn${p.replayActive ? " active" : ""}`}
           onClick={p.onReplay}
           aria-pressed={!!p.replayActive}
-          title={t("Bar replay: pick a start bar, then play the chart forward")}
+          title="Bar replay: pick a start bar, then play the chart forward"
+          aria-label="Replay"
         >
           <Icon name="replay" size={14} />
-          <span>{t("Replay")}</span>
+          <span className="tb-label">Replay</span>
         </button>
       )}
       <span className="tb-sep" />
-      <button className={`tb-btn${p.logScale ? " active" : ""}`} aria-pressed={p.logScale} onClick={() => p.onLog(!p.logScale)} title={t("Logarithmic price scale")}>
+      <button className={`tb-btn${p.logScale ? " active" : ""}`} aria-pressed={p.logScale} onClick={() => p.onLog(!p.logScale)} title="Logarithmic price scale">
         log
       </button>
-      <button className={`tb-btn${p.showVolume ? " active" : ""}`} aria-pressed={p.showVolume} onClick={() => p.onVolume(!p.showVolume)} title={t("Volume overlay")}>
+      <button className={`tb-btn${p.showVolume ? " active" : ""}`} aria-pressed={p.showVolume} onClick={() => p.onVolume(!p.showVolume)} title="Volume overlay">
         vol
       </button>
-      <button className="tb-btn" onClick={p.onResetView} title={t("Reset view (double-click an axis to reset it)")}>
+      <button className="tb-btn" onClick={p.onResetView} title="Reset view (double-click an axis to reset it)">
         reset
       </button>
-      <button className="tb-btn icon" onClick={p.onChartSettings} title={t("Chart settings")} aria-label={t("Chart settings")}>
+      <button className="tb-btn icon" onClick={p.onChartSettings} title="Chart settings" aria-label="Chart settings">
         <Icon name="settings" size={15} />
       </button>
       {p.grid && p.onGrid && (
@@ -124,8 +130,8 @@ export function TopToolbar(p: Props) {
         <button
           className={`tb-btn icon${p.crosshairSync ? " active" : ""}`}
           aria-pressed={!!p.crosshairSync}
-          aria-label={t("Crosshair sync")}
-          title={t("Crosshair sync: mirror the crosshair time across the charts of this tab (or of the same link group)")}
+          aria-label="Crosshair sync"
+          title="Crosshair sync: mirror the crosshair time across the charts of this tab (or of the same link group)"
           onClick={() => p.onCrosshairSync?.(!p.crosshairSync)}
         >
           <Icon name="crosshairSync" size={15} />
@@ -135,28 +141,50 @@ export function TopToolbar(p: Props) {
         <button
           className={`tb-btn icon${p.timeSync ? " active" : ""}`}
           aria-pressed={!!p.timeSync}
-          aria-label={t("Time sync")}
-          title={t("Time sync: scrolling or zooming one chart shows the same time range on every chart of this tab")}
+          aria-label="Time sync"
+          title="Time sync: scrolling or zooming one chart shows the same time range on every chart of this tab"
           onClick={() => p.onTimeSync?.(!p.timeSync)}
         >
           <Icon name="timeSync" size={15} />
         </button>
       )}
       <span className="spacer" />
+      {p.onFullscreen && (
+        <button
+          className={`tb-btn icon${p.fullscreen ? " active" : ""}`}
+          aria-pressed={!!p.fullscreen}
+          aria-label={p.fullscreen ? "Exit full screen" : "Full screen"}
+          title={p.fullscreen ? "Exit full screen (Alt+Shift+F or Esc)" : "Full screen (Alt+Shift+F)"}
+          onClick={p.onFullscreen}
+        >
+          <Icon name={p.fullscreen ? "fullscreenExit" : "fullscreen"} size={15} />
+        </button>
+      )}
       <button
         className="tb-btn icon"
         onClick={p.onTheme}
-        title={t("Theme: {current} (switch to {next})", { current: t(THEME_LABEL[p.theme]), next: t(THEME_LABEL[nextTheme(p.theme)]).toLowerCase() })}
+        title={`Theme: ${THEME_LABEL[p.theme]} (switch to ${THEME_LABEL[nextTheme(p.theme)].toLowerCase()})`}
         aria-label={`Switch to ${THEME_LABEL[nextTheme(p.theme)].toLowerCase()} theme`}
       >
         <Icon name={p.theme === "dark" ? "sun" : p.theme === "light" ? "contrast" : "moon"} size={15} />
       </button>
       <span className="tb-sep" />
-      <button className={`tb-btn${p.backtestOpen ? " active" : ""}`} aria-pressed={p.backtestOpen} onClick={p.onToggleBacktest} title={t("Backtest panel")}>
-        {t("Backtest")}
+      <button className={`tb-btn${p.backtestOpen ? " active" : ""}`} aria-pressed={p.backtestOpen} onClick={p.onToggleBacktest} title="Backtest panel">
+        Backtest
       </button>
-      <button className={`tb-btn${p.watchlistOpen ? " active" : ""}`} aria-pressed={p.watchlistOpen} onClick={p.onToggleWatchlist} title={t("Watchlist panel")}>
-        {t("Watchlist")}
+      {p.onToggleTickerTape && (
+        <button
+          className={`tb-btn icon${p.tickerTapeOpen ? " active" : ""}`}
+          aria-pressed={Boolean(p.tickerTapeOpen)}
+          aria-label="Ticker tape"
+          onClick={p.onToggleTickerTape}
+          title="Ticker tape: the first watchlist scrolling under the toolbar"
+        >
+          <Icon name="tickerTape" size={15} />
+        </button>
+      )}
+      <button className={`tb-btn${p.watchlistOpen ? " active" : ""}`} aria-pressed={p.watchlistOpen} onClick={p.onToggleWatchlist} title="Watchlist panel">
+        Watchlist
       </button>
     </header>
   );

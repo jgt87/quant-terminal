@@ -12,6 +12,7 @@
   { "id": "line-markers", "label": "Line with markers" },
   { "id": "step-line", "label": "Step line" },
   { "id": "heikin-ashi", "label": "Heikin-Ashi" },
+  { "id": "smoothed-heikin-ashi", "label": "Smoothed Heikin-Ashi" },
   { "id": "renko", "label": "Renko" },
   { "id": "kagi", "label": "Kagi" },
   { "id": "linebreak", "label": "Line Break" },

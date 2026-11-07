@@ -20,3 +20,33 @@ export function heikinAshi(bars: readonly Bar[]): Bar[] {
   }
   return out;
 }
+
+export const SMOOTHED_HA_LENGTH = 10;
+export const SMOOTHED_HA_SMOOTHING = 10;
+
+/** Exponential average seeded with the first value, so every bar has a value. */
+function emaFill(values: readonly number[], n: number): number[] {
+  const out = new Array<number>(values.length);
+  const k = 2 / (Math.max(1, n) + 1);
+  for (let i = 0; i < values.length; i++) out[i] = i === 0 ? values[0] : values[i] * k + out[i - 1] * (1 - k);
+  return out;
+}
+
+/**
+ * Smoothed Heikin-Ashi: open, high, low and close are each smoothed with an exponential average
+ * of `length` bars, Heikin-Ashi candles are built from those, and their open and close are
+ * smoothed again over `smoothing` bars (1 = no second pass). High and low are widened to hold
+ * the smoothed open and close, so every candle stays valid. Time and volume come from the source.
+ */
+export function smoothedHeikinAshi(bars: readonly Bar[], length = SMOOTHED_HA_LENGTH, smoothing = SMOOTHED_HA_SMOOTHING): Bar[] {
+  if (bars.length === 0) return [];
+  const f = (k: "open" | "high" | "low" | "close") => emaFill(bars.map((b) => b[k]), length);
+  const [o, h, l, c] = [f("open"), f("high"), f("low"), f("close")];
+  const ha = heikinAshi(bars.map((b, i) => ({ time: b.time, open: o[i], high: Math.max(h[i], o[i], c[i]), low: Math.min(l[i], o[i], c[i]), close: c[i], volume: b.volume })));
+  if (smoothing <= 1) return ha;
+  const so = emaFill(ha.map((b) => b.open), smoothing);
+  const sc = emaFill(ha.map((b) => b.close), smoothing);
+  const sh = emaFill(ha.map((b) => b.high), smoothing);
+  const sl = emaFill(ha.map((b) => b.low), smoothing);
+  return ha.map((b, i) => ({ time: b.time, open: so[i], high: Math.max(sh[i], so[i], sc[i]), low: Math.min(sl[i], so[i], sc[i]), close: sc[i], volume: b.volume }));
+}

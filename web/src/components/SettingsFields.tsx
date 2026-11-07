@@ -2,12 +2,11 @@
 
 import type { LineStyle } from "@qt/core";
 import type { ReactNode } from "react";
-import { t } from "../i18n";
 
 export function Row({ label, children }: { label: string; children: ReactNode }) {
   return (
     <label className="form-row">
-      <span>{t(label)}</span>
+      <span>{label}</span>
       {children}
     </label>
   );
@@ -38,7 +37,7 @@ export function WidthSelect({ value, onChange, label = "Line width" }: { value: 
 export function Check({ checked, onChange, label }: { checked: boolean; onChange(v: boolean): void; label: string }) {
   return (
     <label className="form-row">
-      <span>{t(label)}</span>
+      <span>{label}</span>
       <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} />
     </label>
   );
@@ -47,7 +46,7 @@ export function Check({ checked, onChange, label }: { checked: boolean; onChange
 export function Percent({ value, onChange, label }: { value: number; onChange(v: number): void; label: string }) {
   return (
     <label className="form-row">
-      <span>{t(label)}</span>
+      <span>{label}</span>
       <span className="range-field">
         <input type="range" min={0} max={100} value={Math.round(value * 100)} aria-label={label} onChange={(e) => onChange(Number(e.target.value) / 100)} />
         <span className="range-val">{Math.round(value * 100)}%</span>

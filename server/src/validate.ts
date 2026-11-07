@@ -12,6 +12,7 @@ const CHART_TYPES: readonly ChartType[] = [
   "line",
   "area",
   "heikin-ashi",
+  "smoothed-heikin-ashi",
   "baseline",
   "columns",
   "volume-candles",

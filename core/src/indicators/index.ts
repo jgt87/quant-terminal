@@ -37,3 +37,5 @@ export {
   chandeKroll,
   accelerator,
 } from "./extra";
+export { alligator, fractals, squeeze, smiErgodic, woodiesCci, projectForward } from "./composite";
+export { pivotPoints, pivotLevels, previousPeriod, periodKey, autoPeriod, type PivotPeriod, type PivotType } from "./levels";

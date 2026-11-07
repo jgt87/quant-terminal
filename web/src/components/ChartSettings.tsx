@@ -9,7 +9,6 @@ import { ColorPicker } from "./ColorPicker";
 import { SettingsDialog } from "./SettingsDialog";
 import { Check, Row } from "./SettingsFields";
 import { TransformFields } from "./TransformFields";
-import { getLanguage, LANGUAGES, setLanguage, t } from "../i18n";
 
 type Tab = "symbol" | "status" | "scales" | "appearance";
 
@@ -56,7 +55,7 @@ export function ChartSettings({ value, chartType = "candles", mode, onChange, on
         if (tab === "symbol")
           return (
             <>
-              <div className="settings-section">{t("Candles")}</div>
+              <div className="settings-section">Candles</div>
               <Row label="Body up">
                 <ColorPicker label="Body up" value={cs.symbol?.upColor ?? base.upBody} onChange={(upColor) => sym({ upColor })} />
               </Row>
@@ -83,7 +82,7 @@ export function ChartSettings({ value, chartType = "candles", mode, onChange, on
                 baseline={cs.symbol?.baseline}
                 onBaseline={(baseline) => sym({ baseline })}
               />
-              <div className="settings-section">{t("Data")}</div>
+              <div className="settings-section">Data</div>
               <Check label="Adjust for dividends" checked={Boolean(cs.symbol?.adjustDividends)} onChange={(adjustDividends) => sym({ adjustDividends })} />
               <Check label="Extended hours (intraday)" checked={Boolean(cs.symbol?.extendedHours)} onChange={(extendedHours) => sym({ extendedHours })} />
             </>
@@ -102,22 +101,24 @@ export function ChartSettings({ value, chartType = "candles", mode, onChange, on
             <>
               <Check label="Last price label" checked={cs.scales?.lastPriceLabel !== false} onChange={(lastPriceLabel) => scales({ lastPriceLabel })} />
               <Check label="Last price line" checked={cs.scales?.priceLine !== false} onChange={(priceLine) => scales({ priceLine })} />
+              <Check label="Countdown to bar close (intraday)" checked={Boolean(cs.scales?.countdown)} onChange={(countdown) => scales({ countdown })} />
+              <Check label="High and low labels" checked={Boolean(cs.scales?.highLow)} onChange={(highLow) => scales({ highLow })} />
               <Check label="Percent scale" checked={Boolean(cs.scales?.percent) && !cs.scales?.indexed} onChange={(percent) => scales({ percent, indexed: percent ? false : cs.scales?.indexed })} />
               <Check label="Indexed to 100" checked={Boolean(cs.scales?.indexed)} onChange={(indexed) => scales({ indexed, percent: indexed ? false : cs.scales?.percent })} />
               <Check label="Invert scale" checked={Boolean(cs.scales?.inverted)} onChange={(inverted) => scales({ inverted })} />
               <Row label="Price scale position">
                 <select value={cs.scales?.placement ?? "right"} onChange={(e) => scales({ placement: e.target.value as "left" | "right" | "both" })}>
-                  <option value="right">{t("Right")}</option>
-                  <option value="left">{t("Left")}</option>
-                  <option value="both">{t("Both")}</option>
+                  <option value="right">Right</option>
+                  <option value="left">Left</option>
+                  <option value="both">Both</option>
                 </select>
               </Row>
-              <div className="settings-section">{t("Time")}</div>
+              <div className="settings-section">Time</div>
               <Row label="Time zone">
                 <select value={cs.timeZone ?? "UTC"} onChange={(e) => apply({ ...cs, timeZone: e.target.value === "UTC" ? undefined : e.target.value })} aria-label="Time zone">
                   {ZONE_CHOICES.map((z) => (
                     <option key={z.id} value={z.id}>
-                      {z.id.includes("/") ? `${z.label} (${zoneLabel(z.id, Date.now() / 1000)})` : t(z.label)}
+                      {z.id.includes("/") ? `${z.label} (${zoneLabel(z.id, Date.now() / 1000)})` : z.label}
                     </option>
                   ))}
                   {cs.timeZone && !ZONE_CHOICES.some((z) => z.id === cs.timeZone) && <option value={cs.timeZone}>{cs.timeZone}</option>}
@@ -131,6 +132,7 @@ export function ChartSettings({ value, chartType = "candles", mode, onChange, on
             <Row label="Background">
               <ColorPicker label="Background" noAlpha value={cs.appearance?.background ?? base.background} onChange={(background) => look({ background })} />
             </Row>
+            <Check label="Symbol watermark" checked={Boolean(cs.appearance?.watermark)} onChange={(watermark) => look({ watermark })} />
             <Check label="Vertical grid lines" checked={cs.appearance?.gridVertical !== false} onChange={(gridVertical) => look({ gridVertical })} />
             <Check label="Horizontal grid lines" checked={cs.appearance?.gridHorizontal !== false} onChange={(gridHorizontal) => look({ gridHorizontal })} />
             <Row label="Crosshair">
@@ -138,20 +140,10 @@ export function ChartSettings({ value, chartType = "candles", mode, onChange, on
                 value={cs.appearance?.crosshair ?? "dashed"}
                 onChange={(e) => look({ crosshair: e.target.value as NonNullable<Settings["appearance"]>["crosshair"] })}
               >
-                <option value="dashed">{t("Dashed")}</option>
-                <option value="dotted">{t("Dotted")}</option>
-                <option value="solid">{t("Solid")}</option>
-                <option value="hidden">{t("Hidden")}</option>
-              </select>
-            </Row>
-            <div className="settings-section">{t("Application")}</div>
-            <Row label="Language">
-              <select value={getLanguage()} onChange={(e) => setLanguage(e.target.value)} aria-label={t("Language")} title={t("Applies to the whole app; the page reloads")}>
-                {LANGUAGES.map((l) => (
-                  <option key={l.id} value={l.id}>
-                    {l.label}
-                  </option>
-                ))}
+                <option value="dashed">Dashed</option>
+                <option value="dotted">Dotted</option>
+                <option value="solid">Solid</option>
+                <option value="hidden">Hidden</option>
               </select>
             </Row>
           </>

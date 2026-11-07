@@ -46,6 +46,10 @@ export function drawIndicator(rc: PaneRenderCtx, ind: ComputedIndicator, bars: r
       return;
     }
     const last = end(out, values);
+    if (out.style === "steps") {
+      drawSteps(rc, values, a, last, st);
+      return;
+    }
     if (out.style === "dots") {
       ctx.fillStyle = st.color;
       for (let i = a; i <= last; i++) {
@@ -64,6 +68,36 @@ export function drawIndicator(rc: PaneRenderCtx, ind: ComputedIndicator, bars: r
     ctx.stroke();
     ctx.setLineDash([]);
   });
+}
+
+/**
+ * Levels that hold for a period (pivot points, previous session high/low): one flat segment per
+ * run of equal values, from the left edge of its first bar to the right edge of its last, with no
+ * connecting line when the level changes.
+ */
+function drawSteps(rc: PaneRenderCtx, values: Series, a: number, b: number, st: { color: string; width: number; dash: number[] }): void {
+  const { ctx, ts, ps, dpr } = rc;
+  const half = ts.barSpacing / 2;
+  ctx.beginPath();
+  let i = a;
+  while (i <= b) {
+    const v = values[i];
+    if (v == null || !isFinite(v)) {
+      i++;
+      continue;
+    }
+    let j = i;
+    while (j + 1 <= b && values[j + 1] === v) j++;
+    const y = crisp(ps.toY(v), dpr);
+    ctx.moveTo(ts.indexToX(i) - half, y);
+    ctx.lineTo(ts.indexToX(j) + half, y);
+    i = j + 1;
+  }
+  ctx.strokeStyle = st.color;
+  ctx.lineWidth = st.width;
+  ctx.setLineDash(st.dash);
+  ctx.stroke();
+  ctx.setLineDash([]);
 }
 
 function fillBetween(rc: PaneRenderCtx, up: Series, lo: Series, a: number, b: number, fill: string): void {

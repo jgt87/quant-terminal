@@ -3,12 +3,14 @@
 // backtest panel act on the active chart cell; each cell autosaves its own layout.
 
 import { useCallback, useEffect, useState } from "react";
-import type { ChartType, IndicatorInstance, Interval } from "@qt/core";
+import { instantiateTemplate, type ChartType, type IndicatorInstance, type Interval } from "@qt/core";
 import type { Tool } from "./chart/drawings/DrawingController";
 import { chartTheme, nextTheme, type ThemeMode } from "./chart/theme";
 import { BacktestPanel } from "./components/backtest/BacktestPanel";
 import { ChartSettings } from "./components/ChartSettings";
 import { ConfirmDialog } from "./components/ConfirmDialog";
+import { TickerTape } from "./components/TickerTape";
+import { Dialog } from "./components/Dialog";
 import { ContextMenu } from "./components/ContextMenu";
 import { DrawingSettings } from "./components/DrawingSettings";
 import { DrawingToolbar } from "./components/DrawingToolbar";
@@ -24,9 +26,11 @@ import { TabStrip } from "./components/workspace/TabStrip";
 import settings from "./config/settings.json";
 import { useUrlSync } from "./hooks/useUrlSync";
 import { useWorkspace } from "./hooks/useWorkspace";
+import { useFullscreen } from "./hooks/useFullscreen";
 import { useWorkspaceKeys } from "./hooks/useWorkspaceKeys";
 import { useWorkspaceShell } from "./hooks/useWorkspaceShell";
-import { newIndicator } from "./state/layoutDefaults";
+import { newIndicator, uid } from "./state/layoutDefaults";
+import { indicatorTemplates } from "./state/indicatorTemplateStore";
 import { usePref } from "./state/prefs";
 import type { ShortcutMatch } from "./state/shortcuts";
 import { ThemeContext } from "./state/theme";
@@ -46,6 +50,7 @@ export function App() {
   const [showVolume, setShowVolume] = usePref("volume", settings.showVolume);
   const [watchlistOpen, setWatchlistOpen] = usePref("watchlist", true);
   const [backtestOpen, setBacktestOpen] = usePref("backtest", false);
+  const [tapeOpen, setTapeOpen] = usePref("tickerTape", false);
   const [search, setSearch] = useState<string | null>(null);
   const [compareSearch, setCompareSearch] = useState(false);
   const [indicatorPicker, setIndicatorPicker] = useState(false);
@@ -56,6 +61,7 @@ export function App() {
   const [menu, setMenu] = useState<{ x: number; y: number; items: MenuItem[] } | null>(null);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [confirmClose, setConfirmClose] = useState<string | null>(null);
+  const [importError, setImportError] = useState<string | null>(null);
 
   const shell = useWorkspaceShell(wsApi, {
     openMenu: (x, y, items) => setMenu({ x, y, items }),
@@ -106,7 +112,8 @@ export function App() {
     chartSettingsOpen ||
     menu !== null ||
     shortcutsOpen ||
-    confirmClose !== null;
+    confirmClose !== null ||
+    importError !== null;
   useEffect(() => {
     if (dialogOpen) return;
     const onKey = (e: KeyboardEvent) => {
@@ -123,6 +130,7 @@ export function App() {
   }, [dialogOpen]);
 
   const tab = ws ? activeTabOf(ws) : null;
+  const full = useFullscreen();
   useWorkspaceKeys(!dialogOpen && !!ws, (m: ShortcutMatch) => {
     if (!ws || !tab) return;
     switch (m.id) {
@@ -142,6 +150,8 @@ export function App() {
         return dispatch({ type: "selectIndex", index: (m.arg ?? 1) - 1 });
       case "maximizeCell":
         return shell.toggleMaximize(activeCellOf(tab));
+      case "fullscreen":
+        return full.toggle();
       case "help":
         return setShortcutsOpen(true);
     }
@@ -197,18 +207,23 @@ export function App() {
           onChartSettings={() => setChartSettingsOpen(true)}
           onTheme={() => setTheme(nextTheme(theme))}
           onToggleWatchlist={() => setWatchlistOpen(!watchlistOpen)}
+          tickerTapeOpen={tapeOpen}
+          onToggleTickerTape={() => setTapeOpen(!tapeOpen)}
           onToggleBacktest={() => setBacktestOpen(!backtestOpen)}
           grid={tab.grid}
           onGrid={shell.setGrid}
           crosshairSync={ws.crosshairSync}
           onCrosshairSync={(on) => dispatch({ type: "crosshairSync", on })}
           timeSync={ws.timeSync === true}
+          fullscreen={full.fullscreen}
+          onFullscreen={full.supported ? full.toggle : undefined}
           onTimeSync={(on) => {
             dispatch({ type: "timeSync", on });
             // Turning it on lines every chart up with the active one right away.
             if (on) shell.alignTime();
           }}
         />
+        {tapeOpen && <TickerTape onSelect={setSymbol} />}
         <TabStrip
           tabs={ws.tabs}
           activeId={ws.activeTab}
@@ -218,6 +233,8 @@ export function App() {
           onClose={(id) => shell.closeTab(id)}
           onRename={(id, name) => dispatch({ type: "rename", tabId: id, name })}
           onDuplicate={(id) => void shell.duplicateTab(id)}
+          onExport={(id) => void shell.exportTab(id)}
+          onImport={() => void shell.importTab().then(setImportError)}
           onMove={(from, to) => dispatch({ type: "move", from, to })}
           onReopen={() => dispatch({ type: "reopen" })}
           onShortcuts={() => setShortcutsOpen(true)}
@@ -273,6 +290,12 @@ export function App() {
               setIndicators((list) => [...list, newIndicator(id)]);
               setIndicatorPicker(false);
             }}
+            current={layout?.indicators}
+            onApplyTemplate={(name) => {
+              const t = indicatorTemplates().saved.find((s) => s.name === name);
+              if (t) setIndicators(() => instantiateTemplate(t, () => uid()));
+              setIndicatorPicker(false);
+            }}
             onClose={() => setIndicatorPicker(false)}
           />
         )}
@@ -321,6 +344,23 @@ export function App() {
         )}
         <PromptHost />
         {shortcutsOpen && <ShortcutsDialog onClose={() => setShortcutsOpen(false)} />}
+        {importError !== null && (
+          <Dialog
+            title="Import tab"
+            onClose={() => setImportError(null)}
+            width={380}
+            footer={
+              <>
+                <span className="spacer" />
+                <button className="btn primary" autoFocus onClick={() => setImportError(null)}>
+                  OK
+                </button>
+              </>
+            }
+          >
+            <p>The tab could not be imported: {importError}</p>
+          </Dialog>
+        )}
         {confirmClose && (
           <ConfirmDialog
             title="Close last tab"

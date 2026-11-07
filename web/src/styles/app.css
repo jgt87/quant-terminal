@@ -1,12 +1,13 @@
-/* Application grid: toolbar on top, workspace tabs under it, drawing tools left, chart grid
+/* Application grid: toolbar on top, the optional ticker tape, workspace tabs, drawing tools left, chart grid
    center, watchlist right, backtest panel under the charts. */
 .app {
   display: grid;
   height: 100%;
   grid-template-columns: var(--toolbar-btn-w) minmax(0, 1fr) 0;
-  grid-template-rows: 38px 30px minmax(0, 1fr) auto;
+  grid-template-rows: 38px auto 30px minmax(0, 1fr) auto;
   grid-template-areas:
     "top top top"
+    "tape tape tape"
     "tabs tabs tabs"
     "tools chart watch"
     "tools bt watch";

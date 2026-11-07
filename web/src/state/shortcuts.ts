@@ -22,6 +22,7 @@ export type ShortcutId =
   | "prevTab"
   | "goToTab"
   | "maximizeCell"
+  | "fullscreen"
   | "help";
 
 export const SHORTCUTS = list as ShortcutDef[];

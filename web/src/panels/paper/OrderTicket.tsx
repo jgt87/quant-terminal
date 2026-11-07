@@ -1,4 +1,4 @@
-// Paper order ticket: side, type (market/limit/stop/stop-limit), qty, price, optional SL/TP. Enter submits;
+// Paper order ticket: side, type (market/limit/stop/stop-limit/trailing stop), qty, price, optional SL/TP. Enter submits;
 // B / S switch the side when the ticket (not a field) has focus.
 
 import { useEffect, useState } from "react";
@@ -28,6 +28,8 @@ export function OrderTicket({ symbol: activeSymbol, disabled, onPlace }: Props) 
   const [stop, setStop] = useState("");
   const [sl, setSl] = useState("");
   const [tp, setTp] = useState("");
+  const [trail, setTrail] = useState("");
+  const [trailUnit, setTrailUnit] = useState<"pct" | "amount">("pct");
   const [msg, setMsg] = useState<{ text: string; err: boolean } | null>(null);
   const [busy, setBusy] = useState(false);
   useEffect(() => setSymbol(activeSymbol), [activeSymbol]);
@@ -38,16 +40,25 @@ export function OrderTicket({ symbol: activeSymbol, disabled, onPlace }: Props) 
     const s = num(sl);
     const t = num(tp);
     const st = num(stop);
+    const tr = num(trail);
+    const trailing = type === "trailing-stop";
     if (!symbol.trim()) return setMsg({ text: "Symbol is required", err: true });
     if (!(q !== undefined && q > 0)) return setMsg({ text: "Quantity must be positive", err: true });
-    if (type !== "market" && !(p !== undefined && p > 0)) return setMsg({ text: `${type} orders need a price`, err: true });
+    if (type !== "market" && !trailing && !(p !== undefined && p > 0)) return setMsg({ text: `${type} orders need a price`, err: true });
+    if (trailing && p !== undefined && !(p > 0)) return setMsg({ text: "The starting stop must be a positive price", err: true });
+    if (trailing && !(tr !== undefined && tr > 0 && (trailUnit === "amount" || tr < 100))) return setMsg({ text: trailUnit === "pct" ? "The trail must be between 0 and 100%" : "The trail must be a positive amount", err: true });
     if (type === "stop-limit" && !(st !== undefined && st > 0)) return setMsg({ text: "stop-limit orders need a stop price", err: true });
-    if ([s, t].some((v) => v !== undefined && !(v > 0))) return setMsg({ text: "SL/TP must be positive prices", err: true });
+    if (!trailing && [s, t].some((v) => v !== undefined && !(v > 0))) return setMsg({ text: "SL/TP must be positive prices", err: true });
     const o: PaperOrderRequest = { symbol: symbol.trim(), side, type, qty: q };
-    if (type !== "market") o.price = p;
+    if (type !== "market" && p !== undefined) o.price = p;
     if (type === "stop-limit") o.stopPrice = st;
-    if (s !== undefined) o.stopLoss = s;
-    if (t !== undefined) o.takeProfit = t;
+    if (trailing) {
+      if (trailUnit === "pct") o.trailPercent = tr;
+      else o.trailAmount = tr;
+    } else {
+      if (s !== undefined) o.stopLoss = s;
+      if (t !== undefined) o.takeProfit = t;
+    }
     setBusy(true);
     try {
       await onPlace(o);
@@ -96,6 +107,7 @@ export function OrderTicket({ symbol: activeSymbol, disabled, onPlace }: Props) 
             <option value="limit">Limit</option>
             <option value="stop">Stop</option>
             <option value="stop-limit">Stop-limit</option>
+            <option value="trailing-stop">Trailing stop</option>
           </select>
         </label>
         <label>
@@ -103,8 +115,8 @@ export function OrderTicket({ symbol: activeSymbol, disabled, onPlace }: Props) 
           <input type="text" inputMode="decimal" value={qty} onChange={(e) => setQty(e.target.value)} aria-label="Order quantity" />
         </label>
         <label>
-          {type === "stop-limit" ? "Limit" : "Price"}
-          <input type="text" inputMode="decimal" value={type === "market" ? "" : price} placeholder={type === "market" ? "market" : ""} disabled={type === "market"} onChange={(e) => setPrice(e.target.value)} aria-label="Order price" />
+          {type === "stop-limit" ? "Limit" : type === "trailing-stop" ? "Start stop" : "Price"}
+          <input type="text" inputMode="decimal" value={type === "market" ? "" : price} placeholder={type === "market" ? "market" : type === "trailing-stop" ? "from price" : ""} disabled={type === "market"} onChange={(e) => setPrice(e.target.value)} aria-label="Order price" />
         </label>
         {type === "stop-limit" && (
           <label>
@@ -112,13 +124,25 @@ export function OrderTicket({ symbol: activeSymbol, disabled, onPlace }: Props) 
             <input type="text" inputMode="decimal" value={stop} onChange={(e) => setStop(e.target.value)} aria-label="Stop price" />
           </label>
         )}
+        {type === "trailing-stop" && (
+          <label>
+            Trail
+            <span className="pp-trail">
+              <input type="text" inputMode="decimal" value={trail} onChange={(e) => setTrail(e.target.value)} aria-label="Trail distance" />
+              <select value={trailUnit} onChange={(e) => setTrailUnit(e.target.value as "pct" | "amount")} aria-label="Trail unit">
+                <option value="pct">%</option>
+                <option value="amount">price</option>
+              </select>
+            </span>
+          </label>
+        )}
         <label>
           Stop loss
-          <input type="text" inputMode="decimal" value={sl} onChange={(e) => setSl(e.target.value)} placeholder="optional" aria-label="Stop loss" />
+          <input type="text" inputMode="decimal" value={sl} onChange={(e) => setSl(e.target.value)} placeholder="optional" disabled={type === "trailing-stop"} aria-label="Stop loss" />
         </label>
         <label>
           Take profit
-          <input type="text" inputMode="decimal" value={tp} onChange={(e) => setTp(e.target.value)} placeholder="optional" aria-label="Take profit" />
+          <input type="text" inputMode="decimal" value={tp} onChange={(e) => setTp(e.target.value)} placeholder="optional" disabled={type === "trailing-stop"} aria-label="Take profit" />
         </label>
       </div>
       <button type="submit" className={`btn pp-submit ${side}`} disabled={disabled || busy}>

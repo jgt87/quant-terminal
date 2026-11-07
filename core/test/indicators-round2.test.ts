@@ -40,7 +40,7 @@ describe("indicator catalog round 2", () => {
   it("registers 21 new indicators with unique ids and outputs that compute", () => {
     const ids = ["crsi", "fisher", "stc", "kst", "kvo", "massi", "elderray", "lrc", "seb", "pricechannel", "mcginley", "zlema", "vidya", "rvgi", "bop", "volosc", "netvol", "rci", "ulcer", "cks", "ac"];
     expect(new Set(INDICATORS.map((d) => d.id)).size).toBe(INDICATORS.length);
-    expect(INDICATORS.length).toBe(75);
+    expect(INDICATORS.length).toBeGreaterThanOrEqual(75);
     const bars = wave(300);
     for (const id of ids) {
       const def = getIndicator(id)!;

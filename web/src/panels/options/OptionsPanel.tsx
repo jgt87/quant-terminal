@@ -6,7 +6,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { atmIv, atmStrike, putCallRatio, smile, type OptionChain, type OptionQuote } from "@qt/core";
 import { errorText } from "../../api/http";
 import { fetchOptionChain, fetchOptionUnderlyings } from "../../api/options";
-import { t } from "../../i18n";
 import { loadLocal, saveLocal } from "../common/storage";
 import { SmileChart, TermChart } from "./OptionsCharts";
 import { expiryLabel, inTheMoney, measureMax, rowsAroundMoney, shortNumber, type OptionMeasure } from "./optionsModel";
@@ -92,7 +91,7 @@ export function OptionsPanel({ symbol, visible }: { symbol: string; visible: boo
   const bar = (q: OptionQuote | null, side: "call" | "put", itm: boolean) => {
     const val = q?.[measure] ?? 0;
     return (
-      <span className={`opt-bar ${side}${itm ? " itm" : ""}`} title={`${side === "call" ? t("Calls") : t("Puts")} ${measure === "openInterest" ? t("Open interest") : t("Volume")}: ${val}`}>
+      <span className={`opt-bar ${side}${itm ? " itm" : ""}`} title={`${side === "call" ? "Calls" : "Puts"} ${measure === "openInterest" ? "Open interest" : "Volume"}: ${val}`}>
         <i style={{ width: max > 0 ? `${Math.round((val / max) * 100)}%` : 0 }} />
         <b>{val > 0 ? shortNumber(val) : ""}</b>
       </span>
@@ -102,15 +101,15 @@ export function OptionsPanel({ symbol, visible }: { symbol: string; visible: boo
   return (
     <section className="pn opt-panel" aria-label="Options">
       <header className="pn-head">
-        <h3>{t("Options")}</h3>
-        <select value={underlying ?? ""} onChange={(e) => setChosen(e.target.value)} aria-label={t("Underlying")}>
+        <h3>Options</h3>
+        <select value={underlying ?? ""} onChange={(e) => setChosen(e.target.value)} aria-label="Underlying">
           {underlyings.map((u) => (
             <option key={u.underlying} value={u.underlying}>
               {u.underlying.replace(/USDT$/, "")}
             </option>
           ))}
         </select>
-        <select value={chain?.expiry?.time ?? ""} onChange={(e) => setExpiry(Number(e.target.value))} aria-label={t("Expiry")}>
+        <select value={chain?.expiry?.time ?? ""} onChange={(e) => setExpiry(Number(e.target.value))} aria-label="Expiry">
           {chain?.expiries.map((x) => (
             <option key={x.time} value={x.time}>
               {expiryLabel(x.time, now)}
@@ -125,50 +124,50 @@ export function OptionsPanel({ symbol, visible }: { symbol: string; visible: boo
             setMeasure(m);
             saveLocal(MEASURE_KEY, m);
           }}
-          aria-label={t("Bars")}
+          aria-label="Bars"
         >
-          <option value="openInterest">{t("Open interest")}</option>
-          <option value="volume">{t("Volume")}</option>
+          <option value="openInterest">Open interest</option>
+          <option value="volume">Volume</option>
         </select>
       </header>
       {error && <div className="pn-error">{error}</div>}
       {chain && (
         <div className="opt-summary">
           <span>
-            {t("Index")} <b>{fmt(index, index != null && index < 10 ? 4 : 2)}</b>
+            Index <b>{fmt(index, index != null && index < 10 ? 4 : 2)}</b>
           </span>
           <span>
-            {t("ATM IV")} <b>{pct(atmIv(chain.rows, index))}%</b>
+            ATM IV <b>{pct(atmIv(chain.rows, index))}%</b>
           </span>
-          <span title={t("Put / call ratio of open interest")}>
+          <span title="Put / call ratio of open interest">
             P/C OI <b>{fmt(putCallRatio(chain.rows, "openInterest"))}</b>
           </span>
-          <span title={t("Put / call ratio of volume")}>
-            P/C {t("Vol")} <b>{fmt(putCallRatio(chain.rows, "volume"))}</b>
+          <span title="Put / call ratio of volume">
+            P/C Vol <b>{fmt(putCallRatio(chain.rows, "volume"))}</b>
           </span>
         </div>
       )}
       {chain && (
         <div className="opt-charts">
-          <SmileChart points={smile(chain.rows, index)} index={index} title={t("Volatility smile")} />
-          <TermChart points={chain.term} now={now} title={t("Term structure (ATM IV)")} />
+          <SmileChart points={smile(chain.rows, index)} index={index} title="Volatility smile" />
+          <TermChart points={chain.term} now={now} title="Term structure (ATM IV)" />
         </div>
       )}
       <div className="opt-head" role="row">
-        <span>{measure === "openInterest" ? "OI" : t("Vol")}</span>
-        <span>{t("Bid")}</span>
-        <span>{t("Ask")}</span>
+        <span>{measure === "openInterest" ? "OI" : "Vol"}</span>
+        <span>Bid</span>
+        <span>Ask</span>
         <span>IV</span>
         <span>Δ</span>
-        <span className="opt-strike">{t("Strike")}</span>
+        <span className="opt-strike">Strike</span>
         <span>Δ</span>
         <span>IV</span>
-        <span>{t("Ask")}</span>
-        <span>{t("Bid")}</span>
-        <span>{measure === "openInterest" ? "OI" : t("Vol")}</span>
+        <span>Ask</span>
+        <span>Bid</span>
+        <span>{measure === "openInterest" ? "OI" : "Vol"}</span>
       </div>
-      <div className="opt-table" role="grid" aria-label={t("Option chain")}>
-        {!chain && !error && <div className="pn-empty">{t("Loading the option chain…")}</div>}
+      <div className="opt-table" role="grid" aria-label="Option chain">
+        {!chain && !error && <div className="pn-empty">Loading the option chain…</div>}
         {rows.map((r) => (
           <div key={r.strike} ref={r.strike === atm ? atmRef : undefined} className={`opt-row${r.strike === atm ? " atm" : ""}`} role="row">
             {bar(r.call, "call", inTheMoney("call", r.strike, index))}
@@ -179,7 +178,7 @@ export function OptionsPanel({ symbol, visible }: { symbol: string; visible: boo
           </div>
         ))}
       </div>
-      <footer className="opt-foot">{t("Binance options, market data only. Shaded: in the money. IV in percent.")}</footer>
+      <footer className="opt-foot">Binance options, market data only. Shaded: in the money. IV in percent.</footer>
     </section>
   );
 }

@@ -85,6 +85,8 @@ export interface IndicatorInputDef {
   min?: number;
   max?: number;
   step?: number;
+  /** A fixed choice for an "int" input (shown as a list): the value stored and its label. */
+  options?: { value: number; label: string }[];
 }
 
 export type Source = "open" | "high" | "low" | "close" | "hl2" | "hlc3" | "ohlc4";
@@ -93,7 +95,7 @@ export interface IndicatorOutputDef {
   key: string;
   label: string;
   /** How the web layer should draw it. */
-  style: "line" | "histogram" | "band-upper" | "band-lower" | "dots";
+  style: "line" | "histogram" | "band-upper" | "band-lower" | "dots" | "steps";
   /**
    * The series may run past the last bar (projected values such as the Ichimoku cloud): it is
    * then longer than the bars, and index `bars.length + k` is k + 1 bars ahead of the last bar.
@@ -305,6 +307,7 @@ export type ChartType =
   | "line"
   | "area"
   | "heikin-ashi"
+  | "smoothed-heikin-ashi"
   | "baseline"
   | "columns"
   | "volume-candles"
@@ -389,9 +392,15 @@ export interface ChartSettings {
     indexed?: boolean;
     /** Inverted main price scale (higher prices lower on the chart). */
     inverted?: boolean;
+    /** Time left until the forming bar closes, under the last price label. */
+    countdown?: boolean;
+    /** Label the highest high and lowest low of the visible bars. */
+    highLow?: boolean;
   };
   /** Crypto order flow (Binance symbols): footprint cells, volume bubbles, delta panes, liquidity heatmap. */
   orderFlow?: OrderFlowFlags;
+  /** Paper trading on the chart: one-click buy / sell buttons over the price pane. */
+  trading?: { buySellButtons?: boolean };
   /** Time zone of the time axis, crosshair and tables: "UTC" (default), "local", "exchange" or an IANA zone. */
   timeZone?: string;
   appearance?: {
@@ -401,6 +410,8 @@ export interface ChartSettings {
     crosshair?: "dashed" | "dotted" | "solid" | "hidden";
     /** Dashed vertical lines where a new day starts in the chart's time zone (intraday). */
     sessionBreaks?: boolean;
+    /** Large faint symbol and interval behind the price pane. */
+    watermark?: boolean;
   };
 }
 

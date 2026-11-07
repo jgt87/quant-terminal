@@ -2,6 +2,33 @@
 
 ## Unreleased
 
+## v0.7.0 — 2026-11-07
+
+- Feature parity loop: `npm run parity` indexes a set of open-source charting projects and our own code against the reference platform's public feature set (`tools/parity/catalog.json`, about 230 features), lists our gaps by how common they are, builds a work packet per gap, records built features in a ledger (`tools/parity/adopted.json`) and checks that no project or product names reach the repository. Process: `docs/parity/PROCESS.md`; coverage after each index: `docs/parity/coverage.json` (228 of 263 after the first round).
+- Indicators, round 3 (7 new, 82 in all): Pivot Points Standard (Traditional, Fibonacci, Woodie, Classic, DeMark, Camarilla; period Auto, day, week, month or year), Previous Period High / Low / Close, Williams Alligator, Williams Fractals, Squeeze Momentum, SMI Ergodic Indicator / Oscillator and Woodies CCI.
+- Gaps study: price gaps (a bar that opens beyond the previous bar's range) drawn as zones from the gap to the bar that fills it, shrinking as price trades into them; minimum gap %, how many to show, and optionally the filled ones.
+- Countdown to bar close (Chart settings → Scales, intraday charts): the time left in the forming bar, under the last price label.
+- Symbol watermark (Chart settings → Appearance): the symbol and interval in large faint type behind the price pane.
+- Full screen: toolbar button and Alt+Shift+F (Esc also leaves it).
+- Parity loop: work packets list implementation files before tests, docs and examples. Coverage now 232 of 263.
+- Auto support and resistance study: swing highs and lows at about the same price are grouped into levels, support below the last close and resistance above it, thicker and labeled with the number of touches; swing strength, tolerance %, minimum touches, max levels and lookback.
+- High and low labels (Chart settings → Scales): the highest high and lowest low of the visible bars, marked with their price.
+- Go to date (Alt+G, or "Go to date…" in the chart menu): scrolls to a date, and time on intraday charts, in the chart's time zone; older than the loaded history, the chart loads more until it gets there.
+- Indicator templates: the Indicators dialog saves the chart's indicators (inputs, styles, panes) under a name and applies a saved set to any chart, replacing its indicators; stored in `data/indicator-templates.json`.
+- Parity loop, third round: coverage now 237 of 263 (the crosshair cursor styles already existed and are now recorded).
+- Trailing stop orders in paper trading: the stop follows the price at a distance in percent or in price, never loosens, and fills like a stop when the price turns; an optional starting stop. Shown as TRAIL on the chart and the depth ladder.
+- Alerts on indicators from the chart: "Add alert on this indicator…" in an indicator's menu. An indicator on the price pane gives "price crossing the indicator", one in its own pane gives "indicator crossing its current value", with the chart's indicator settings filled in. Offered for the built-in indicators the alert engine evaluates.
+- Export and import chart tabs (tab menu): a `.tab.json` file with the tab's grid, split sizes, link colors and the full layout of every chart. An import adds a new tab with new chart ids, so nothing is overwritten.
+- Smoothed Heikin-Ashi chart type: prices averaged over 10 bars before the Heikin-Ashi step and again after it, for fewer colour changes in a trend.
+- Parity loop, fourth round: coverage then 244 of 263 (trade and metrics CSV export, watchlist import / export and moving indicators between panes and scales already existed and are now recorded).
+- One-click paper trading on the chart: "Buy / sell buttons (paper)" in the chart menu shows Sell and Buy buttons with the last price and a quantity field over the price pane; a click sends a market order to the selected paper account.
+- Trade journal (Paper trading → Journal): fills grouped into trades from flat to flat per symbol (scaling in and out, flips), win rate, profit factor, net P&L and average win / loss, a note and tags per trade (stored in `data/trade-journal.json`), filtering by tag and a CSV export.
+- Ticker tape (the tape button in the toolbar): the first watchlist's symbols with last price and change scrolling under the toolbar; hover pauses it, a click opens the symbol, and with reduced motion it scrolls by hand.
+- Toolbar: in windows narrower than about 1820 px, Indicators, Compare and Replay show their icon only, so the buttons at the right end stay visible.
+- Parity loop, fifth round: coverage now 247 of 263.
+- Indicator settings can offer a fixed list of choices (shown as a dropdown, and by name in the legend), and indicators can draw flat "step" levels that hold for a period.
+- Removed: the Dutch interface and the language setting (Chart settings → Appearance). The app is English only for now; translations are dropped from the plan (`docs/PLAN.md`, Phase J).
+
 ## v0.6.0 — 2026-11-07
 
 - Launchers: every `Start Terminal*.cmd` is now a short stub running one shared launcher, `tools/launch.mjs` (`--fx mt5`, `--fx deriv`), so updating and checking work the same in all of them. After an update it hands over to the updated launcher, so new steps and checks apply in the same start. The stubs run the launcher on their last line, so an update that replaces the `.cmd` while it runs is safe.

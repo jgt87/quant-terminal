@@ -33,6 +33,8 @@ export interface TradeOrderView {
   price?: number;
   stopPrice?: number;
   triggered?: boolean;
+  trailAmount?: number;
+  trailPercent?: number;
   stopLoss?: number;
   takeProfit?: number;
   status: string;
@@ -45,7 +47,10 @@ export interface TradeAccountView {
 }
 
 const key = (s: string) => s.trim().toUpperCase();
-const TYPE_TEXT: Record<string, string> = { limit: "LMT", stop: "STP", "stop-limit": "STP LMT", market: "MKT" };
+/** " (2%)" or " (1.50)" after a trailing stop's level. */
+const trailText = (o: TradeOrderView, fmt: (p: number) => string) =>
+  o.trailPercent !== undefined ? ` (${formatNumber(o.trailPercent)}%)` : o.trailAmount !== undefined ? ` (${fmt(o.trailAmount)})` : "";
+const TYPE_TEXT: Record<string, string> = { limit: "LMT", stop: "STP", "stop-limit": "STP LMT", "trailing-stop": "TRAIL", market: "MKT" };
 
 /** Lines of `acc` for `symbol`: working orders (and their pending brackets) and the open position. */
 export function tradeLinesFor(acc: TradeAccountView | null, symbol: string, fmt: (p: number) => string = (p) => formatNumber(p)): TradeLine[] {
@@ -60,7 +65,7 @@ export function tradeLinesFor(acc: TradeAccountView | null, symbol: string, fmt:
       continue;
     }
     const verb = side === "buy" ? "Buy" : "Sell";
-    out.push({ id: `${o.id}:price`, kind: "order", side, price: o.price, text: `${verb} ${TYPE_TEXT[o.type] ?? o.type} ${o.qty} @ ${fmt(o.price)}`, orderId: o.id, field: "price", action: "cancel" });
+    out.push({ id: `${o.id}:price`, kind: "order", side, price: o.price, text: `${verb} ${TYPE_TEXT[o.type] ?? o.type} ${o.qty} @ ${fmt(o.price)}${trailText(o, fmt)}`, orderId: o.id, field: "price", action: "cancel" });
     if (o.type === "stop-limit" && o.stopPrice !== undefined && !o.triggered) {
       out.push({ id: `${o.id}:stop`, kind: "stop", side, price: o.stopPrice, text: `${verb} stop ${fmt(o.stopPrice)}`, orderId: o.id, field: "stopPrice", action: "cancel" });
     }

@@ -1,5 +1,5 @@
 // Paper trading panel (simulated): account selector/create/reset, order ticket, positions,
-// working orders, fills and an equity mini-chart. Polls the account every 2 s while visible.
+// working orders, fills, a trade journal and an equity mini-chart. Polls the account every 2 s while visible.
 
 import { useState } from "react";
 import { formatNumber, formatSigned } from "../../chart/format";
@@ -12,9 +12,10 @@ import { panelIcon } from "../panelIcons";
 import type { PanelIntegration } from "../registry";
 import { OrderTicket } from "./OrderTicket";
 import { FillsTable, PositionsTable, WorkingOrdersTable } from "./PaperTables";
+import { JournalView } from "./JournalView";
 import "./paper.css";
 
-type Tab = "positions" | "orders" | "fills";
+type Tab = "positions" | "orders" | "fills" | "journal";
 const tone = (v: number | undefined) => (!v ? "" : v > 0 ? "pos" : "neg");
 
 export function PaperPanel({ integration, visible }: { integration: PanelIntegration; visible: boolean }) {
@@ -95,6 +96,7 @@ export function PaperPanel({ integration, visible }: { integration: PanelIntegra
                 { id: "positions", label: `Positions (${positions})` },
                 { id: "orders", label: `Orders (${working})` },
                 { id: "fills", label: "Fills" },
+                { id: "journal", label: "Journal" },
               ]}
             />
           </div>
@@ -105,6 +107,8 @@ export function PaperPanel({ integration, visible }: { integration: PanelIntegra
               <PositionsTable positions={a.positions} onClose={(s) => void pp.close(s).catch(() => {})} onOpen={(s) => integration.onLoadSymbol(s)} />
             ) : tab === "orders" ? (
               <WorkingOrdersTable orders={a.orders} onCancel={(id) => void pp.cancel(id).catch(() => {})} />
+            ) : tab === "journal" ? (
+              <JournalView accountId={a.id} accountName={a.name} orders={a.orders} onOpen={(s) => integration.onLoadSymbol(s)} />
             ) : (
               <FillsTable orders={a.orders} />
             )}

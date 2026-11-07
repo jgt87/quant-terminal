@@ -6,7 +6,9 @@ import {
   autoFib,
   detectCandlePatterns,
   detectChartPatterns,
+  detectGaps,
   sessionVolumeProfiles,
+  supportResistance,
   tpoProfile,
   zigzag,
   type Anchor,
@@ -15,6 +17,8 @@ import {
   type ChartPattern,
   type InputValue,
   type Pivot,
+  type PriceGap,
+  type SrLevel,
   type TpoProfile,
   type VolumeProfile,
 } from "@qt/core";
@@ -34,6 +38,8 @@ export interface StudyResult {
   fib?: { a: Anchor; b: Anchor } | null;
   sessions?: VolumeProfile[];
   tpo?: TpoSession[];
+  gaps?: PriceGap[];
+  levels?: SrLevel[];
   error?: string;
 }
 
@@ -100,6 +106,18 @@ export function computeStudy(id: StudyId, bars: Bar[], inputs: Record<string, In
       }
       return { tpo: out };
     }
+    case "gaps":
+      return { gaps: detectGaps(bars, { minPercent: num(inputs.minPercent, 0.1), maxGaps: Math.round(num(inputs.maxGaps, 20)), includeFilled: flag(inputs.showFilled, false) }) };
+    case "support-resistance":
+      return {
+        levels: supportResistance(bars, {
+          strength: num(inputs.strength, 5),
+          tolerance: num(inputs.tolerance, 0.5),
+          minTouches: num(inputs.minTouches, 2),
+          maxLevels: num(inputs.maxLevels, 8),
+          lookback: num(inputs.lookback, 500),
+        }),
+      };
     case "vp-visible":
       return {};
   }

@@ -173,3 +173,59 @@ li.search-empty {
   margin: 0;
   color: var(--text);
 }
+
+.goto-date {
+  display: flex;
+  gap: 8px;
+}
+.goto-date .text-input {
+  flex: 1;
+}
+
+.ind-templates {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  font-size: 12px;
+}
+.ind-templates-label {
+  color: var(--muted);
+}
+.ind-templates-empty {
+  color: var(--muted);
+  font-style: italic;
+}
+.ind-template {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.ind-template button {
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font-size: 12px;
+  padding: 3px 6px;
+  cursor: pointer;
+}
+.ind-template button:hover {
+  background: var(--accent-soft);
+}
+.ind-template-remove {
+  color: var(--muted);
+}
+.ind-templates .text-input.small {
+  height: 24px;
+  font-size: 12px;
+  flex: 1;
+  min-width: 140px;
+}
+.ind-templates .btn.small {
+  height: 24px;
+  padding: 0 8px;
+  font-size: 12px;
+}

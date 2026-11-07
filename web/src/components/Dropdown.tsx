@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Icon } from "./icons";
-import { t } from "../i18n";
 
 interface Option {
   id: string;
@@ -40,7 +39,7 @@ export function Dropdown({ value, options, onChange, icon, title }: Props) {
     <div className="dropdown" ref={ref}>
       <button className="tb-btn" title={title} aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
         {icon}
-        <span>{current ? t(current.label) : value}</span>
+        <span>{current ? current.label : value}</span>
         <Icon name="chevronDown" size={12} />
       </button>
       {open && (
@@ -56,7 +55,7 @@ export function Dropdown({ value, options, onChange, icon, title }: Props) {
                   setOpen(false);
                 }}
               >
-                {t(o.label)}
+                {o.label}
               </button>
             </li>
           ))}

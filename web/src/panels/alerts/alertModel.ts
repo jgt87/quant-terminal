@@ -1,7 +1,7 @@
 // Pure alert-builder model: the editable draft (text fields as typed), conversion to the
 // server's Alert JSON with validation messages, the reverse, chart presets and message templating.
 
-import { ALERT_BAND_TYPES, alertOperatorsFor, defaultAlertOperator, drawingAlertKind, type Alert, type AlertCondition, type AlertOperand, type AlertOperator, type Drawing, type DrawingType, type FlowEventKind, type IndicatorDef, type Interval } from "@qt/core";
+import { ALERT_BAND_TYPES, alertOperatorsFor, defaultAlertOperator, drawingAlertKind, getIndicator, type Alert, type AlertCondition, type AlertOperand, type AlertOperator, type Drawing, type DrawingType, type FlowEventKind, type IndicatorDef, type Interval } from "@qt/core";
 import { formatPrice } from "../../chart/format";
 import options from "./alertOptions.json";
 
@@ -227,8 +227,21 @@ export function cloneDraft(a: Alert): AlertDraft {
 
 // ---------- Chart presets ----------
 
-/** Target of an alert created from the chart: a price, or a drawing of a saved layout. */
-export type ChartAlertTarget = number | { drawingId: string; layoutId: string; type?: DrawingType };
+/** An indicator on the chart as an alert target: its settings, where it is drawn and its last value. */
+export interface IndicatorAlertTarget {
+  indicatorId: string;
+  inputs: Record<string, number | string | boolean>;
+  /** Drawn on the price pane: the alert watches the price crossing the line. */
+  overlay: boolean;
+  /** Last value of the first output, the level for an indicator in its own pane. */
+  value?: number | null;
+}
+
+/** Target of an alert created from the chart: a price, a drawing of a saved layout, or an indicator. */
+export type ChartAlertTarget = number | { drawingId: string; layoutId: string; type?: DrawingType } | { indicator: IndicatorAlertTarget };
+
+/** Whether the alert engine can evaluate this indicator (built-in indicators, not chart-only studies). */
+export const indicatorAlertCapable = (indicatorId: string): boolean => getIndicator(indicatorId) !== undefined;
 
 /**
  * Drawing types whose alerts are channel (band) alerts. Derived from the one shared list in core
@@ -252,19 +265,43 @@ export function operatorsFor(c: Pick<ConditionDraft, "op" | "right">, drawings: 
   return all.filter((o) => allowed.includes(o.id) || o.id === c.op || isMovingPct(o.id));
 }
 
-/** Draft for "Add alert on <price>" / "Add alert on this drawing". */
+/**
+ * Draft for "Add alert on <price>" / "Add alert on this drawing" / "Add alert on <indicator>".
+ * An indicator on the price pane gives "price crossing the indicator"; one in its own pane gives
+ * "indicator crossing its current value", a level to adjust in the dialog.
+ */
 export function draftFromChart(symbol: string, interval: Interval, target: ChartAlertTarget): AlertDraft {
   if (typeof target === "number") {
     const d = newDraft(symbol, interval, target);
     d.name = `${symbol} crossing ${formatPrice(target)}`;
     return d;
   }
+  if ("indicator" in target) return indicatorDraft(symbol, interval, target.indicator);
   const d = newDraft(symbol, interval, null, target.layoutId);
   const right = { ...emptyOperand("drawing"), drawingId: target.drawingId };
   const op = defaultAlertOperator(target.type);
   const channel = isChannelOp(op);
   d.conditions = [{ left: emptyOperand("price"), op, right, pct: "", bars: "1" }];
   d.name = `${symbol} ${channel ? "entering" : "crossing"} ${target.type ?? "drawing"}`;
+  return d;
+}
+
+function indicatorDraft(symbol: string, interval: Interval, t: IndicatorAlertTarget): AlertDraft {
+  const d = newDraft(symbol, interval);
+  const def = getIndicator(t.indicatorId);
+  if (!def) return d;
+  const base = indicatorOperand(def);
+  // The chart's settings over the defaults; keys the definition does not know are dropped.
+  for (const i of def.inputs) if (t.inputs[i.key] !== undefined) base.inputs[i.key] = t.inputs[i.key];
+  const label = `${def.shortName}(${Object.values(base.inputs).join(", ")})`;
+  if (t.overlay) {
+    d.conditions = [{ left: emptyOperand("price"), op: "crosses", right: base, pct: "", bars: "1" }];
+    d.name = `${symbol} crossing ${label}`;
+  } else {
+    const v = t.value != null && Number.isFinite(t.value) ? String(Number(t.value.toPrecision(6))) : "";
+    d.conditions = [{ left: base, op: "crosses", right: { ...emptyOperand("value"), value: v }, pct: "", bars: "1" }];
+    d.name = `${symbol} ${label} crossing${v ? ` ${v}` : ""}`;
+  }
   return d;
 }
 

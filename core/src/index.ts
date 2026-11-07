@@ -8,6 +8,8 @@ export { computeMetrics } from "./backtest/metrics";
 export * from "./drawings/geometry";
 export * from "./drawings/edit";
 export * from "./drawings/templates";
+export * from "./indicatorTemplates";
+export * from "./journal";
 export {
   INTERVAL_GROUPS,
   VISIBILITY_GROUPS,

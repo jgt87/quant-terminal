@@ -73,6 +73,17 @@
   width: 100%;
 }
 
+/* Trailing stop: distance plus unit side by side. */
+.pp-trail {
+  display: flex;
+  gap: 4px;
+}
+
+.pp-trail select {
+  width: auto;
+  flex: none;
+}
+
 .pp-submit {
   justify-content: center;
   font-weight: 600;
@@ -100,4 +111,87 @@
 .pp-close {
   height: 20px;
   padding: 0 8px;
+}
+
+/* Trade journal */
+.pp-jstats {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.pp-jbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 0;
+}
+
+.pp-jtable tr.open td {
+  background: color-mix(in srgb, var(--accent) 6%, transparent);
+}
+
+.pp-jtable .sym button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.pp-jtable .sym button:hover {
+  text-decoration: underline;
+}
+
+.pp-jnote {
+  min-width: 140px;
+}
+
+.pp-jedit {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  width: 100%;
+  padding: 2px 4px;
+  border: 1px dashed transparent;
+  border-radius: 3px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: text;
+}
+
+.pp-jedit:hover {
+  border-color: var(--border);
+}
+
+.pp-jtext {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  max-width: 220px;
+}
+
+.pp-tag {
+  padding: 0 4px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  font-size: 10px;
+}
+
+.pp-jnote form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pp-jnote textarea {
+  width: 100%;
+  resize: vertical;
+}
+
+.pp-jactions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 4px;
 }

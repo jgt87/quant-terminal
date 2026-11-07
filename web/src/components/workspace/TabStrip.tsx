@@ -1,5 +1,5 @@
 // In-app chart tabs under the toolbar: select, close (button or middle click), rename by
-// double-click, drag to reorder, right-click menu (duplicate, rename, close, reopen), "+".
+// double-click, drag to reorder, right-click menu (duplicate, rename, export/import, close, reopen), "+".
 
 import { useState } from "react";
 import { cellCount } from "../../state/grid";
@@ -18,6 +18,10 @@ interface Props {
   onClose(id: string): void;
   onRename(id: string, name: string): void;
   onDuplicate(id: string): void;
+  /** Save the tab with its charts as a file. */
+  onExport(id: string): void;
+  /** Add a tab from an exported file. */
+  onImport(): void;
   onMove(from: number, to: number): void;
   onReopen(): void;
   onShortcuts(): void;
@@ -32,6 +36,9 @@ export function TabStrip(p: Props) {
   const tabMenu = (t: TabState): MenuItem[] => [
     { label: "Duplicate tab", shortcut: "Alt+Shift+D", onSelect: () => p.onDuplicate(t.id) },
     { label: "Rename…", onSelect: () => setEditing(t.id) },
+    SEP,
+    { label: "Export tab…", onSelect: () => p.onExport(t.id) },
+    { label: "Import tab…", onSelect: p.onImport },
     SEP,
     { label: "Reopen closed tab", shortcut: "Alt+Shift+T", disabled: !p.canReopen, onSelect: p.onReopen },
     { label: "Close tab", shortcut: "Alt+W", onSelect: () => p.onClose(t.id) },

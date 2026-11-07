@@ -200,3 +200,69 @@
 .tip-line.split {
   color: var(--link-orange);
 }
+
+/* One-click paper trading: Sell | qty | Buy over the top right of the price pane. */
+.quick-trade {
+  position: absolute;
+  z-index: 3;
+  display: flex;
+  align-items: stretch;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 25%);
+  pointer-events: auto;
+  font-size: 11px;
+}
+
+.quick-trade .qt-side {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 72px;
+  padding: 3px 8px;
+  border: 0;
+  color: #fff;
+  cursor: pointer;
+  line-height: 1.2;
+}
+
+.quick-trade .qt-side.sell {
+  background: var(--neg);
+}
+
+.quick-trade .qt-side.buy {
+  background: var(--pos);
+}
+
+.quick-trade .qt-side:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+.quick-trade .qt-side:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.quick-trade .qt-verb {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.quick-trade .qt-price {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.quick-trade .qt-qty {
+  width: 56px;
+  border: 0;
+  border-radius: 0;
+  text-align: center;
+  background: var(--panel);
+  color: var(--text);
+}
+
+.quick-trade .qt-qty[aria-invalid="true"] {
+  outline: 1px solid var(--neg);
+}

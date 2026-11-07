@@ -136,7 +136,14 @@
     "eventText": "#ffffff",
     "extendedHours": "rgba(120,123,134,0.08)",
     "replayCursor": "#3b82f6",
-    "replayShade": "rgba(59,130,246,0.06)"
+    "replayShade": "rgba(59,130,246,0.06)",
+    "gapUp": "rgba(38,166,154,0.16)",
+    "gapDown": "rgba(239,83,80,0.16)",
+    "gapBorder": "rgba(120,123,134,0.45)",
+    "watermark": "rgba(209,212,220,0.07)",
+    "srSupport": "#26a69a",
+    "srResistance": "#ef5350",
+    "highLowLabel": "#b2b5be"
   },
   "light": {
     "background": "#ffffff",
@@ -215,7 +222,14 @@
     "eventText": "#ffffff",
     "extendedHours": "rgba(149,152,161,0.12)",
     "replayCursor": "#2563eb",
-    "replayShade": "rgba(37,99,235,0.06)"
+    "replayShade": "rgba(37,99,235,0.06)",
+    "gapUp": "rgba(38,166,154,0.14)",
+    "gapDown": "rgba(239,83,80,0.14)",
+    "gapBorder": "rgba(149,152,161,0.45)",
+    "watermark": "rgba(19,23,34,0.06)",
+    "srSupport": "#089981",
+    "srResistance": "#f23645",
+    "highLowLabel": "#6a6d78"
   },
   "contrast": {
     "background": "#000000",
@@ -294,6 +308,13 @@
     "eventText": "#000000",
     "extendedHours": "rgba(120,123,134,0.08)",
     "replayCursor": "#3b82f6",
-    "replayShade": "rgba(59,130,246,0.06)"
+    "replayShade": "rgba(59,130,246,0.06)",
+    "gapUp": "rgba(0,230,118,0.22)",
+    "gapDown": "rgba(255,61,61,0.22)",
+    "gapBorder": "rgba(255,255,255,0.6)",
+    "watermark": "rgba(255,255,255,0.10)",
+    "srSupport": "#00e676",
+    "srResistance": "#ff3d3d",
+    "highLowLabel": "#ffffff"
   }
 }

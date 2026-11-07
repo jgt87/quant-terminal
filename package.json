@@ -1,6 +1,6 @@
 {
   "name": "quant-terminal",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "private": true,
   "type": "module",
   "repository": {
@@ -23,7 +23,8 @@
     "typecheck": "tsc -p core && tsc -p server --noEmit && tsc -p web --noEmit",
     "build": "npm run build -w web",
     "start": "npm run start -w server",
-    "test:drawings": "node tools/test-drawings.mjs"
+    "test:drawings": "node tools/test-drawings.mjs",
+    "parity": "node tools/parity/parity.mjs"
   },
   "devDependencies": {
     "typescript": "5.6.3",

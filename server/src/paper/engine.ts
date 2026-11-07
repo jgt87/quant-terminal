@@ -41,9 +41,30 @@ export function validateOrderBody(body: unknown, now: number): SimOrder {
   if (typeof body.symbol !== "string" || !body.symbol.trim() || body.symbol.length > 64) throw badRequest("symbol is required");
   if (body.side !== "buy" && body.side !== "sell") throw badRequest("side must be buy or sell");
   const type = body.type === undefined ? "market" : body.type;
-  if (type !== "market" && type !== "limit" && type !== "stop" && type !== "stop-limit") throw badRequest("type must be market, limit, stop or stop-limit");
+  if (type !== "market" && type !== "limit" && type !== "stop" && type !== "stop-limit" && type !== "trailing-stop") {
+    throw badRequest("type must be market, limit, stop, stop-limit or trailing-stop");
+  }
   if (!finite(body.qty) || body.qty <= 0) throw badRequest("qty must be a positive number");
   const order: SimOrder = { id: newId(), symbol: symKey(body.symbol), side: body.side, type, qty: body.qty, status: "working", createdAt: now };
+  if (type === "trailing-stop") {
+    const amount = body.trailAmount ?? undefined;
+    const pct = body.trailPercent ?? undefined;
+    if ((amount === undefined) === (pct === undefined)) throw badRequest("A trailing stop needs either trailAmount or trailPercent");
+    if (amount !== undefined) {
+      if (!finite(amount) || amount <= 0) throw badRequest("trailAmount must be a positive number");
+      order.trailAmount = amount;
+    } else {
+      if (!finite(pct) || pct <= 0 || pct >= 100) throw badRequest("trailPercent must be between 0 and 100");
+      order.trailPercent = pct;
+    }
+    // The stop level is optional: without one it starts at the next price, then follows it.
+    if (body.price !== undefined) {
+      if (!finite(body.price) || body.price <= 0) throw badRequest("price must be a positive number");
+      order.price = body.price;
+    }
+    if (body.stopLoss != null || body.takeProfit != null) throw badRequest("A trailing stop cannot have its own stop loss or take profit");
+    return order;
+  }
   if (type !== "market") {
     if (!finite(body.price) || body.price <= 0) throw badRequest(`price is required for ${type} orders`);
     order.price = body.price;
@@ -75,6 +96,8 @@ export interface OrderPatch {
   price?: number;
   stopPrice?: number;
   qty?: number;
+  trailAmount?: number;
+  trailPercent?: number;
   /** null removes the bracket leg. */
   stopLoss?: number | null;
   takeProfit?: number | null;
@@ -83,7 +106,7 @@ export interface OrderPatch {
 export function validateOrderPatch(body: unknown): OrderPatch {
   if (!isObj(body)) throw badRequest("Body must be an object");
   const out: OrderPatch = {};
-  for (const k of ["price", "stopPrice", "qty"] as const) {
+  for (const k of ["price", "stopPrice", "qty", "trailAmount", "trailPercent"] as const) {
     if (body[k] === undefined) continue;
     if (!finite(body[k]) || (body[k] as number) <= 0) throw badRequest(`${k} must be a positive number`);
     out[k] = body[k] as number;
@@ -109,14 +132,19 @@ export function applyOrderPatch(o: SimOrder, p: OrderPatch, now: number): void {
   }
   if (o.type === "market" && (p.price !== undefined || p.stopPrice !== undefined)) throw badRequest("Market orders have no price");
   if (p.stopPrice !== undefined && o.type !== "stop-limit") throw badRequest("Only stop-limit orders have a stop price");
+  if ((p.trailAmount !== undefined || p.trailPercent !== undefined) && o.type !== "trailing-stop") throw badRequest("Only trailing stops have a trail");
+  if (p.trailAmount !== undefined && p.trailPercent !== undefined) throw badRequest("Give trailAmount or trailPercent, not both");
   const next: Record<string, unknown> = { ...o, ...p };
+  // Switching between an amount and a percent trail replaces the other one.
+  if (p.trailAmount !== undefined) delete next.trailPercent;
+  if (p.trailPercent !== undefined) delete next.trailAmount;
   for (const k of ["stopLoss", "takeProfit"] as const) if (next[k] === null) delete next[k];
   if (o.parentId) {
     o.price = p.price ?? o.price;
     return;
   }
   const checked = validateOrderBody(next, now);
-  Object.assign(o, { price: checked.price, stopPrice: checked.stopPrice, qty: checked.qty, stopLoss: checked.stopLoss, takeProfit: checked.takeProfit });
+  Object.assign(o, { price: checked.price, stopPrice: checked.stopPrice, qty: checked.qty, stopLoss: checked.stopLoss, takeProfit: checked.takeProfit, trailAmount: checked.trailAmount, trailPercent: checked.trailPercent });
   if (p.stopPrice !== undefined) o.triggered = false;
 }
 

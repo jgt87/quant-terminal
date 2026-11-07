@@ -6,3 +6,5 @@ export { autoFib, type AutoFibOptions } from "./autofib";
 export { detectChartPatterns, CHART_PATTERN_DEFAULTS, type ChartPatternOptions } from "./chartPatterns";
 export { volumeProfile, sessionVolumeProfiles, tpoProfile, tpoLetter, valueAreaRange, type RowSpec } from "./profile";
 export { alignHigherTimeframe, type AlignOptions } from "./mtf";
+export { detectGaps, type PriceGap, type GapOptions } from "./gaps";
+export { supportResistance, type SrLevel, type SrOptions } from "./supportResistance";

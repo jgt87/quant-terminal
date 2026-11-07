@@ -155,3 +155,103 @@
   height: var(--icon-size);
   flex: none;
 }
+
+/* Ticker tape: the first watchlist scrolling under the toolbar; hover pauses it. */
+.ticker-tape {
+  grid-area: tape;
+  min-width: 0;
+  height: 24px;
+  overflow: hidden;
+  border-bottom: 1px solid var(--border);
+  background: var(--panel);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.ticker-tape.empty {
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  color: var(--muted);
+}
+
+.tt-track {
+  display: flex;
+  width: max-content;
+  height: 100%;
+  animation: tt-scroll linear infinite;
+}
+
+.ticker-tape:hover .tt-track,
+.ticker-tape:focus-within .tt-track {
+  animation-play-state: paused;
+}
+
+.tt-run {
+  display: flex;
+}
+
+.tt-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 100%;
+  padding: 0 14px;
+  border: 0;
+  border-right: 1px solid var(--border);
+  background: none;
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.tt-item:hover {
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+.tt-sym {
+  font-weight: 600;
+}
+
+.tt-last,
+.tt-chg {
+  font-variant-numeric: tabular-nums;
+}
+
+.tt-chg.pos {
+  color: var(--pos);
+}
+
+.tt-chg.neg {
+  color: var(--neg);
+}
+
+@keyframes tt-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ticker-tape {
+    overflow-x: auto;
+  }
+
+  .tt-track {
+    animation: none;
+  }
+
+  .tt-run[aria-hidden="true"] {
+    display: none;
+  }
+}
+
+/* Narrower windows: Indicators, Compare and Replay show their icon only (the title names them). */
+@media (max-width: 1820px) {
+  .top-toolbar .tb-label {
+    display: none;
+  }
+}

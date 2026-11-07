@@ -14,7 +14,7 @@ export { lineBreak, type LineBreakOptions } from "./linebreak";
 export { pointAndFigure, type PnfOptions } from "./pnf";
 export { rangeBars, type RangeBarOptions } from "./range";
 export { resampleBars, MONDAY_ANCHOR, WEEK_SECONDS } from "./resample";
-export { heikinAshi } from "./heikinAshi";
+export { heikinAshi, smoothedHeikinAshi, SMOOTHED_HA_LENGTH, SMOOTHED_HA_SMOOTHING } from "./heikinAshi";
 
 /** Defaults used by transformBars when an option block is missing. */
 export const TRANSFORM_DEFAULTS: Required<TransformOptions> = {

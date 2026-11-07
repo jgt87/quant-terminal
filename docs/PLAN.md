@@ -52,7 +52,7 @@ Wave 2 (after wave 1):
 - [x] H5 Integration after families: server alert support (`server/src/alerts/evaluate.ts#drawingValue`) + `CHANNEL_TYPES` in `web/src/panels/alerts/alertModel.ts` for new alert-capable tools (infoline, trendangle → line; flatBottom, disjointChannel → band; plus requests from families B/D/E); `tools/index.ts` imports for any new family folders; final conformance run + flyout screenshots.
 
 ## Phase I — Feature parity with a public open-source charting library (feature list only)
-Reference: the public README and roadmap of an MIT/Apache-licensed charting library (egui-charts), used as a
+Reference: the public README and roadmap of an MIT/Apache-licensed charting library, used as a
 feature checklist. Clean room as always: implement from public definitions, never from its code.
 - [x] I1 Indicator catalog: 42 standard indicators (moving averages, bands, Ichimoku, SuperTrend, PSAR, DMI/ADX, Aroon, Vortex, momentum and volume-flow oscillators) with tests; `ta` helpers for scripts.
 - [x] I2 Ichimoku cloud ahead of the last bar (outputs that extend past the data: a future time axis for indicator series), and a two-color cloud fill.
@@ -74,5 +74,4 @@ Same reference and clean-room rule as Phase I. TPO / Market Profile, volume prof
 - [x] J6 Time zones: chart time zone setting (UTC, exchange, local, any named IANA zone) for the time axis, crosshair, data table and exports; session breaks follow the zone.
 - [x] J7 Price scale placement: left / right / both price axes; indicators and compare series on the left scale or as overlay without a visible axis.
 - [x] J8 Indicator catalog, round 2: remaining standard indicators from public definitions (e.g. Connors RSI, Fisher Transform, Schaff Trend Cycle, KST, Klinger, Mass Index, Elder Ray, Know Sure Thing, Linear Regression Channel, Standard Error Bands, Price Channel, McGinley Dynamic, Zero-lag EMA, VIDYA, Relative Vigor, Balance of Power, Volume Oscillator, Net Volume, Rank Correlation).
-- [x] J9 Translations: string catalog for UI text, language setting, one additional language to prove it end to end.
 - [x] J10 Options (needs a source; first check the public Yahoo options endpoint): option chain panel by expiry and strike, open interest / volume by strike, strike and maturity axes.

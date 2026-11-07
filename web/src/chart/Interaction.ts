@@ -290,8 +290,8 @@ export class ChartInteraction {
     const e = this.e;
     const key = ev.key;
     // Tool hotkeys (Alt+T, Alt+Shift+R pick a tool; Alt+H/J/V/C draw at the cursor), Alt+A adds an
-    // alert (selected drawing, else the cursor price), Ctrl+Alt+H hides all drawings. Other Alt
-    // combinations belong to the workspace.
+    // alert (selected drawing, else the cursor price), Alt+G opens go to date, Ctrl+Alt+H hides all
+    // drawings. Other Alt combinations belong to the workspace.
     if (ev.altKey) {
       const combo = comboOfEvent(ev);
       const hk = HOTKEYS[combo];
@@ -306,6 +306,11 @@ export class ChartInteraction {
         const id = e.drawings.selectedId;
         const price = e.hover ? e.mainPane.ps.fromY(e.hover.y - e.mainPane.top) : null;
         e.drawings.events.emit("command", id ? { kind: "alert", drawingId: id } : { kind: "alert", price: price ?? undefined });
+        return;
+      }
+      if (combo === "alt+g") {
+        ev.preventDefault();
+        e.requestGoToDate();
         return;
       }
       if (combo === "ctrl+alt+h") {

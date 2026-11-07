@@ -70,5 +70,27 @@
       { "key": "deviation", "label": "Deviation %", "type": "float", "default": 5, "min": 0.1, "max": 50, "step": 0.1 },
       { "key": "depth", "label": "Depth (bars)", "type": "int", "default": 1, "min": 1, "max": 100 }
     ]
+  },
+  {
+    "id": "gaps",
+    "name": "Gaps",
+    "shortName": "Gaps",
+    "inputs": [
+      { "key": "minPercent", "label": "Minimum gap %", "type": "float", "default": 0.1, "min": 0, "max": 50, "step": 0.05 },
+      { "key": "maxGaps", "label": "Max gaps shown", "type": "int", "default": 20, "min": 1, "max": 500 },
+      { "key": "showFilled", "label": "Show filled gaps", "type": "bool", "default": false }
+    ]
+  },
+  {
+    "id": "support-resistance",
+    "name": "Auto support and resistance",
+    "shortName": "S/R",
+    "inputs": [
+      { "key": "strength", "label": "Swing strength (bars)", "type": "int", "default": 5, "min": 1, "max": 50 },
+      { "key": "tolerance", "label": "Tolerance %", "type": "float", "default": 0.5, "min": 0.01, "max": 10, "step": 0.05 },
+      { "key": "minTouches", "label": "Minimum touches", "type": "int", "default": 2, "min": 1, "max": 20 },
+      { "key": "maxLevels", "label": "Max levels", "type": "int", "default": 8, "min": 1, "max": 50 },
+      { "key": "lookback", "label": "Lookback (bars, 0 = all)", "type": "int", "default": 500, "min": 0, "max": 100000 }
+    ]
   }
 ]

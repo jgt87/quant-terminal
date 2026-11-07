@@ -1,11 +1,11 @@
 // Built-in chart studies (volume profiles, TPO, candlestick and chart patterns, zig zag, auto
-// fib). They live in the indicator list like any indicator (legend row, settings, visibility,
+// fib, gaps, support and resistance). They live in the indicator list like any indicator (legend row, settings, visibility,
 // removal) but draw their own geometry on the price pane instead of per-bar output series.
 
 import { getIndicator, type IndicatorDef, type IndicatorInputDef } from "@qt/core";
 import studies from "../../config/studies.json";
 
-export type StudyId = "vp-visible" | "vp-session" | "tpo" | "candle-patterns" | "chart-patterns" | "zigzag" | "autofib";
+export type StudyId = "vp-visible" | "vp-session" | "tpo" | "candle-patterns" | "chart-patterns" | "zigzag" | "autofib" | "gaps" | "support-resistance";
 
 export interface StudyDef extends IndicatorDef {
   study: StudyId;

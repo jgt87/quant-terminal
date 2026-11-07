@@ -7,5 +7,6 @@
   { "id": "prevTab", "keys": "Alt+PageUp", "label": "Previous tab", "browser": "Ctrl+Shift+Tab" },
   { "id": "goToTab", "keys": "Alt+1..9", "label": "Go to tab 1 to 8, 9 = last tab", "browser": "Ctrl+1..9" },
   { "id": "maximizeCell", "keys": "Alt+Enter", "label": "Maximize or restore the active chart" },
+  { "id": "fullscreen", "keys": "Alt+Shift+F", "label": "Full screen on or off", "note": "Esc also leaves full screen" },
   { "id": "help", "keys": "?", "label": "Keyboard shortcuts" }
 ]

@@ -15,7 +15,6 @@ import { loadLocal, saveLocal } from "../common/storage";
 import { pushToast } from "../common/toasts";
 import { clickOrder, dragPatch, frameBook, ladderRows, ladderSteps, rowKey } from "./domModel";
 import type { ActiveChartHandles } from "../registry";
-import { t } from "../../i18n";
 import "./dom.css";
 
 const ROWS = 41;
@@ -132,7 +131,7 @@ export function DomPanel({ symbol, visible, chart }: { symbol: string; visible: 
     return (
       <section className="pn dom-panel" aria-label="Depth ladder">
         <header className="pn-head">
-          <h3>{t("Depth ladder")}</h3>
+          <h3>Depth ladder</h3>
         </header>
         <div className="pn-empty">The depth ladder needs a Binance symbol (for example BINANCE:BTCUSDT).</div>
       </section>
@@ -148,12 +147,12 @@ export function DomPanel({ symbol, visible, chart }: { symbol: string; visible: 
   return (
     <section className="pn dom-panel" aria-label="Depth ladder">
       <header className="pn-head">
-        <h3>{t("Depth ladder")}</h3>
+        <h3>Depth ladder</h3>
         <span className="dom-symbol">{symbol}</span>
-        {book && <span className={`dom-mode dom-mode-${book.mode}`}>{t(MODE_TEXT[book.mode])}</span>}
+        {book && <span className={`dom-mode dom-mode-${book.mode}`}>{MODE_TEXT[book.mode]}</span>}
         <span className="spacer" />
         <label className="dom-field" title="Price rows grouped by this step">
-          {t("Step")}
+          Step
           <select
             value={Math.min(stepIndex, Math.max(0, steps.length - 1))}
             onChange={(e) => {
@@ -180,15 +179,15 @@ export function DomPanel({ symbol, visible, chart }: { symbol: string; visible: 
               .catch((e) => setError(errorText(e)))
           }
         >
-          {recording ? t("● Recording") : t("Record")}
+          {recording ? "● Recording" : "Record"}
         </button>
       </header>
       <div className="dom-trade" aria-label="Paper trading (simulated)">
         <span className="dom-account" title="Selected paper account (simulated)">
-          {account ? `${account.name} · ${t("simulated")}` : t("No paper account")}
+          {account ? `${account.name} · simulated` : "No paper account"}
         </span>
         <label className="dom-field">
-          {t("Qty")}
+          Qty
           <input
             type="number"
             min={0}
@@ -202,13 +201,13 @@ export function DomPanel({ symbol, visible, chart }: { symbol: string; visible: 
           />
         </label>
         <button className="dom-btn buy" disabled={!account || !(qty > 0)} onClick={() => place({ symbol, side: "buy", type: "market", qty })}>
-          {t("Buy MKT")}
+          Buy MKT
         </button>
         <button className="dom-btn sell" disabled={!account || !(qty > 0)} onClick={() => place({ symbol, side: "sell", type: "market", qty })}>
-          {t("Sell MKT")}
+          Sell MKT
         </button>
         <button className="dom-btn" disabled={!account || !position || position.qty === 0} onClick={() => account && run("Flatten", () => closePaperPosition(account.id, symbol))}>
-          {t("Flatten")}
+          Flatten
         </button>
         <button
           className="dom-btn"
@@ -219,7 +218,7 @@ export function DomPanel({ symbol, visible, chart }: { symbol: string; visible: 
             void run("Cancel", () => Promise.all(mine.map((o) => cancelPaperOrder(account.id, o.id))));
           }}
         >
-          {t("Cancel all")}
+          Cancel all
         </button>
       </div>
       {position && position.qty !== 0 && (
@@ -230,11 +229,11 @@ export function DomPanel({ symbol, visible, chart }: { symbol: string; visible: 
       )}
       {error && <div className="pn-error">{error}</div>}
       <div className="dom-head" role="row">
-        <span>{t("Buy")}</span>
-        <span>{t("Bid")}</span>
-        <span>{t("Price")}</span>
-        <span>{t("Ask")}</span>
-        <span>{t("Sell")}</span>
+        <span>Buy</span>
+        <span>Bid</span>
+        <span>Price</span>
+        <span>Ask</span>
+        <span>Sell</span>
       </div>
       <div className="dom-ladder" onWheel={onWheel} role="grid" aria-label="Order book by price" onPointerLeave={() => setDrag(null)}>
         {!book && <div className="pn-empty">{inReplay ? "No recorded order book at the replay time (turn on Liquidity heatmap and record the pair)." : "Loading the order book…"}</div>}
@@ -299,10 +298,10 @@ export function DomPanel({ symbol, visible, chart }: { symbol: string; visible: 
         })}
       </div>
       <footer className="dom-foot">
-        <span>{inReplay ? t("Replay: the recorded book at the replay time; trading from the ladder is off.") : t("Click a bid / ask cell to place a simulated limit (or stop past the spread); drag an order to move it.")}</span>
+        <span>{inReplay ? "Replay: the recorded book at the replay time; trading from the ladder is off." : "Click a bid / ask cell to place a simulated limit (or stop past the spread); drag an order to move it."}</span>
         {center !== null && (
           <button className="dom-btn" onClick={() => setCenter(null)}>
-            {t("Center")}
+            Center
           </button>
         )}
       </footer>

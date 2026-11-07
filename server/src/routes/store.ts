@@ -5,9 +5,13 @@ import { assertId } from "../store";
 import { notFound } from "../errors";
 import { layoutBase, validateLayout, validateWatchlists } from "../validate";
 import { registerDrawingTemplateRoutes } from "../drawings/templates";
+import { registerIndicatorTemplateRoutes } from "../indicatorTemplates";
+import { registerTradeJournalRoutes } from "../tradeJournal";
 
 export function registerStoreRoutes(router: Router, store: Store): void {
   registerDrawingTemplateRoutes(router, store);
+  registerIndicatorTemplateRoutes(router, store);
+  registerTradeJournalRoutes(router, store);
 
   router.get("/api/watchlists", () => store.getWatchlists());
 

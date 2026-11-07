@@ -22,6 +22,7 @@ import { useTickStream } from "../hooks/useTickStream";
 import { showNotices } from "../api/notices";
 import { displayInterval } from "../data/intervalSpec";
 import { ChartTips } from "./ChartTips";
+import { GoToDateDialog } from "./GoToDateDialog";
 import { ValuesTooltip } from "./ValuesTooltip";
 import { InlineTextEditor } from "./InlineTextEditor";
 import { setField } from "../chart/drawings/schema";
@@ -32,6 +33,7 @@ import { setDrawingPrefs, useDrawingPrefs } from "../state/drawingPrefs";
 import type { MenuItem } from "./menuTypes";
 import { CompareLegend, IndicatorLegend, MainLegend } from "./Legend";
 import { ReplayBar } from "./replay/ReplayBar";
+import { QuickTrade } from "./QuickTrade";
 import "../styles/chart.css";
 
 const DERIV_FLOW_NOTICE = "Deriv has no trades or order book, so order flow, the liquidity heatmap, order-flow signals and tick replay are not available for Deriv symbols (they work on Binance symbols).";
@@ -90,6 +92,7 @@ export function ChartView(p: ChartViewProps) {
   const [replay, setReplay] = useState<ReplayState>(REPLAY_OFF);
   const [eventTip, setEventTip] = useState<{ marker: EventMarker; x: number; y: number } | null>(null);
   const [, setVersion] = useState(0);
+  const [goTo, setGoTo] = useState(false);
   const cb = useRef(p);
   cb.current = p;
 
@@ -183,6 +186,7 @@ export function ChartView(p: ChartViewProps) {
   useEffect(() => {
     void loadTemplates();
   }, []);
+  useEffect(() => engine?.events.on("goToDate", () => setGoTo(true)), [engine]);
   useEffect(
     () =>
       engine?.drawings.events.on("command", (c) => {
@@ -244,6 +248,7 @@ export function ChartView(p: ChartViewProps) {
   const status = p.chartSettings?.statusLine;
   const selDrawing = selected ? engine?.drawings.drawings.find((d) => d.id === selected) : undefined;
   const legendLeft = (engine?.plotLeft ?? 0) + 8;
+  const lastClose = engine?.lastSourceBar()?.close;
 
   return (
     <div
@@ -297,7 +302,27 @@ export function ChartView(p: ChartViewProps) {
               ))}
           </div>
         ))}
+        {engine && p.chartSettings?.trading?.buySellButtons && replay.phase === "off" && (
+          <QuickTrade
+            symbol={p.symbol}
+            priceText={lastClose !== undefined ? engine.mainPane.ps.format(lastClose) : ""}
+            right={engine.width - engine.plotLeft - engine.plotWidth + 8}
+            top={engine.mainPane.top + 6}
+          />
+        )}
         {engine && <ChartTips engine={engine} hover={hover} event={eventTip} />}
+        {engine && goTo && (
+          <GoToDateDialog
+            zone={engine.timeZone}
+            intraday={engine.meta.intraday}
+            initial={engine.data.length ? engine.ts.xToTime(engine.plotWidth / 2) : Date.now() / 1000}
+            onGo={(t) => engine.goToTime(t)}
+            onClose={() => {
+              setGoTo(false);
+              engine.focus();
+            }}
+          />
+        )}
         {engine && <ValuesTooltip engine={engine} enabled={dp.valuesTooltip} />}
         {engine && inline && (
           <InlineTextEditor

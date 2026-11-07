@@ -22,7 +22,6 @@ import { OptionsPanel } from "./options/OptionsPanel";
 import { DataTablePanel } from "./data/DataTablePanel";
 import { WatchlistPlus } from "./watchlist/WatchlistPlus";
 import "./panels.css";
-import { t } from "../i18n";
 
 interface Props {
   /** Whether the panel area is expanded (the rail is always shown). */
@@ -94,7 +93,7 @@ export function PanelHost({ open, onOpenChange, integration }: Props) {
     <div className={`panel-host${open ? " open" : ""}`} data-panel={open ? activeId : ""}>
       {open && (
         <div className="panel-content" style={{ width }}>
-          <div className="panel-resize" onPointerDown={startResize} title={t("Drag to resize")} role="separator" aria-orientation="vertical" />
+          <div className="panel-resize" onPointerDown={startResize} title="Drag to resize" role="separator" aria-orientation="vertical" />
           {activeId === "watchlist" && <WatchlistPlus activeSymbol={integration.activeSymbol} onSelect={(s) => integration.onLoadSymbol(s)} />}
           {activeId === "alerts" && <AlertsPanel center={center} integration={integration} />}
           {activeId === "screener" && <ScreenerPanel integration={integration} />}
@@ -113,8 +112,8 @@ export function PanelHost({ open, onOpenChange, integration }: Props) {
           <button
             key={p.id}
             className={`rail-btn${visible(p.id) ? " active" : ""}`}
-            title={p.key ? `${t(p.label)} (Alt+Shift+${p.key})` : t(p.label)}
-            aria-label={t(p.label)}
+            title={p.key ? `${p.label} (Alt+Shift+${p.key})` : p.label}
+            aria-label={p.label}
             aria-pressed={visible(p.id)}
             data-panel-id={p.id}
             onClick={() => toggle(p.id)}
