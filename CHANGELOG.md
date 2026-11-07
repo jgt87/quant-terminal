@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## v0.5.1 — 2026-11-07
+
+- Repo: `.claude/CLAUDE.md` (notes for Claude Code on using the Repowise code index in this repo) is now part of the repository; the local index itself (`.repowise/`) is git-ignored.
+
 ## v0.5.0 — 2026-11-07
 
 - Deriv data feed (no account, API token, app id or demo login): Deriv's public WebSocket for forex (the 25 pairs Deriv lists plus history for many unlisted ones such as USDZAR, USDTRY, EURSEK, USDCNH), metals (XAU, XAG, XPT, XPD), 12 stock indices (OTC_NDX, OTC_SPC, OTC_GDAXI, ...), BTC and ETH, and Deriv's synthetic indices. Symbols `DERIV:<name>` (for example `DERIV:EURUSD`, `DERIV:R_100`), in symbol search, watchlist quotes and charts, with live ticks on the chart and in the watchlist through `/api/stream`. One shared connection with request spacing (Deriv's rate limit), a retry after a rate-limit answer, reconnects with backoff that restore live subscriptions, and retries of subscriptions refused while a market is closed. Weekly and monthly bars are built from daily bars. Code in `server/src/providers/deriv.ts`, tests in `server/test/deriv.test.ts`.
