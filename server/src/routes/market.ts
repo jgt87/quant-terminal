@@ -1,3 +1,4 @@
+import { APP_VERSION } from "../paths";
 import type { Router } from "../http";
 import type { BarOptions, MarketData } from "../providers";
 import { badRequest } from "../errors";
@@ -32,7 +33,8 @@ export function barOptions(url: URL): BarOptions {
 }
 
 export function registerMarketRoutes(router: Router, market: MarketData): void {
-  router.get("/api/health", () => ({ ok: true }));
+  // The launcher tells a running Quant Terminal (and its version) from another program on the port.
+  router.get("/api/health", () => ({ ok: true, app: "quant-terminal", version: APP_VERSION }));
 
   router.get("/api/search", async ({ url }) => {
     const q = (url.searchParams.get("q") ?? "").trim();

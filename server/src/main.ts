@@ -5,7 +5,8 @@ import { MarketData, type FxProvider } from "./providers";
 import { defaultDerivSocket } from "./providers/deriv";
 import { Store } from "./store";
 import path from "node:path";
-import { CACHE_DIR, DATA_DIR, STORE_DIR, WEB_DIST_DIR } from "./paths";
+import { APP_VERSION, CACHE_DIR, DATA_DIR, PID_FILE, STORE_DIR, WEB_DIST_DIR } from "./paths";
+import fs from "node:fs";
 
 const port = Number(process.env.PORT) || 4180;
 // Loopback only by default (IPv4 and IPv6, so "localhost" works either way). HOST=0.0.0.0 exposes it.
@@ -53,13 +54,29 @@ const servers = hosts.map((host, i) => {
   server.listen(port, host, () => {
     if (i === 0) {
       console.log(`[server] Quant Terminal API on ${url}`);
+      writePidFile();
       openBrowser();
     }
   });
   return server;
 });
 
+/** Lets the launcher find this server (to open it, or to replace it after an update). */
+function writePidFile(): void {
+  try {
+    fs.mkdirSync(path.dirname(PID_FILE), { recursive: true });
+    fs.writeFileSync(PID_FILE, JSON.stringify({ pid: process.pid, port, version: APP_VERSION, started: Date.now() }) + "\n");
+  } catch { /* the launcher then only knows the port */ }
+}
+
+function removePidFile(): void {
+  try {
+    if (JSON.parse(fs.readFileSync(PID_FILE, "utf8")).pid === process.pid) fs.unlinkSync(PID_FILE);
+  } catch { /* not ours or already gone */ }
+}
+
 const shutdown = () => {
+  removePidFile();
   let open = servers.length;
   for (const s of servers) s.close(() => --open === 0 && process.exit(0));
   setTimeout(() => process.exit(0), 2000).unref();

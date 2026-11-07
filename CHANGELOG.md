@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+## v0.6.0 — 2026-11-07
+
+- Launchers: every `Start Terminal*.cmd` is now a short stub running one shared launcher, `tools/launch.mjs` (`--fx mt5`, `--fx deriv`), so updating and checking work the same in all of them. After an update it hands over to the updated launcher, so new steps and checks apply in the same start. The stubs run the launcher on their last line, so an update that replaces the `.cmd` while it runs is safe.
+- What's new: after an update the launcher shows the `CHANGELOG.md` entries of the versions in between, one line per entry, in a box sized to the window (colored in the Windows console).
+- Computer check on every start: Node.js for the mode, npm, Git, and for MT5 the bridge's Python 3.12 and a running MT5 terminal, for Deriv its reachability. A missing essential stops the start with what to install. `--check` runs only the update and the check; also `--no-update` and `--no-browser`.
+- A Quant Terminal that is already running: the same version is opened in the browser; an older one is stopped and replaced by the updated version (its window says it was replaced instead of reporting an error); another program on the port stops the start with a hint (`PORT`). `/api/health` reports the app and version, and the server records its process in `data/server.pid`.
+- Dependencies: a stamped install that lost files (`tsx`, `vite`, `react`, `@qt/core`) is installed again.
+
 ## v0.5.1 — 2026-11-07
 
 - Repo: `.claude/CLAUDE.md` (notes for Claude Code on using the Repowise code index in this repo) is now part of the repository; the local index itself (`.repowise/`) is git-ignored.

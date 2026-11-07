@@ -61,13 +61,26 @@ MetaTrader 5, or **`Start Terminal (Deriv FX).cmd`** for live forex prices from 
 and opens **http://localhost:4180** in your browser once it is ready. Keep its window open while you use the
 terminal; closing it stops the server.
 
-### Updates
-On every start the launcher fetches the release tags and fast-forwards to the newest release (`vX.Y.Z`), then
-restarts itself from the updated files. It never discards work: it only updates on branch `main` with no changes to
-tracked files and only by fast-forward, and otherwise says why it skipped. When offline it starts the installed
-version. Dependencies are installed with `npm ci` (exactly what `package-lock.json` pins) only when the lockfile
-changed. Set `QT_NO_UPDATE=1` to turn updates off. A ZIP download cannot update itself; the launcher tells you when a
-newer release is available.
+### What a start does
+Every `Start Terminal*.cmd` is a short stub that runs the same launcher, `tools/launch.mjs`, with its mode
+(`--fx mt5`, `--fx deriv`), so all of them update and check the same way:
+
+1. **Update.** It fetches the release tags and fast-forwards to the newest release (`vX.Y.Z`), then hands over to
+   the updated launcher, which shows a short **What's new** from `CHANGELOG.md` for the versions in between. It
+   never discards work: it only updates on branch `main` with no changes to tracked files and only by
+   fast-forward, and otherwise says why it skipped. When offline it starts the installed version. A ZIP download
+   cannot update itself; the launcher tells you when a newer release is available.
+2. **Check this computer.** Node.js for the mode, npm and Git, plus Python 3.12 and a running MT5 terminal for the
+   MT5 launcher, or Deriv's reachability for the Deriv one. Anything essential missing stops the start with what
+   to install.
+3. **Already running?** The same version is opened in the browser. An older one (it keeps serving its old code
+   after an update) is stopped and replaced; its window says so. Another program on the port stops the start
+   (use `set PORT=4181`).
+4. **Dependencies** are installed with `npm ci` (exactly what `package-lock.json` pins) when the lockfile changed or
+   the install lost files, then the app is built and the server started.
+
+Options for any launcher: `--check` (only the update and the computer check), `--no-update` (or
+`QT_NO_UPDATE=1`), `--no-browser`. From a terminal: `node tools/launch.mjs --check`.
 
 From a terminal:
 

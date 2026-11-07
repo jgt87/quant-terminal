@@ -1,61 +1,11 @@
 @echo off
-rem Updates to the latest release, starts the read-only MetaTrader 5 bridge, installs dependencies, builds the web app,
-rem starts the server with FX routed to MT5 and opens the terminal in the browser once it is
-rem listening. MT5 must be running and logged in.
-setlocal
+rem Starts Quant Terminal with FX from MetaTrader 5 (MT5 must be running and logged in).
+rem All steps live in tools\launch.mjs (shared by every launcher): update to the latest release, check
+rem this computer, install dependencies, build, start the server and open the browser.
+rem Options: --check (only check), --no-update, --no-browser. QT_NO_UPDATE=1 turns updates off.
 cd /d "%~dp0"
 title Quant Terminal (MT5)
-
-where node >nul 2>nul || goto :nonode
-rem Vite 8 needs Node.js 20.19+ or 22.12+ (not 21 or 22.0-22.11).
-node -e "const [a,b]=process.versions.node.split('.').map(Number);process.exit((a===20&&b>=19)||(a===22&&b>=12)||a>=23?0:1)" || goto :oldnode
-
-rem Update to the latest release (git checkouts; QT_NO_UPDATE=1 turns it off). cmd parses a ( ) block
-rem as a whole before running it, so the update may replace this file safely; after an update the
-rem launcher restarts from the new version.
-if not defined QT_UPDATED (
-  node tools\update.mjs
-  if errorlevel 10 (
-    set QT_UPDATED=1
-    call "%~f0" %*
-    exit /b
-  )
-)
-
-rem Set up the bridge environment on first use, or again if an earlier setup did not finish.
-if not exist bridge\.venv\Lib\site-packages\MetaTrader5 (
-  call bridge\setup.cmd || goto :bridgefailed
-)
-start "MT5 bridge" /min bridge\.venv\Scripts\python.exe -I bridge\mt5_bridge.py
-
-rem Installs exactly what package-lock.json pins (npm ci) when it changed; instant otherwise.
-node tools\ensure-deps.mjs || goto :installfailed
-
-echo Building the app...
-call npm run build --silent || goto :buildfailed
-
-set QT_FX_PROVIDER=mt5
-set QT_OPEN_BROWSER=1
-call npm start --silent || goto :serverfailed
-goto :eof
-
-:nonode
-echo Node.js was not found. Install the current LTS of Node.js (20.19+ or 22.12+) from https://nodejs.org and run this again.
-goto :fail
-:oldnode
-for /f "delims=" %%v in ('node -v') do echo Node.js %%v is not supported. Install the current LTS of Node.js (20.19+ or 22.12+) from https://nodejs.org and run this again.
-goto :fail
-:bridgefailed
-echo The MT5 bridge setup failed - see the messages above.
-goto :fail
-:installfailed
-echo Installing dependencies failed - see the messages above. Check your internet connection and try again.
-goto :fail
-:buildfailed
-echo Build failed - see the messages above.
-goto :fail
-:serverfailed
-echo The server stopped with an error - see the messages above.
-:fail
-pause
-exit /b 1
+where node >nul 2>nul || (echo Node.js was not found. Install the current LTS of Node.js from https://nodejs.org and run this again. & pause & exit /b 1)
+rem One line on purpose: an update may replace this file while it runs, and cmd reads a batch file
+rem line by line, so nothing after the launcher may be read from it.
+node tools\launch.mjs --fx mt5 %* & if errorlevel 1 (pause & exit /b 1) else exit /b 0
