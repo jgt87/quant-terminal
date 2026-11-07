@@ -4,6 +4,7 @@ import { HttpError, badRequest, providerError } from "../errors";
 import { INTERVAL_SEC, isIntraday } from "../bars";
 import { BinanceProvider } from "./binance";
 import { BinanceOptions } from "./binanceOptions";
+import { DERIV_PREFIX, DerivClient, DerivProvider, type DerivSocketFactory } from "./deriv";
 import { MT5_PREFIX, Mt5Provider } from "./mt5";
 import { YahooProvider } from "./yahoo";
 import { nowSec, type BarOptions, type BarsPage, type FetchFn } from "./types";
@@ -41,6 +42,7 @@ const VALID = /^(?!.*\.\.)[A-Z0-9^=.\-_]{1,32}$/;
  * Map a user/app symbol to a provider + ticker.
  * - `MT5:XXX` → local MetaTrader 5 bridge. With `fxProvider: "mt5"`, FX pairs (`FX:EURUSD`,
  *   `OANDA:EURUSD`, `EURUSD=X`) are routed to MT5 as well.
+ * - `DERIV:XXX` → Deriv's public feed. With `fxProvider: "deriv"`, FX pairs go to Deriv.
  * - `BINANCE:XXX` → Binance.
  * - Bare pair ending in USDT/USDC/BUSD/BTC/ETH that Binance lists → Binance. When the pair
  *   table is not loaded yet, stablecoin pairs go to Binance and BTC/ETH-quoted ones to Yahoo.
@@ -50,11 +52,11 @@ const VALID = /^(?!.*\.\.)[A-Z0-9^=.\-_]{1,32}$/;
 export function routeSymbol(
   raw: string,
   binancePairs: ReadonlySet<string> | ReadonlyMap<string, unknown> | null,
-  fxProvider: "yahoo" | "mt5" = "yahoo",
+  fxProvider: FxProvider = "yahoo",
 ): SymbolRoute {
   const s = raw.trim().toUpperCase();
   if (!s) throw badRequest("Missing symbol");
-  const fx = (pair: string): SymbolRoute => (fxProvider === "mt5" ? mt5(pair) : yahoo(`${pair}=X`));
+  const fx = (pair: string): SymbolRoute => (fxProvider === "mt5" ? mt5(pair) : fxProvider === "deriv" ? deriv(pair) : yahoo(`${pair}=X`));
   if (/^[A-Z]{6}=X$/.test(s)) return fx(s.slice(0, 6));
   const colon = s.indexOf(":");
   if (colon >= 0) {
@@ -63,6 +65,7 @@ export function routeSymbol(
     if (!name || !VALID.test(name)) throw badRequest(`Invalid symbol: ${raw}`);
     if (prefix === "BINANCE") return { provider: "binance", ticker: name, canonical: `BINANCE:${name}` };
     if (prefix === "MT5") return mt5(name);
+    if (prefix === "DERIV") return deriv(name.replace(/^(FRX|CRY)(?=[A-Z]{6}$)/, ""));
     if (FX_PREFIXES.has(prefix) && /^[A-Z]{6}$/.test(name)) return fx(name);
     return yahoo(INDEX_ALIASES[name] ?? name);
   }
@@ -76,15 +79,21 @@ export function routeSymbol(
 
 const yahoo = (ticker: string): SymbolRoute => ({ provider: "yahoo", ticker, canonical: ticker });
 const mt5 = (ticker: string): SymbolRoute => ({ provider: "mt5", ticker, canonical: `${MT5_PREFIX}${ticker}` });
+const deriv = (ticker: string): SymbolRoute => ({ provider: "deriv", ticker, canonical: `${DERIV_PREFIX}${ticker}` });
+
+/** Where FX pairs without a provider prefix go (env QT_FX_PROVIDER). */
+export type FxProvider = "yahoo" | "mt5" | "deriv";
 
 export interface MarketDataOptions {
   fetchFn?: FetchFn;
   /** Disk cache directory; undefined = memory only. */
   cacheDir?: string;
   now?: () => number;
-  /** Route FX pairs to the local MT5 bridge instead of Yahoo (env QT_FX_PROVIDER=mt5). */
-  fxProvider?: "yahoo" | "mt5";
+  /** Route FX pairs to the local MT5 bridge or to Deriv instead of Yahoo (env QT_FX_PROVIDER). */
+  fxProvider?: FxProvider;
   mt5BridgeUrl?: string;
+  /** WebSocket factory for the Deriv feed; null or omitted = Deriv off (tests). */
+  derivSocket?: DerivSocketFactory | null;
 }
 
 const HISTORICAL_TTL = 7 * 86400;
@@ -110,9 +119,10 @@ export class MarketData {
   readonly yahoo: YahooProvider;
   readonly binance: BinanceProvider;
   readonly mt5: Mt5Provider;
+  readonly deriv: DerivProvider;
   /** Binance options (public market data). */
   readonly options: BinanceOptions;
-  readonly fxProvider: "yahoo" | "mt5";
+  readonly fxProvider: FxProvider;
   private readonly barsCache: DiskCache<BarsPage>;
   private readonly quoteCache: DiskCache<Quote[]>;
   private readonly eventsCache: DiskCache<CorporateEvent[]>;
@@ -124,6 +134,7 @@ export class MarketData {
     this.yahoo = new YahooProvider(fetchFn, this.now);
     this.binance = new BinanceProvider(fetchFn, opts.cacheDir);
     this.mt5 = new Mt5Provider(fetchFn, opts.mt5BridgeUrl);
+    this.deriv = new DerivProvider(opts.derivSocket ? new DerivClient({ socket: opts.derivSocket }) : null, this.now);
     this.options = new BinanceOptions(fetchFn);
     this.fxProvider = opts.fxProvider ?? "yahoo";
     this.barsCache = new DiskCache<BarsPage>(opts.cacheDir, 300);
@@ -146,14 +157,22 @@ export class MarketData {
     // Bar options only apply to Yahoo; they extend the key so plain requests keep their cache entries.
     const o = route.provider === "yahoo" ? barOptionsKey(opts, interval) : "";
     const key = `${route.provider}:${route.ticker}:${interval}:${to ?? "latest"}:${limit}${o}`;
-    const provider = route.provider === "binance" ? this.binance : route.provider === "mt5" ? this.mt5 : this.yahoo;
+    const provider = route.provider === "binance" ? this.binance : route.provider === "mt5" ? this.mt5 : route.provider === "deriv" ? this.deriv : this.yahoo;
+    // Live-ticking providers: cache the latest page only briefly, so polls do not undo ticks.
+    const live = route.provider === "mt5" || route.provider === "deriv";
     const page = await this.barsCache.getOrFetch(
       key,
-      () => barsTtl(interval, to, this.now(), route.provider === "mt5"),
+      () => barsTtl(interval, to, this.now(), live),
       () => provider.bars(route.ticker, interval, to, limit, route.provider === "yahoo" ? opts : undefined),
       (err) => !(err instanceof HttpError) || err.status >= 500,
     );
-    return { symbol: { ...page.info, symbol: route.canonical }, interval, bars: page.bars, hasMore: page.hasMore };
+    return {
+      symbol: { ...page.info, symbol: route.canonical },
+      interval,
+      bars: page.bars,
+      hasMore: page.hasMore,
+      ...(page.notices?.length ? { notices: page.notices } : {}),
+    };
   }
 
   /** Dividends/splits (and earnings when available) for a symbol; non-Yahoo symbols have none. */
@@ -169,15 +188,20 @@ export class MarketData {
   }
 
   async search(q: string): Promise<SymbolInfo[]> {
-    const [y, b, m] = await Promise.allSettled([this.yahoo.search(q), this.binance.search(q), this.mt5.search(q)]);
+    // Deriv answers over its WebSocket; a slow or unreachable feed must not hold up search.
+    const derivSearch = Promise.race([this.deriv.search(q), new Promise<SymbolInfo[]>((r) => setTimeout(() => r([]), 3000).unref?.())]);
+    const [y, b, m, d] = await Promise.allSettled([this.yahoo.search(q), this.binance.search(q), this.mt5.search(q), derivSearch]);
     if (y.status === "rejected" && b.status === "rejected") throw y.reason instanceof HttpError ? y.reason : providerError("Search failed");
     const ys = y.status === "fulfilled" ? y.value : [];
     const bs = b.status === "fulfilled" ? b.value : [];
     const ms = m.status === "fulfilled" ? m.value : [];
+    const ds = d.status === "fulfilled" ? d.value : [];
     const needle = q.trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
     // Exact Binance base/pair matches (e.g. "btc") lead; then Yahoo; then the rest of Binance.
     const lead = [
       ...ms.filter((s) => s.symbol.slice(MT5_PREFIX.length).replace(/[^A-Z0-9]/gi, "").toUpperCase() === needle),
+      // Deriv: exact names, and titles starting with a longer query ("volatility 10").
+      ...ds.filter((s) => s.symbol.slice(DERIV_PREFIX.length).replace(/[^A-Z0-9]/g, "") === needle || (needle.length >= 6 && s.name.toUpperCase().replace(/[^A-Z0-9]/g, "").startsWith(needle))),
       ...bs.filter((s) => {
         const t = s.symbol.slice(8);
         return t === needle || t === `${needle}USDT`;
@@ -185,7 +209,7 @@ export class MarketData {
     ];
     const merged: SymbolInfo[] = [];
     const seen = new Set<string>();
-    for (const s of [...lead, ...ys, ...ms, ...bs]) {
+    for (const s of [...lead, ...ys, ...ms, ...ds, ...bs]) {
       if (seen.has(s.symbol)) continue;
       seen.add(s.symbol);
       merged.push(s);
@@ -201,17 +225,20 @@ export class MarketData {
     const yTickers = [...new Set(valid.filter((r) => r.provider === "yahoo").map((r) => r.ticker))];
     const bTickers = [...new Set(valid.filter((r) => r.provider === "binance").map((r) => r.ticker))];
     const mTickers = [...new Set(valid.filter((r) => r.provider === "mt5").map((r) => r.ticker))];
+    const dTickers = [...new Set(valid.filter((r) => r.provider === "deriv").map((r) => r.ticker))];
     const cached = (prov: string, tickers: string[], fn: () => Promise<Quote[]>) =>
       tickers.length ? this.quoteCache.getOrFetch(`${prov}:${tickers.join(",")}`, () => 10, fn).catch(() => []) : Promise.resolve([]);
-    const [yq, bq, mq] = await Promise.all([
+    const [yq, bq, mq, dq] = await Promise.all([
       cached("yahoo", yTickers, () => this.yahoo.quotes(yTickers)),
       cached("binance", bTickers, () => this.binance.quotes(bTickers)),
       mTickers.length ? this.mt5.quotes(mTickers).catch(() => []) : Promise.resolve([]),
+      cached("deriv", dTickers, () => this.deriv.quotes(dTickers)),
     ]);
     const bySymbol = new Map<string, Quote>();
     for (const q of yq) bySymbol.set(q.symbol, q);
     for (const q of bq) bySymbol.set(q.symbol, q);
     for (const q of mq) bySymbol.set(q.symbol, q);
+    for (const q of dq) bySymbol.set(q.symbol, q);
     const out: Quote[] = [];
     raws.forEach((raw, i) => {
       const r = routes[i];

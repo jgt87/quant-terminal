@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## v0.5.0 — 2026-11-07
+
+- Deriv data feed (no account, API token, app id or demo login): Deriv's public WebSocket for forex (the 25 pairs Deriv lists plus history for many unlisted ones such as USDZAR, USDTRY, EURSEK, USDCNH), metals (XAU, XAG, XPT, XPD), 12 stock indices (OTC_NDX, OTC_SPC, OTC_GDAXI, ...), BTC and ETH, and Deriv's synthetic indices. Symbols `DERIV:<name>` (for example `DERIV:EURUSD`, `DERIV:R_100`), in symbol search, watchlist quotes and charts, with live ticks on the chart and in the watchlist through `/api/stream`. One shared connection with request spacing (Deriv's rate limit), a retry after a rate-limit answer, reconnects with backoff that restore live subscriptions, and retries of subscriptions refused while a market is closed. Weekly and monthly bars are built from daily bars. Code in `server/src/providers/deriv.ts`, tests in `server/test/deriv.test.ts`.
+- `Start Terminal (Deriv FX).cmd` (or `QT_FX_PROVIDER=deriv`): FX pairs (`EURUSD=X`, `FX:EURUSD`, `OANDA:EURUSD`) come from Deriv with live ticks. `YAHOO:EURUSD=X` reaches Yahoo in every mode. The Deriv feed needs Node.js 22 or newer (built-in WebSocket).
+- Data limit notices: the server reports provider limits a request runs into (`notices` on `/api/bars`), and the app shows each one once as a toast. Deriv: history only goes back one year (older requests are answered with "no more history" instead of the latest bars Deriv would return), no volume, weekly / monthly bars built from daily bars, the market is closed, a pair Deriv does not list, and order flow / heatmap / signals / tick replay switched on for a Deriv chart.
+
 ## v0.4.0 — 2026-11-07
 
 - Order book (Binance symbols): the server keeps a live local order book per pair in use (REST snapshot of up to 5000 levels per side plus the 100 ms depth update stream, sequence-checked, resynced after a gap; polls snapshots while the stream is down and reconnects with backoff). Feeds start on the first request and stop after 5 minutes unused, at most 8 at once. `GET /api/depth` (book, optionally grouped by a price step), `/api/depth/stream` (SSE, up to 4 updates a second), `/api/depth/history` (heatmap frames), `/api/depth/status`. Core `orderbook` module (book, binning, heatmap frames).

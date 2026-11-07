@@ -28,7 +28,7 @@ export const INTERVAL_SECONDS: Record<Interval, number> = {
   "1M": 2592000,
 };
 
-export type Provider = "yahoo" | "binance" | "mt5";
+export type Provider = "yahoo" | "binance" | "mt5" | "deriv";
 export type SymbolType = "stock" | "index" | "crypto" | "fx" | "etf" | "future" | "other";
 
 export interface SymbolInfo {
@@ -60,6 +60,8 @@ export interface BarsResponse {
   bars: Bar[];
   /** False when the provider has no older data before bars[0]. */
   hasMore: boolean;
+  /** Limits of the provider the user ran into (e.g. history depth, no volume), to show them once. */
+  notices?: string[];
 }
 
 export interface ApiError {

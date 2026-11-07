@@ -52,6 +52,9 @@ describe("tick helpers", () => {
   it("detects live symbols", () => {
     expect(isLiveSymbol("MT5:EURUSD")).toBe(true);
     expect(isLiveSymbol("EURUSD=X", "mt5")).toBe(true);
+    expect(isLiveSymbol("DERIV:EURUSD")).toBe(true);
+    expect(isLiveSymbol("deriv:R_100")).toBe(true);
+    expect(isLiveSymbol("EURUSD=X", "deriv")).toBe(true);
     expect(isLiveSymbol("AAPL", "yahoo")).toBe(false);
   });
 });

@@ -1,7 +1,8 @@
 import { spawn } from "node:child_process";
 import { createServer } from "node:http";
 import { createApp } from "./app";
-import { MarketData } from "./providers";
+import { MarketData, type FxProvider } from "./providers";
+import { defaultDerivSocket } from "./providers/deriv";
 import { Store } from "./store";
 import path from "node:path";
 import { CACHE_DIR, DATA_DIR, STORE_DIR, WEB_DIST_DIR } from "./paths";
@@ -26,8 +27,9 @@ function openBrowser(): void {
 const app = createApp({
   market: new MarketData({
     cacheDir: CACHE_DIR,
-    fxProvider: process.env.QT_FX_PROVIDER === "mt5" ? "mt5" : "yahoo",
+    fxProvider: (["mt5", "deriv"].includes(process.env.QT_FX_PROVIDER ?? "") ? process.env.QT_FX_PROVIDER : "yahoo") as FxProvider,
     mt5BridgeUrl: process.env.MT5_BRIDGE_URL,
+    derivSocket: defaultDerivSocket,
   }),
   store: new Store(STORE_DIR),
   webDist: WEB_DIST_DIR,

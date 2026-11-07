@@ -46,7 +46,8 @@ export function tickPrice(t: LiveTick): number {
   return t.last && t.last > 0 ? t.last : (t.bid ?? NaN);
 }
 
-/** Whether a symbol is served by the MT5 bridge (and can stream). */
+/** Whether a symbol is served by the MT5 bridge or Deriv (and can stream). */
 export function isLiveSymbol(symbol: string, provider?: string): boolean {
-  return provider === "mt5" || symbol.toUpperCase().startsWith("MT5:");
+  const s = symbol.toUpperCase();
+  return provider === "mt5" || provider === "deriv" || s.startsWith("MT5:") || s.startsWith("DERIV:");
 }

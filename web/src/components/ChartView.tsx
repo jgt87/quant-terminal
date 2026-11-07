@@ -19,6 +19,7 @@ import { fetchTicks } from "../api/orderflow";
 import { useChartData } from "../hooks/useChartData";
 import { useCompareSeries, useCorporateEvents, useTimeframeBars } from "../hooks/useChartExtras";
 import { useTickStream } from "../hooks/useTickStream";
+import { showNotices } from "../api/notices";
 import { displayInterval } from "../data/intervalSpec";
 import { ChartTips } from "./ChartTips";
 import { ValuesTooltip } from "./ValuesTooltip";
@@ -32,6 +33,8 @@ import type { MenuItem } from "./menuTypes";
 import { CompareLegend, IndicatorLegend, MainLegend } from "./Legend";
 import { ReplayBar } from "./replay/ReplayBar";
 import "../styles/chart.css";
+
+const DERIV_FLOW_NOTICE = "Deriv has no trades or order book, so order flow, the liquidity heatmap, order-flow signals and tick replay are not available for Deriv symbols (they work on Binance symbols).";
 
 export interface ChartViewProps {
   symbol: string;
@@ -142,6 +145,12 @@ export function ChartView(p: ChartViewProps) {
   useOrderFlow(engine, p.symbol, p.interval, p.chartSettings?.orderFlow, data.info?.provider, data.status === "ready", transformOf(p.chartType) != null);
   useDepthHeatmap(engine, p.symbol, Boolean(p.chartSettings?.orderFlow?.heatmap) && transformOf(p.chartType) == null, data.info?.provider, data.status === "ready");
   useFlowSignals(engine, p.symbol, p.interval, Boolean(p.chartSettings?.orderFlow?.signals) && transformOf(p.chartType) == null, data.info?.provider, data.status === "ready");
+  // Order flow needs trades and the order book: on a Deriv chart, say so instead of showing nothing.
+  const flowFlags = p.chartSettings?.orderFlow;
+  const wantsFlow = Boolean(flowFlags?.footprint || flowFlags?.bubbles || flowFlags?.delta || flowFlags?.cvd || flowFlags?.heatmap || flowFlags?.signals);
+  useEffect(() => {
+    if (wantsFlow && data.info?.provider === "deriv") showNotices([DERIV_FLOW_NOTICE]);
+  }, [wantsFlow, data.info?.provider]);
   const intradayData = (engine?.meta.intervalSec ?? 86400) < 86400;
   const stockLike = data.info?.type === "stock" || data.info?.type === "etf";
   useEffect(() => engine?.setShadeExtended(Boolean(sym?.extendedHours) && intradayData && stockLike), [engine, sym?.extendedHours, intradayData, stockLike]);

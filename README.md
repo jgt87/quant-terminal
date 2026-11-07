@@ -8,8 +8,8 @@ a screener, portfolios, paper trading, user scripts and a backtesting engine wit
 
 > **Market data notice.** Quant Terminal ships **without any commercial or licensed datafeed**: no API keys, no
 > paid subscriptions, no exchange data agreements. Out of the box it reads public, keyless endpoints of Yahoo
-> Finance and Binance, and optionally your own MetaTrader 5 terminal. Only the MT5 bridge gives tick-by-tick
-> real-time prices; Yahoo data can be delayed and is never a broker feed. See [Market data](#market-data) for
+> Finance, Binance and Deriv, and optionally your own MetaTrader 5 terminal. The MT5 bridge and Deriv give
+> tick-by-tick live prices; Yahoo data can be delayed and is never a broker feed. See [Market data](#market-data) for
 > the details and limitations before relying on any price shown.
 
 ## Features
@@ -18,7 +18,7 @@ a screener, portfolios, paper trading, user scripts and a backtesting engine wit
   line with markers, step line, Heikin-Ashi, Renko, Kagi, Line Break, Point & Figure and Range; log, percent,
   indexed-to-100 and inverted scales; price axis on the left, right or both sides; indicators can share panes or use
   their own (left or hidden) scale; panes maximise and collapse; symbol compare, custom intervals, bar replay (also
-  tick by tick for Binance and MT5), chart time zones (UTC, local, exchange or a named zone) with session breaks,
+  tick by tick for Binance and MT5), live ticks for MT5 and Deriv symbols, chart time zones (UTC, local, exchange or a named zone) with session breaks,
   dark, light and high-contrast themes, English and Dutch interface.
 - **Indicators and studies:** 75 built-in indicators: moving averages (SMA, EMA, WMA, DEMA, TEMA, Hull, ALMA, KAMA,
   LSMA, SMMA, VWMA, McGinley, ZLEMA, VIDYA), bands and trend overlays (Bollinger, Keltner, Donchian, Envelope,
@@ -57,7 +57,7 @@ git clone https://github.com/jgt87/quant-terminal.git
 ```
 
 Then double-click **`Start Terminal.cmd`** (or **`Start Terminal (MT5).cmd`** for live prices from a running
-MetaTrader 5). It updates to the latest release, installs the dependencies, builds the app, starts the local server
+MetaTrader 5, or **`Start Terminal (Deriv FX).cmd`** for live forex prices from Deriv without any account). It updates to the latest release, installs the dependencies, builds the app, starts the local server
 and opens **http://localhost:4180** in your browser once it is ready. Keep its window open while you use the
 terminal; closing it stops the server.
 
@@ -83,7 +83,7 @@ npm start          # http://localhost:4180
 Development with hot reload: `npm run dev`, then open http://localhost:5180.
 
 ### Requirements
-- Node.js 20.19+ or 22.12+ (running the tests needs 22.12+)
+- Node.js 20.19+ or 22.12+ (running the tests and the Deriv feed need 22.12+: Node 20 has no built-in WebSocket)
 - Git, for automatic updates (optional)
 - Optional, for the MT5 feed: Windows, MetaTrader 5 installed, running and logged in, and 64-bit Python 3.12
   (`bridge\setup.cmd` once)
@@ -99,11 +99,12 @@ The server picks a source per symbol. Everything is cached on disk in `data/cach
 | Binance (public WebSocket streams) | order book and trades of the pairs whose heatmap, depth ladder or signals are open | no | **yes**: 100 ms depth updates |
 | Binance options (public REST API) | option chains of BTC, ETH, BNB, SOL, XRP, DOGE, gold, silver | no | quotes cached for 15 s |
 | MetaTrader 5 (local bridge) | `MT5:<broker symbol>`, optionally all FX pairs | no (your own logged-in terminal) | **yes**: tick stream |
+| Deriv (public WebSocket) | `DERIV:EURUSD`, `DERIV:XAUUSD`, `DERIV:OTC_NDX`, `DERIV:BTCUSD`, `DERIV:R_100`; optionally all FX pairs | no (no account, token or app id) | **yes**: tick stream |
 
 ### No datafeed API included
 
-There is no paid or licensed market-data provider in this project, and nothing is connected to one. Yahoo and
-Binance are used through their public endpoints without an account. If you need guaranteed, licensed real-time
+There is no paid or licensed market-data provider in this project, and nothing is connected to one. Yahoo,
+Binance and Deriv are used through their public endpoints without an account. If you need guaranteed, licensed real-time
 data, add a provider in `server/src/providers/` (the `Provider` interface: symbol search, bars, quotes) and route
 symbols to it in `server/src/providers/index.ts`.
 
@@ -135,6 +136,27 @@ use only. In practice:
 Binance prices are real time at the source, but the app polls the public REST API with the same refresh rates as
 above (there is no Binance websocket stream), so a candle can lag by up to 30 s. `api.binance.com` is not
 reachable from some regions (for example the US). Only crypto pairs listed on Binance are available.
+
+### Deriv (live forex without an account)
+
+Deriv's public WebSocket (`wss://api.derivws.com/trading/v1/options/ws/public`) serves prices without an account,
+API token, app id or demo login. The server keeps one connection open while it is used, spaces requests out to
+stay under Deriv's rate limit, reconnects after a drop and restores live subscriptions.
+
+- **Symbols:** `DERIV:<name>`. Forex: the 25 pairs Deriv lists (majors and minors such as `DERIV:EURUSD`,
+  `DERIV:USDJPY`, `DERIV:AUDNZD`, `DERIV:USDMXN`, `DERIV:USDPLN`); many other pairs (for example `DERIV:USDZAR`,
+  `DERIV:USDTRY`, `DERIV:EURSEK`, `DERIV:USDCNH`) have history but are not listed, so live prices may not arrive.
+  Metals `DERIV:XAUUSD`, `XAGUSD`, `XPTUSD`, `XPDUSD`; 12 stock indices (`DERIV:OTC_NDX`, `OTC_SPC`, `OTC_DJI`,
+  `OTC_GDAXI`, `OTC_FTSE`, `OTC_N225`, ...); `DERIV:BTCUSD`, `DERIV:ETHUSD`; and Deriv's synthetic indices
+  (`DERIV:R_100`, `DERIV:1HZ100V`, ...), which are generated by Deriv, not real markets. Symbol search lists them.
+- **Forex routing:** `Start Terminal (Deriv FX).cmd` (or `QT_FX_PROVIDER=deriv`) sends `EURUSD=X`, `FX:EURUSD`
+  and `OANDA:EURUSD` to Deriv. `YAHOO:EURUSD=X` still reaches Yahoo in every mode.
+- **Limits, shown in the app as "Data limit" notices when you run into them:** history goes back **one year**
+  (all intervals); there is **no volume**; weekly and monthly bars are built from daily bars; forex, metals and
+  indices are closed at the weekend and outside their hours (charts update when the market reopens); order flow,
+  the liquidity heatmap, order-flow signals and tick replay need trades and an order book, which Deriv does not
+  provide. Prices are Deriv's own quotes, not exchange data, so they can differ slightly from your broker.
+- Needs Node.js 22 or newer (built-in WebSocket).
 
 ## MetaTrader 5 bridge (live prices)
 

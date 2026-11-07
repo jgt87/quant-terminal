@@ -8,6 +8,8 @@ export interface BarsPage {
   info: SymbolInfo;
   bars: Bar[];
   hasMore: boolean;
+  /** Provider limits to tell the user about (see BarsResponse.notices). */
+  notices?: string[];
 }
 
 /** Optional bar variants (Yahoo only; other providers ignore them). */

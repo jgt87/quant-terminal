@@ -1,6 +1,7 @@
 // Typed access to the server REST API. Bar requests for the chart go through `BarsLoader`
 // so a quick symbol/interval change aborts the stale request.
 
+import { showNotices } from "./notices";
 import type { BacktestConfig, BacktestResult, BarsResponse, CorporateEvent, Interval, Layout, Quote, SymbolInfo, Watchlist } from "@qt/core";
 
 export class ApiError extends Error {
@@ -92,6 +93,7 @@ export function getBars(q: BarsQuery, signal?: AbortSignal): Promise<BarsRespons
         const at = Date.now();
         for (const [k, v] of recentBars) if (at - v.at > BARS_REUSE_MS) recentBars.delete(k);
         recentBars.set(url, { at, value });
+        showNotices(value.notices);
         return value;
       })
       .finally(() => {
