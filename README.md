@@ -101,7 +101,7 @@ npm start          # http://localhost:4180
 Development with hot reload: `npm run dev`, then open http://localhost:5180.
 
 ### Requirements
-- Node.js 20.19+ or 22.12+ (running the tests and the Deriv feed need 22.12+: Node 20 has no built-in WebSocket)
+- Node.js 20.19+ or 22.12+ (the Deriv feed needs 22.12+: Node 20 has no built-in WebSocket)
 - Git, for automatic updates (optional)
 - Optional, for the MT5 feed: Windows, MetaTrader 5 installed, running and logged in, and 64-bit Python 3.12
   (`bridge\setup.cmd` once)
@@ -152,7 +152,8 @@ use only. In practice:
 ### Binance limitations
 
 Binance prices are real time at the source, but the app polls the public REST API with the same refresh rates as
-above (there is no Binance websocket stream), so a candle can lag by up to 30 s. `api.binance.com` is not
+above (candles and quotes do not use a websocket stream), so a candle can lag by up to 30 s. Only the order book and
+trades behind the heatmap, depth ladder and order-flow signals come over Binance's public WebSocket. `api.binance.com` is not
 reachable from some regions (for example the US). Only crypto pairs listed on Binance are available.
 
 ### Deriv (live forex without an account)
@@ -216,13 +217,13 @@ The bridge port can be changed with `MT5_BRIDGE_PORT`, and the server's bridge a
   paper trading); also serves the built web app.
 - `web/`: React + Vite app with its own canvas chart engine (`web/src/chart/`).
 - `bridge/`: the MetaTrader 5 market-data bridge.
-- `tools/`: launcher helpers (`update.mjs` auto-updater, `ensure-deps.mjs`), browser end-to-end checks and screenshot sheets.
+- `tools/`: the shared launcher (`launch.mjs`), the auto-updater (`update.mjs`), the dependency check
+  (`ensure-deps.mjs`) and the changelog reader behind What's new (`changelog.mjs`).
 
-Commands: `npm test` · `npm run typecheck` · `npm run build` · `npm run dev`.
+Commands: `npm run build` · `npm start` · `npm run dev` · `npm run typecheck`.
 
-## Docs
-`docs/SPEC.md` (specification) · `docs/PLAN.md` (status) · `docs/ROADMAP.md` (next features) ·
-`CHANGELOG.md` · `AGENTS.md` (conventions)
+The repository holds only what is needed to install, build and run the app; tests, design notes and developer
+tools are kept out of it. Changes per release are in `CHANGELOG.md`.
 
 ## Disclaimer
 

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## v0.7.2 — 2026-11-07
+
+- README: brought up to date with the trimmed repository (project layout, commands, no docs section) and a corrected note on which Binance data comes over its WebSocket.
+
 ## v0.7.1 — 2026-11-07
 
 - Repository: only what is needed to install, build and run the app is tracked. Tests, design docs, verification screenshots, developer tools and assistant notes are now git-ignored and kept locally; an update removes them from installed copies. Nothing changes in the app itself.
