@@ -22,3 +22,25 @@ Thumbs.db
 
 # local code index (Repowise)
 .repowise/
+
+# not needed to install, build or run the app: kept locally only
+# tests
+/core/test/
+/server/test/
+/web/test/
+/vitest.config.ts
+# design notes, specs, verification shots (the README screenshot stays)
+/docs/*
+!/docs/screenshot.png
+# developer tools (the launcher, updater, dependency check and changelog reader stay)
+/tools/parity/
+/tools/catalog-skeleton.mjs
+/tools/drawing-sheets.mjs
+/tools/drawing-specs.ts
+/tools/e2e.mjs
+/tools/e2e-panels.mjs
+/tools/menu-shots.mjs
+/tools/test-drawings.mjs
+# assistant notes
+/AGENTS.md
+/.claude/

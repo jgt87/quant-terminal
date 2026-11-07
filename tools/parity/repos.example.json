@@ -1,7 +1,0 @@
-{
- "$comment": "Format of data/parity/repos.json (git-ignored, so project names stay out of the repository). reuse: 'port' when the license (MIT, Apache-2.0, BSD) allows adapting code, otherwise 'features' (only what the project offers is indexed). terms: product names that must never appear in our code or docs; check-names also blocks every project's name, owner and repo name.",
- "repos": [
-  { "id": "example", "listed": "Example Charts", "repo": "owner/name", "license": "MIT", "reuse": "port", "kind": "terminal" }
- ],
- "terms": ["Example Product"]
-}

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## v0.7.1 — 2026-11-07
+
+- Repository: only what is needed to install, build and run the app is tracked. Tests, design docs, verification screenshots, developer tools and assistant notes are now git-ignored and kept locally; an update removes them from installed copies. Nothing changes in the app itself.
+
 ## v0.7.0 — 2026-11-07
 
 - Feature parity loop: `npm run parity` indexes a set of open-source charting projects and our own code against the reference platform's public feature set (`tools/parity/catalog.json`, about 230 features), lists our gaps by how common they are, builds a work packet per gap, records built features in a ledger (`tools/parity/adopted.json`) and checks that no project or product names reach the repository. Process: `docs/parity/PROCESS.md`; coverage after each index: `docs/parity/coverage.json` (228 of 263 after the first round).
